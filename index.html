@@ -6,20 +6,26 @@
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PromptForge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
             colors: {
-              'primary': '#4f46e5',
-              'primary-hover': '#4338ca',
-              'secondary': '#1f2937',
-              'secondary-light': '#374151',
-              'background': '#111827',
-              'text-main': '#f9fafb',
-              'text-secondary': '#d1d5db',
-              'border-color': '#374151',
+              'primary': '#3b82f6', // blue-500
+              'primary-hover': '#2563eb', // blue-600
+              'secondary': '#1e293b', // slate-800
+              'secondary-light': '#334155', // slate-700
+              'background': '#0f172a', // slate-900
+              'text-main': '#e2e8f0', // slate-200
+              'text-secondary': '#94a3b8', // slate-400
+              'border-color': '#334155', // slate-700
             }
           }
         }
@@ -38,6 +44,11 @@
 }
 </script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
 </head>
   <body class="bg-background">
     <div id="root"></div>

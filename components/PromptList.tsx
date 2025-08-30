@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import type { Prompt } from '../types';
 import IconButton from './IconButton';
@@ -19,7 +20,7 @@ const PromptList: React.FC<PromptListProps> = ({ prompts, activePromptId, onSele
   };
 
   return (
-    <div className="bg-secondary h-full p-2">
+    <div className="h-full p-2">
         <h2 className="text-lg font-semibold text-text-main px-2 pb-2">Prompts</h2>
       <ul className="space-y-1">
         {prompts.map((prompt) => (
@@ -28,8 +29,8 @@ const PromptList: React.FC<PromptListProps> = ({ prompts, activePromptId, onSele
               onClick={() => onSelectPrompt(prompt.id)}
               className={`w-full text-left p-2 rounded-md group flex justify-between items-center transition-colors duration-150 ${
                 activePromptId === prompt.id
-                  ? 'bg-primary text-white'
-                  : 'hover:bg-secondary-light text-text-secondary'
+                  ? 'bg-primary/10 text-primary font-medium'
+                  : 'hover:bg-secondary-light/60 text-text-secondary'
               }`}
             >
               <span className="truncate flex-1 pr-2">{prompt.title}</span>

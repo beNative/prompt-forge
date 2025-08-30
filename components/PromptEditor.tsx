@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import type { Prompt, Settings } from '../types';
 import { llmService } from '../services/llmService';
@@ -97,14 +98,14 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
 
   return (
     <div className="flex-1 flex flex-col p-4 md:p-6 bg-background overflow-y-auto">
-      <div className="flex justify-between items-center mb-4 gap-4">
+      <div className="flex justify-between items-center mb-6 gap-4">
         <div className="flex items-center gap-3 flex-1 min-w-0">
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Prompt Title"
-              className="bg-transparent text-2xl font-bold text-text-main focus:outline-none w-full truncate"
+              className="bg-transparent text-3xl font-semibold text-text-main focus:outline-none w-full truncate placeholder:text-slate-600"
             />
             {isDirty && (
                 <div className="w-2.5 h-2.5 bg-yellow-400 rounded-full animate-pulse flex-shrink-0" title="Unsaved changes"></div>
@@ -112,7 +113,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         </div>
         <button
             onClick={() => onDelete(prompt.id)}
-            className="flex items-center gap-2 px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white transition-colors duration-200 disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-md bg-transparent border border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors duration-200 disabled:opacity-50"
           >
             <TrashIcon className="w-5 h-5" />
             Delete
@@ -124,7 +125,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={handleContentKeyDown}
         placeholder="Enter your prompt here..."
-        className="w-full flex-1 p-4 rounded-md bg-secondary text-text-secondary border border-border-color focus:ring-2 focus:ring-primary focus:border-primary resize-none font-mono text-sm"
+        className="w-full flex-1 p-4 rounded-lg bg-secondary text-text-main border border-border-color focus:ring-2 focus:ring-primary focus:border-primary resize-none font-mono text-base"
       />
       
       {error && <div className="mt-4 text-red-400 p-3 bg-red-900/50 rounded-md">{error}</div>}
@@ -141,7 +142,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         <button
           onClick={handleRefine}
           disabled={isRefining || !content.trim()}
-          className="flex items-center gap-2 px-4 py-2 rounded-md bg-primary hover:bg-primary-hover text-white font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-md bg-primary hover:bg-primary-hover text-white font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
         >
           {isRefining ? <Spinner /> : <SparklesIcon className="w-5 h-5" />}
           {isRefining ? 'Refining...' : 'Refine with AI'}

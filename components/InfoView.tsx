@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 
 // Let TypeScript know that 'marked' is available globally from the script tag in index.html
@@ -90,10 +91,10 @@ const InfoView: React.FC = () => {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
+            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
               activeTab === tab
-                ? 'border-b-2 border-primary text-primary'
-                : 'text-text-secondary hover:text-text-main'
+                ? 'border-primary text-text-main'
+                : 'border-transparent text-text-secondary hover:text-text-main'
             }`}
           >
             {tab}
@@ -108,14 +109,14 @@ const InfoView: React.FC = () => {
       {/* Styles for the rendered markdown content */}
       <style>{`
         .markdown-content h1, .markdown-content h2, .markdown-content h3 {
-            color: #f9fafb; /* text-main */
+            color: #e2e8f0; /* text-main */
             margin-top: 1.5em;
             margin-bottom: 0.8em;
             font-weight: 600;
         }
         .markdown-content h1 {
             font-size: 1.875rem; /* text-3xl */
-            border-bottom: 1px solid #374151; /* border-border-color */
+            border-bottom: 1px solid #334155; /* border-border-color */
             padding-bottom: 0.4em;
         }
         .markdown-content h2 {
@@ -143,14 +144,14 @@ const InfoView: React.FC = () => {
             margin-bottom: 0.5em;
         }
         .markdown-content a {
-            color: #6d28d9; /* A nice purple for links */
+            color: #3b82f6; /* primary */
             text-decoration: underline;
         }
         .markdown-content a:hover {
-            color: #8b5cf6;
+            color: #60a5fa;
         }
         .markdown-content code {
-            background-color: #111827; /* bg-background */
+            background-color: #0f172a; /* bg-background */
             padding: 0.2em 0.4em;
             margin: 0;
             font-size: 85%;
@@ -158,7 +159,7 @@ const InfoView: React.FC = () => {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
         }
         .markdown-content pre {
-            background-color: #111827; /* bg-background */
+            background-color: #0f172a; /* bg-background */
             padding: 1em;
             border-radius: 6px;
             overflow-x: auto;

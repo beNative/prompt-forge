@@ -1,4 +1,5 @@
 
+
 import React, { useEffect } from 'react';
 
 interface ModalProps {
@@ -22,11 +23,11 @@ const Modal: React.FC<ModalProps> = ({ onClose, children, title }) => {
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 transition-opacity duration-300"
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300"
       onClick={onClose}
     >
       <div
-        className="bg-secondary rounded-lg shadow-xl w-full max-w-lg mx-4 border border-border-color animate-fade-in-up"
+        className="bg-background rounded-lg shadow-xl w-full max-w-lg mx-4 border border-border-color animate-fade-in-up"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center p-4 border-b border-border-color">

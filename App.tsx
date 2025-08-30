@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import PromptList from './components/PromptList';
@@ -109,7 +110,7 @@ export default function App() {
       <main className="flex flex-1 overflow-hidden">
         {view === 'editor' ? (
           <>
-            <div className="w-1/4 max-w-xs border-r border-border-color overflow-y-auto">
+            <div className="w-72 flex-shrink-0 border-r border-border-color overflow-y-auto bg-secondary">
               <PromptList
                 prompts={prompts}
                 activePromptId={activePromptId}
@@ -117,7 +118,7 @@ export default function App() {
                 onDeletePrompt={handleDeletePrompt}
               />
             </div>
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col bg-background">
               {activePrompt ? (
                 <PromptEditor
                   key={activePrompt.id}

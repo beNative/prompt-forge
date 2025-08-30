@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { LLMStatus } from '../types';
 
@@ -55,9 +56,6 @@ const StatusBar: React.FC<StatusBarProps> = ({ status, modelName, promptCount, l
         <span>Prompts: <span className="font-semibold text-text-main">{promptCount}</span></span>
         <div className="h-4 w-px bg-border-color"></div>
         <span>Last Saved: <span className="font-semibold text-text-main">{formatTimestamp(lastSaved)}</span></span>
-      </div>
-      <div className="text-gray-500 opacity-75">
-        Designed by Tim Sinaeve
       </div>
     </footer>
   );
