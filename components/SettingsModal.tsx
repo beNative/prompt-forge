@@ -148,7 +148,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
           <button
             onClick={handleSave}
             disabled={!currentSettings.llmProviderUrl || !currentSettings.llmModelName}
-            className="px-4 py-2 rounded-md bg-primary hover:bg-primary-hover text-white font-semibold disabled:opacity-50"
+            className="px-4 py-2 rounded-md bg-primary hover:bg-primary-hover text-primary-text font-semibold disabled:opacity-50"
           >
             Save
           </button>

@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { PlusIcon, FileIcon } from './Icons';
 
@@ -18,7 +17,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNewPrompt }) => 
                 </p>
                 <button
                     onClick={onNewPrompt}
-                    className="flex items-center gap-2 px-6 py-3 rounded-lg bg-primary hover:bg-primary-hover text-white font-semibold transition-all duration-200 shadow-lg shadow-primary/30 transform hover:scale-105"
+                    className="flex items-center gap-2 px-6 py-3 rounded-lg bg-primary hover:bg-primary-hover text-primary-text font-semibold transition-all duration-200 shadow-lg shadow-primary/30 transform hover:scale-105"
                 >
                     <PlusIcon className="w-5 h-5" />
                     Create New Prompt

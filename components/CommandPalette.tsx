@@ -93,8 +93,8 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
                   command.action();
                   onClose();
                 }}
-                className={`p-2 rounded-md cursor-pointer text-text-secondary ${
-                  selectedIndex === index ? 'bg-primary text-white' : 'hover:bg-secondary-light'
+                className={`p-2 rounded-md cursor-pointer ${
+                  selectedIndex === index ? 'bg-primary text-primary-text' : 'text-text-main hover:bg-secondary-light'
                 }`}
               >
                 {command.name}

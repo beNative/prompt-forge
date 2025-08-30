@@ -53,9 +53,9 @@ const LoggerPanel: React.FC<LoggerPanelProps> = ({ isVisible, onToggleVisibility
         <h3 className="font-semibold text-text-main">Application Logs</h3>
         <div className="flex items-center gap-2">
           <span className="text-xs text-text-secondary mr-2">Filter:</span>
-          <button onClick={() => setFilter('ALL')} className={`px-2 py-1 text-xs rounded ${filter === 'ALL' ? 'bg-primary text-white' : 'bg-secondary-light hover:bg-border-color'}`}>ALL</button>
+          <button onClick={() => setFilter('ALL')} className={`px-2 py-1 text-xs rounded ${filter === 'ALL' ? 'bg-primary text-primary-text' : 'bg-secondary-light hover:bg-border-color text-text-main'}`}>ALL</button>
           {logLevels.map(level => (
-            <button key={level} onClick={() => setFilter(level)} className={`px-2 py-1 text-xs rounded ${filter === level ? 'bg-primary text-white' : 'bg-secondary-light hover:bg-border-color'}`}>{level}</button>
+            <button key={level} onClick={() => setFilter(level)} className={`px-2 py-1 text-xs rounded ${filter === level ? 'bg-primary text-primary-text' : 'bg-secondary-light hover:bg-border-color text-text-main'}`}>{level}</button>
           ))}
           <div className="h-4 w-px bg-border-color mx-1"></div>
           <IconButton onClick={handleSaveLog} tooltip="Save Log" variant="ghost" size="sm">
