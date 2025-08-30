@@ -12,17 +12,17 @@ interface StatusBarProps {
 const statusConfig: Record<LLMStatus, { text: string; color: string; tooltip: string }> = {
   checking: {
     text: 'Checking...',
-    color: 'bg-yellow-500',
+    color: 'bg-warning',
     tooltip: 'Attempting to connect to the local LLM provider.',
   },
   connected: {
     text: 'Connected',
-    color: 'bg-green-500',
+    color: 'bg-success',
     tooltip: 'Successfully connected to the local LLM provider.',
   },
   error: {
     text: 'Connection Error',
-    color: 'bg-red-500',
+    color: 'bg-error',
     tooltip: 'Failed to connect. Check your settings and ensure the provider is running.',
   },
 };

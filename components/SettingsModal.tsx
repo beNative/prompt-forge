@@ -97,7 +97,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             </button>
         </div>
 
-        {detectionError && <p className="text-center text-sm text-red-400">{detectionError}</p>}
+        {detectionError && <p className="text-center text-sm text-destructive-text">{detectionError}</p>}
         
         <div>
           <label htmlFor="llmService" className="block text-sm font-medium text-text-secondary mb-1">

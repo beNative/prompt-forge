@@ -37,9 +37,16 @@
         --color-tooltip-text: 248 250 252; /* slate-50 */
         --color-grid-pattern: 0 0 0 / 0.05;
         --color-modal-backdrop: 226 232 240 / 0.8; /* slate-200 at 80% opacity */
-        --color-destructive-text: 239 68 68; /* red-500 */
+        /* Semantic Colors */
+        --color-destructive-text: 220 38 38; /* red-600 */
         --color-destructive-border: 239 68 68 / 0.4;
+        --color-destructive-bg: 254 226 226; /* red-100 */
         --color-destructive-bg-hover: 239 68 68 / 0.1;
+        --color-success: 34 197 94; /* green-500 */
+        --color-warning: 234 179 8; /* yellow-500 */
+        --color-error: 239 68 68; /* red-500 */
+        --color-info: 59 130 246; /* blue-500 */
+        --color-debug: 16 185 129; /* emerald-500 */
         /* Syntax Highlighting */
         --color-syntax-keyword: 219 39 119; /* pink-600 */
         --color-syntax-string: 5 150 105; /* emerald-600 */
@@ -62,9 +69,16 @@
         --color-tooltip-text: 15 23 42; /* slate-900 */
         --color-grid-pattern: 255 255 255 / 0.04;
         --color-modal-backdrop: 30 41 59 / 0.8; /* slate-800 at 80% opacity */
+        /* Semantic Colors */
         --color-destructive-text: 248 113 113; /* red-400 */
         --color-destructive-border: 248 113 113 / 0.4;
+        --color-destructive-bg: 153 27 27 / 0.5; /* red-900 at 50% opacity */
         --color-destructive-bg-hover: 248 113 113 / 0.1;
+        --color-success: 74 222 128; /* green-400 */
+        --color-warning: 250 204 21; /* yellow-400 */
+        --color-error: 248 113 113; /* red-400 */
+        --color-info: 96 165 250; /* blue-400 */
+        --color-debug: 52 211 153; /* emerald-400 */
         /* Syntax Highlighting */
         --color-syntax-keyword: 249 115 222; /* pink-400 */
         --color-syntax-string: 52 211 153; /* emerald-400 */
@@ -169,7 +183,13 @@
                 'text': withOpacity('--color-destructive-text'),
                 'border': withOpacity('--color-destructive-border'),
                 'bg-hover': withOpacity('--color-destructive-bg-hover'),
+                'bg': withOpacity('--color-destructive-bg'),
               },
+              'success': withOpacity('--color-success'),
+              'warning': withOpacity('--color-warning'),
+              'error': withOpacity('--color-error'),
+              'info': withOpacity('--color-info'),
+              'debug': withOpacity('--color-debug'),
               'tooltip': {
                 'bg': withOpacity('--color-tooltip-bg'),
                 'text': withOpacity('--color-tooltip-text'),

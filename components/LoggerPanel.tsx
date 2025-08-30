@@ -12,10 +12,10 @@ interface LoggerPanelProps {
 }
 
 const logLevelColors: Record<LogLevel, string> = {
-  DEBUG: 'bg-green-500',
-  INFO: 'bg-blue-500',
-  WARNING: 'bg-yellow-500',
-  ERROR: 'bg-red-500',
+  DEBUG: 'bg-debug',
+  INFO: 'bg-info',
+  WARNING: 'bg-warning',
+  ERROR: 'bg-error',
 };
 
 const logLevels: LogLevel[] = ['DEBUG', 'INFO', 'WARNING', 'ERROR'];

@@ -163,7 +163,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         </pre>
       </div>
       
-      {error && <div className="mt-4 text-red-400 p-3 bg-red-900/50 rounded-md">{error}</div>}
+      {error && <div className="mt-4 text-destructive-text p-3 bg-destructive-bg rounded-md">{error}</div>}
 
       <div className="mt-4 flex justify-between items-center">
         <div className="flex items-center gap-1">
