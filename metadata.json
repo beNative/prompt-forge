@@ -1,0 +1,5 @@
+{
+  "name": "PromptForge",
+  "description": "An application to manage and refine LLM prompts with the assistance of a local AI provider. It allows users to create, save, and organize prompts, and leverage a connected local LLM to improve them.",
+  "requestFramePermissions": []
+}

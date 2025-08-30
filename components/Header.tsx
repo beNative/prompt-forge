@@ -1,0 +1,30 @@
+
+import React from 'react';
+import IconButton from './IconButton';
+import { GearIcon, PlusIcon, FileIcon } from './Icons';
+
+interface HeaderProps {
+  onNewPrompt: () => void;
+  onOpenSettings: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onNewPrompt, onOpenSettings }) => {
+  return (
+    <header className="flex items-center justify-between p-3 border-b border-border-color bg-secondary flex-shrink-0">
+      <div className="flex items-center gap-2">
+        <FileIcon className="w-7 h-7 text-primary"/>
+        <h1 className="text-xl font-bold text-text-main">PromptForge</h1>
+      </div>
+      <div className="flex items-center gap-2">
+        <IconButton onClick={onNewPrompt} tooltip="New Prompt">
+          <PlusIcon />
+        </IconButton>
+        <IconButton onClick={onOpenSettings} tooltip="Settings">
+          <GearIcon />
+        </IconButton>
+      </div>
+    </header>
+  );
+};
+
+export default Header;
