@@ -29,7 +29,8 @@
     "productName": "PromptForge",
     "files": [
       "dist/",
-      "index.html"
+      "index.html",
+      "package.json"
     ],
     "directories": {
       "output": "release"
