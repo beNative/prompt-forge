@@ -25,75 +25,65 @@
     <style>
       :root {
         /* Light Theme */
-        --color-primary: 99 102 241; /* indigo-500 */
-        --color-primary-hover: 79 70 229; /* indigo-600 */
+        --color-primary: 8 145 178; /* cyan-600 */
+        --color-primary-hover: 6 182 212; /* cyan-500 */
         --color-primary-text: 255 255 255; /* white */
-        --color-accent: 20 184 166; /* teal-500 */
-        --color-accent-hover: 13 148 136; /* teal-600 */
-        --color-accent-soft-bg: 240 253 250; /* teal-50 */
-        --color-secondary: 248 250 252; /* slate-50 - Sidebar, Header */
-        --color-secondary-light: 241 245 249; /* slate-100 - Inputs, Hovers */
+        --color-accent: 219 39 119; /* pink-600 */
+        --color-accent-hover: 236 72 153; /* pink-500 */
+        --color-accent-soft-bg: 253 232 248; /* pink-50 */
+        --color-secondary: 240 249 255; /* sky-50 - Sidebar */
+        --color-secondary-light: 224 242 254; /* sky-100 - Inputs, Hovers */
         --color-background: 255 255 255; /* white - Main content area */
-        --color-text-main: 15 23 42; /* slate-900 */
-        --color-text-secondary: 71 85 105; /* slate-500 */
-        --color-border: 226 232 240; /* slate-200 */
-        --color-tooltip-bg: 15 23 42; /* slate-900 */
-        --color-tooltip-text: 248 250 252; /* slate-50 */
+        --color-text-main: 17 24 39; /* gray-900 */
+        --color-text-secondary: 75 85 99; /* gray-500 */
+        --color-border: 229 231 235; /* gray-200 */
+        --color-tooltip-bg: 17 24 39; /* gray-900 */
+        --color-tooltip-text: 249 250 251; /* gray-50 */
         --color-grid-pattern: 0 0 0 / 0.05;
-        --color-modal-backdrop: 226 232 240 / 1; /* slate-200 solid */
+        --color-modal-backdrop: 240 249 255 / 1; /* sky-50 solid */
+        --gradient-header-from: 14 116 144; /* cyan-700 */
+        --gradient-header-to: 67 56 202; /* indigo-800 */
         /* Semantic Colors */
-        --color-destructive-text: 220 38 38; /* red-600 */
-        --color-destructive-border: 252 165 165; /* red-300 solid */
-        --color-destructive-bg: 254 226 226; /* red-100 */
-        --color-destructive-bg-hover: 254 202 202; /* red-200 */
-        --color-success: 34 197 94; /* green-500 */
-        --color-warning: 234 179 8; /* yellow-500 */
-        --color-error: 239 68 68; /* red-500 */
-        --color-info: 59 130 246; /* blue-500 */
-        --color-debug: 16 185 129; /* emerald-500 */
-        /* Syntax Highlighting */
-        --color-syntax-keyword: 219 39 119; /* pink-600 */
-        --color-syntax-string: 5 150 105; /* emerald-600 */
-        --color-syntax-function: 79 70 229; /* indigo-600 */
-        --color-syntax-comment: 100 116 139; /* slate-500 */
-        --color-syntax-number: 202 138 4; /* amber-500 */
-        --color-syntax-punctuation: 100 116 139; /* slate-500 */
+        --color-destructive-text: 190 18 60; /* rose-700 */
+        --color-destructive-border: 253 164 175; /* rose-300 */
+        --color-destructive-bg: 255 228 230; /* rose-100 */
+        --color-destructive-bg-hover: 254 205 211; /* rose-200 */
+        --color-success: 21 128 61; /* green-700 */
+        --color-warning: 180 83 9; /* amber-600 */
+        --color-error: 185 28 28; /* red-700 */
+        --color-info: 29 78 216; /* blue-700 */
+        --color-debug: 4 120 87; /* emerald-700 */
       }
       .dark {
         /* Dark Theme */
-        --color-primary: 129 140 248; /* indigo-400 */
-        --color-primary-hover: 165 180 252; /* indigo-300 */
-        --color-primary-text: 15 23 42; /* slate-900 */
-        --color-accent: 45 212 191; /* teal-400 */
-        --color-accent-hover: 94 234 212; /* teal-300 */
-        --color-accent-soft-bg: 20 51 51; /* teal-950 */
-        --color-secondary: 15 23 42; /* slate-900 - Sidebar, Header */
-        --color-secondary-light: 30 41 59; /* slate-800 - Inputs, Hovers */
-        --color-background: 2 6 23; /* slate-950 - Main content area */
-        --color-text-main: 241 245 249; /* slate-100 */
-        --color-text-secondary: 148 163 184; /* slate-400 */
-        --color-border: 51 65 85; /* slate-700 */
-        --color-tooltip-bg: 248 250 252; /* slate-50 */
-        --color-tooltip-text: 15 23 42; /* slate-900 */
+        --color-primary: 34 211 238; /* cyan-400 */
+        --color-primary-hover: 72 224 247; /* cyan-300 */
+        --color-primary-text: 19 78 74; /* cyan-950 */
+        --color-accent: 244 114 182; /* pink-400 */
+        --color-accent-hover: 249 168 212; /* pink-300 */
+        --color-accent-soft-bg: 80 7 49; /* pink-950 */
+        --color-secondary: 17 24 39; /* gray-900 - Sidebar */
+        --color-secondary-light: 31 41 55; /* gray-800 - Inputs, Hovers */
+        --color-background: 3 7 18; /* gray-950 - Main content area */
+        --color-text-main: 243 244 246; /* gray-100 */
+        --color-text-secondary: 156 163 175; /* gray-400 */
+        --color-border: 55 65 81; /* gray-700 */
+        --color-tooltip-bg: 249 250 251; /* gray-50 */
+        --color-tooltip-text: 17 24 39; /* gray-900 */
         --color-grid-pattern: 255 255 255 / 0.04;
-        --color-modal-backdrop: 15 23 42 / 1; /* slate-900 solid */
+        --color-modal-backdrop: 3 7 18 / 1; /* gray-950 solid */
+        --gradient-header-from: 22 78 99; /* cyan-800 */
+        --gradient-header-to: 49 46 129; /* indigo-900 */
         /* Semantic Colors */
-        --color-destructive-text: 248 113 113; /* red-400 */
-        --color-destructive-border: 127 29 29; /* red-800 solid */
-        --color-destructive-bg: 76 29 29; /* red-900 solid */
-        --color-destructive-bg-hover: 153 27 27; /* red-800 */
+        --color-destructive-text: 251 113 133; /* rose-400 */
+        --color-destructive-border: 136 19 55; /* rose-800 */
+        --color-destructive-bg: 136 19 55; /* rose-800 solid */
+        --color-destructive-bg-hover: 159 18 57; /* rose-700 */
         --color-success: 74 222 128; /* green-400 */
-        --color-warning: 250 204 21; /* yellow-400 */
+        --color-warning: 252 211 77; /* amber-300 */
         --color-error: 248 113 113; /* red-400 */
         --color-info: 96 165 250; /* blue-400 */
         --color-debug: 52 211 153; /* emerald-400 */
-        /* Syntax Highlighting */
-        --color-syntax-keyword: 249 115 222; /* pink-400 */
-        --color-syntax-string: 52 211 153; /* emerald-400 */
-        --color-syntax-function: 165 180 252; /* indigo-300 */
-        --color-syntax-comment: 100 116 139; /* slate-500 */
-        --color-syntax-number: 251 191 36; /* amber-400 */
-        --color-syntax-punctuation: 148 163 184; /* slate-400 */
       }
       body {
         font-family: 'Inter', sans-serif;
@@ -135,18 +125,18 @@
         margin: 0;
         overflow: hidden; /* Let the container handle scroll */
       }
-      .token.comment, .token.prolog, .token.doctype, .token.cdata { color: rgb(var(--color-syntax-comment)); font-style: italic; }
-      .token.punctuation { color: rgb(var(--color-syntax-punctuation)); }
-      .token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted { color: rgb(var(--color-syntax-number)); }
-      .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { color: rgb(var(--color-syntax-string)); }
+      .token.comment, .token.prolog, .token.doctype, .token.cdata { color: rgb(var(--color-text-secondary)); font-style: italic; }
+      .token.punctuation { color: rgb(var(--color-text-secondary)); }
+      .token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted { color: rgb(var(--color-accent)); }
+      .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { color: rgb(var(--color-success)); }
       .token.operator, .token.entity, .token.url, .language-css .token.string, .style .token.string { color: rgb(var(--color-text-main)); }
-      .token.atrule, .token.attr-value, .token.keyword { color: rgb(var(--color-syntax-keyword)); }
-      .token.function, .token.class-name { color: rgb(var(--color-syntax-function)); }
-      .token.regex, .token.important, .token.variable { color: rgb(var(--color-syntax-function)); }
+      .token.atrule, .token.attr-value, .token.keyword { color: rgb(var(--color-primary)); }
+      .token.function, .token.class-name { color: rgb(var(--color-info)); }
+      .token.regex, .token.important, .token.variable { color: rgb(var(--color-info)); }
       /* Markdown specific */
       .token.title { color: rgb(var(--color-text-main)); font-weight: 700; }
       .token.code { background-color: rgb(var(--color-secondary-light)); }
-      .token.url > .token.content { color: rgb(var(--color-syntax-string)); }
+      .token.url > .token.content { color: rgb(var(--color-success)); }
       .token.bold { font-weight: bold; }
       .token.italic { font-style: italic; }
       .token.entity { cursor: help; }
@@ -176,6 +166,9 @@
           extend: {
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
+            },
+            backgroundImage: {
+               'header-gradient': 'linear-gradient(to right, var(--gradient-header-from), var(--gradient-header-to))',
             },
             colors: {
               'primary': withOpacity('--color-primary'),

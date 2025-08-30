@@ -15,26 +15,26 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onNewPrompt, onOpenSettings, onToggleInfoView, onToggleLogger, onOpenCommandPalette, isInfoViewActive }) => {
   return (
-    <header className="flex items-center justify-between p-4 border-b border-border-color bg-secondary flex-shrink-0">
+    <header className="flex items-center justify-between p-4 flex-shrink-0 bg-header-gradient text-white shadow-lg">
       <div className="flex items-center gap-3">
-        <FileIcon className="w-7 h-7 text-primary"/>
-        <h1 className="text-xl font-bold text-primary">PromptForge</h1>
+        <FileIcon className="w-7 h-7 text-cyan-200"/>
+        <h1 className="text-xl font-bold text-white">PromptForge</h1>
       </div>
-      <div className="flex items-center gap-2">
-        <IconButton onClick={onNewPrompt} tooltip="New Prompt">
+      <div className="flex items-center gap-2 text-slate-200">
+        <IconButton onClick={onNewPrompt} tooltip="New Prompt" className="hover:text-white">
           <PlusIcon />
         </IconButton>
-        <IconButton onClick={onOpenCommandPalette} tooltip="Command Palette (Ctrl+Shift+P)">
+        <IconButton onClick={onOpenCommandPalette} tooltip="Command Palette (Ctrl+Shift+P)" className="hover:text-white">
           <CommandIcon />
         </IconButton>
-        <IconButton onClick={onToggleInfoView} tooltip="Info" className={isInfoViewActive ? 'bg-secondary-light text-primary' : 'text-info'}>
+        <IconButton onClick={onToggleInfoView} tooltip="Info" className={isInfoViewActive ? 'text-white bg-black/20' : 'hover:text-white'}>
           <InfoIcon />
         </IconButton>
-        <IconButton onClick={onToggleLogger} tooltip="Logs" className="text-debug">
+        <IconButton onClick={onToggleLogger} tooltip="Logs" className="hover:text-white">
           <FileCodeIcon />
         </IconButton>
         <ThemeToggleButton />
-        <IconButton onClick={onOpenSettings} tooltip="Settings">
+        <IconButton onClick={onOpenSettings} tooltip="Settings" className="hover:text-white">
           <GearIcon />
         </IconButton>
       </div>
