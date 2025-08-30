@@ -44,7 +44,7 @@ const StatusBar: React.FC<StatusBarProps> = ({ status, modelName, promptCount, l
       <div className="flex items-center gap-4">
         <div className="relative group flex items-center gap-2 cursor-default">
           <div className={`w-2.5 h-2.5 rounded-full ${color}`}></div>
-          <span>{text}</span>
+          <span className="font-medium">{text}</span>
           <span className="absolute bottom-full mb-2 w-max px-2 py-1 text-xs text-tooltip-text bg-tooltip-bg rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
             {tooltip}
           </span>

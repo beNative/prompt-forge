@@ -15,10 +15,10 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onNewPrompt, onOpenSettings, onToggleInfoView, onToggleLogger, onOpenCommandPalette, isInfoViewActive }) => {
   return (
-    <header className="flex items-center justify-between p-2 px-4 border-b border-border-color bg-background flex-shrink-0">
+    <header className="flex items-center justify-between p-3 px-4 border-b border-border-color bg-background flex-shrink-0">
       <div className="flex items-center gap-3">
         <FileIcon className="w-7 h-7 text-primary"/>
-        <h1 className="text-xl font-semibold text-text-main">PromptForge</h1>
+        <h1 className="text-xl font-bold text-text-main">PromptForge</h1>
       </div>
       <div className="flex items-center gap-2">
         <IconButton onClick={onNewPrompt} tooltip="New Prompt">

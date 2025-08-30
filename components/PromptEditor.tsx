@@ -108,7 +108,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
               className="bg-transparent text-3xl font-semibold text-text-main focus:outline-none w-full truncate placeholder:text-text-secondary/60"
             />
             {isDirty && (
-                <div className="w-2.5 h-2.5 bg-yellow-400 rounded-full animate-pulse flex-shrink-0" title="Unsaved changes"></div>
+                <div className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse flex-shrink-0" title="Unsaved changes"></div>
             )}
         </div>
         <button
