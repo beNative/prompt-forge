@@ -20,8 +20,8 @@ const PromptList: React.FC<PromptListProps> = ({ prompts, activePromptId, onSele
   };
 
   return (
-    <div className="h-full p-2">
-        <h2 className="text-lg font-semibold text-text-main px-2 pb-2">Prompts</h2>
+    <div className="h-full p-4">
+        <h2 className="text-lg font-semibold text-text-main mb-2">Prompts</h2>
       <ul className="space-y-1">
         {prompts.map((prompt) => (
           <li key={prompt.id}>
@@ -35,7 +35,7 @@ const PromptList: React.FC<PromptListProps> = ({ prompts, activePromptId, onSele
             >
               <span className="truncate flex-1 pr-2">{prompt.title}</span>
               <div className={`opacity-0 ${activePromptId !== prompt.id ? 'group-hover:opacity-100' : ''} transition-opacity`}>
-                 <IconButton onClick={(e) => handleDelete(e, prompt.id)} tooltip="Delete Prompt" size="sm" variant="ghost">
+                 <IconButton onClick={(e) => handleDelete(e, prompt.id)} tooltip="Delete Prompt" size="sm" variant="destructive">
                     <TrashIcon className="w-4 h-4" />
                 </IconButton>
               </div>

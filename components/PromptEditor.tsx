@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { Prompt, Settings } from '../types';
 import { llmService } from '../services/llmService';
 import { SparklesIcon, TrashIcon, UndoIcon, RedoIcon } from './Icons';
@@ -8,6 +8,9 @@ import Modal from './Modal';
 import { useLogger } from '../hooks/useLogger';
 import { useHistoryState } from '../hooks/useHistoryState';
 import IconButton from './IconButton';
+
+// Let TypeScript know Prism is available on the window
+declare const Prism: any;
 
 interface PromptEditorProps {
   prompt: Prompt;
@@ -25,6 +28,9 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
   const [refinedContent, setRefinedContent] = useState<string | null>(null);
   const [isDirty, setIsDirty] = useState(false);
   const { addLog } = useLogger();
+
+  const editorRef = useRef<HTMLTextAreaElement>(null);
+  const preRef = useRef<HTMLPreElement>(null);
   
   // Effect to detect unsaved changes
   useEffect(() => {
@@ -44,6 +50,22 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
 
     return () => clearTimeout(handler);
   }, [title, content, isDirty, onSave, prompt]);
+  
+  const highlightedContent = useMemo(() => {
+    if (typeof Prism === 'undefined' || !Prism.languages.markdown) {
+        // Fallback for when Prism isn't loaded yet
+        return content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+    // Append a newline to prevent issues with highlighting the last line
+    return Prism.highlight(content + '\n', Prism.languages.markdown, 'markdown');
+  }, [content]);
+
+  const syncScroll = () => {
+    if (editorRef.current && preRef.current) {
+        preRef.current.scrollTop = editorRef.current.scrollTop;
+        preRef.current.scrollLeft = editorRef.current.scrollLeft;
+    }
+  };
 
 
   const handleRefine = async () => {
@@ -81,9 +103,8 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
 
   const handleContentKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    const isUndo = (isMac ? e.metaKey : e.ctrlKey) && e.key === 'z';
-    const isRedo = ((isMac ? e.metaKey && e.shiftKey : e.ctrlKey) && e.key === 'y') || ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'y');
-
+    const isUndo = (isMac ? e.metaKey : e.ctrlKey) && !e.shiftKey && e.key === 'z';
+    const isRedo = (isMac ? e.metaKey && e.shiftKey && e.key === 'z' : e.ctrlKey && e.key === 'y');
 
     if (isUndo) {
         e.preventDefault();
@@ -113,20 +134,34 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         </div>
         <button
             onClick={() => onDelete(prompt.id)}
-            className="flex items-center gap-2 px-4 py-2 rounded-md bg-transparent border border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors duration-200 disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-md bg-transparent border border-destructive-border text-destructive-text hover:bg-destructive-bg-hover transition-colors duration-200 disabled:opacity-50"
           >
             <TrashIcon className="w-5 h-5" />
             Delete
           </button>
       </div>
 
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        onKeyDown={handleContentKeyDown}
-        placeholder="Enter your prompt here..."
-        className="w-full flex-1 p-4 rounded-lg bg-secondary text-text-main border border-border-color focus:ring-2 focus:ring-primary focus:border-primary resize-none font-mono text-base placeholder:text-text-secondary/60"
-      />
+      <div 
+        className="editor-container relative w-full flex-1 rounded-lg bg-secondary border border-border-color focus-within:ring-2 focus-within:ring-primary focus-within:border-primary"
+        data-placeholder={!content ? "Enter your prompt here..." : ""}
+      >
+        <textarea
+          ref={editorRef}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          onKeyDown={handleContentKeyDown}
+          onScroll={syncScroll}
+          spellCheck="false"
+          className="absolute inset-0 p-4 w-full h-full bg-transparent text-transparent caret-primary resize-none font-mono text-base focus:outline-none z-10"
+        />
+        <pre 
+            ref={preRef}
+            aria-hidden="true" 
+            className="absolute inset-0 p-4 w-full h-full overflow-auto pointer-events-none font-mono text-base"
+        >
+          <code className="language-markdown" dangerouslySetInnerHTML={{ __html: highlightedContent }} />
+        </pre>
+      </div>
       
       {error && <div className="mt-4 text-red-400 p-3 bg-red-900/50 rounded-md">{error}</div>}
 

@@ -10,7 +10,7 @@ PromptForge is a tool designed to help you create, manage, and improve your prom
 
 The application window is divided into three main sections:
 
-- **Header**: Contains global actions like creating a new prompt, opening settings, viewing documentation, and toggling logs.
+- **Header**: Contains global actions like creating a new prompt, opening settings, toggling themes, viewing documentation, and toggling logs.
 - **Prompt List (Left Sidebar)**: Displays all your saved prompts.
 - **Editor (Main Area)**: The primary workspace where you write and refine the selected prompt.
 
@@ -41,7 +41,7 @@ For quick, keyboard-driven access to common actions, use the Command Palette.
 ### 4.3. Editing a Prompt
 
 - Once a prompt is selected, you can edit its title and content directly in the editor pane.
-- A yellow dot will appear next to the title to indicate unsaved changes.
+- A pulsing dot will appear next to the title to indicate unsaved changes.
 - Changes are saved automatically after you stop typing for a moment.
 - **Undo/Redo**: You can undo and redo changes to the prompt's content using:
     - Keyboard shortcuts: `Ctrl+Z` (Undo) and `Ctrl+Y` (Redo). On macOS, use `Cmd+Z` and `Cmd+Shift+Z`.
@@ -68,9 +68,13 @@ This is one of PromptForge's key features. You can ask your connected local LLM 
 
 - Click the **Gear (⚙️) icon** in the header to open the Settings modal.
 - Or, open the **Command Palette** and select "Open Settings".
-- **LLM Provider URL**: The API endpoint for your local LLM. For Ollama, this is typically `http://localhost:11434/api/generate`. For LMStudio, it's often `http://localhost:1234/v1/chat/completions`. *Note: The service must be compatible with the Ollama generate API structure.*
-- **Model Name**: The specific model you want to use for refinement (e.g., `llama3`, `mistral`).
-- Click **"Save"** to apply your changes.
+- Upon opening, the application will automatically scan your local machine for common LLM providers like Ollama or LM Studio.
+
+### Configuration Steps:
+
+1.  **Select a Service**: Choose one of the automatically detected services from the "Detected Service" dropdown. If no services are found, ensure your local LLM provider is running and click "Re-Detect Services".
+2.  **Select a Model**: Once a service is selected, the application will fetch its available models. Choose the model you wish to use for refinement from the "Model Name" dropdown.
+3.  **Save**: Click **"Save"** to apply your changes. The application is now configured to use your selected local LLM.
 
 ## 7. Info & Documentation
 

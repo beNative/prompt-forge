@@ -42,13 +42,12 @@ The project follows a standard feature-oriented structure:
 - It is responsible for all Node.js and OS-level integrations.
 - **IPC (Inter-Process Communication)**: It listens for events from the renderer process to perform actions that the browser cannot, such as accessing the file system. It exposes handlers for saving and loading data.
 
-### 3.2. State Management & Hooks (Async)
+### 3.2. State Management & Hooks
 
-The introduction of file-based storage required making the data hooks asynchronous.
-
-- **`usePrompts` & `useSettings` Hooks**: These hooks now initialize with an empty/default state and then use a `useEffect` to asynchronously call the `storageService` to load data. All data mutations (add, update, delete) now call an `async` function to persist the changes back to the file system.
+- **`usePrompts` & `useSettings` Hooks**: These hooks initialize with an empty/default state and then use a `useEffect` to asynchronously call the `storageService` to load data. All data mutations (add, update, delete) now call an `async` function to persist the changes back to the file system.
 - **`useHistoryState` Hook**: A specialized state hook that maintains a history of state changes for the editor's undo/redo feature.
 - **`LoggerContext`**: A global context that provides logging functionality to any component in the application.
+- **`ThemeContext`**: A global context (`useTheme` hook) that manages the application's light/dark mode. It persists the user's choice to `localStorage` and detects the system's preferred theme on first load.
 
 ### 3.3. Services
 
@@ -56,7 +55,9 @@ The introduction of file-based storage required making the data hooks asynchrono
   - **Electron Version**: It checks for the presence of the `window.electronAPI` (exposed by `preload.ts`). If found, it makes `async` IPC calls to the main process to read/write JSON files.
   - **Web Fallback**: If `window.electronAPI` is not present, it falls back to using the browser's `localStorage` for synchronous storage.
 
-- **`llmService.ts`**: Manages all communication with the external local LLM provider via `fetch`.
+- **`llmService.ts`**: Manages all communication with the external local LLM provider via `fetch`, supporting multiple API types (Ollama, OpenAI-compatible).
+
+- **`llmDiscoveryService.ts`**: This service is responsible for probing predefined local endpoints (e.g., `localhost:11434` for Ollama) to discover active LLM providers. It then fetches the list of available models from the discovered service, supporting different API structures.
 
 ### 3.4. Build Process
 

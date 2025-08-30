@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.4.0] - 2024-08-03
+
+### Added
+- **Light/Dark Mode**: Implemented a full light and dark mode theme system. The app respects system preferences on first launch and allows manual toggling via a new header button.
+- **Automatic LLM Service Discovery**: The Settings modal now automatically scans for and discovers running local LLM providers (e.g., Ollama, LM Studio), simplifying the configuration process.
+
+### Changed
+- **UI Overhaul**: Refreshed the entire application UI with a new, more vibrant and consistent color palette (using a violet accent) for a modern look and feel in both themes.
+- **Redesigned Settings**: The Settings modal was completely redesigned to support the new service discovery flow, replacing manual URL input with a user-friendly service and model selection process.
+
+---
+
 ## [1.3.0] - 2024-08-02
 
 ### Added
@@ -23,7 +35,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **Unsaved Changes Indicator**: Added a yellow pulsing dot next to the prompt title to clearly indicate when there are unsaved modifications.
+- **Unsaved Changes Indicator**: Added a pulsing dot next to the prompt title to clearly indicate when there are unsaved modifications.
 
 ### Changed
 

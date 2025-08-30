@@ -1,8 +1,10 @@
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useLogger } from '../hooks/useLogger';
 import { LogLevel, LogMessage } from '../types';
 import { SaveIcon, TrashIcon, ChevronDownIcon } from './Icons';
 import { storageService } from '../services/storageService';
+import IconButton from './IconButton';
 
 interface LoggerPanelProps {
   isVisible: boolean;
@@ -55,9 +57,16 @@ const LoggerPanel: React.FC<LoggerPanelProps> = ({ isVisible, onToggleVisibility
           {logLevels.map(level => (
             <button key={level} onClick={() => setFilter(level)} className={`px-2 py-1 text-xs rounded ${filter === level ? 'bg-primary text-white' : 'bg-secondary-light hover:bg-border-color'}`}>{level}</button>
           ))}
-          <button onClick={handleSaveLog} title="Save Log" className="p-1 hover:bg-border-color rounded"><SaveIcon className="w-4 h-4" /></button>
-          <button onClick={clearLogs} title="Clear Logs" className="p-1 hover:bg-border-color rounded"><TrashIcon className="w-4 h-4" /></button>
-          <button onClick={onToggleVisibility} title="Close Panel" className="p-1 hover:bg-border-color rounded"><ChevronDownIcon className="w-4 h-4" /></button>
+          <div className="h-4 w-px bg-border-color mx-1"></div>
+          <IconButton onClick={handleSaveLog} tooltip="Save Log" variant="ghost" size="sm">
+            <SaveIcon className="w-4 h-4" />
+          </IconButton>
+          <IconButton onClick={clearLogs} tooltip="Clear Logs" variant="destructive" size="sm">
+            <TrashIcon className="w-4 h-4" />
+          </IconButton>
+          <IconButton onClick={onToggleVisibility} tooltip="Close Panel" variant="ghost" size="sm">
+            <ChevronDownIcon className="w-4 h-4" />
+          </IconButton>
         </div>
       </header>
       <div ref={scrollRef} className="flex-1 p-2 overflow-y-auto font-mono text-xs">

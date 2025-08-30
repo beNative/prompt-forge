@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { Command } from '../types';
 
@@ -71,7 +72,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center pt-20" onClick={onClose}>
+    <div className="fixed inset-0 bg-modal-backdrop backdrop-blur-sm z-60 flex justify-center pt-20" onClick={onClose}>
       <div className="w-full max-w-lg bg-secondary rounded-lg shadow-2xl border border-border-color flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="p-2 border-b border-border-color">
           <input

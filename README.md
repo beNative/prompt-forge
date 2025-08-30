@@ -5,11 +5,12 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 ## Key Features
 
 - **Prompt Management**: Organize your prompts in a clean, intuitive interface. Create, edit, and delete prompts with ease.
-- **AI-Powered Refinement**: Connect to a local LLM provider (like Ollama or LMStudio) to get AI-driven suggestions for improving your prompts.
+- **AI-Powered Refinement**: Connect to a local LLM provider to get AI-driven suggestions for improving your prompts.
+- **Automatic Service Discovery**: Automatically detects running local LLM services like Ollama and LM Studio, simplifying setup.
+- **Light/Dark Mode**: A beautiful, consistent experience in both light and dark themes, with a manual toggle and respect for system preferences.
 - **Undo/Redo History**: A full history system in the editor allows you to undo and redo changes to your prompt content.
 - **Command Palette**: A quick-access command palette (Ctrl+Shift+P) for power users to perform actions like creating, deleting, and navigating.
 - **Local First**: Your data is saved locally. For the desktop version, it saves to JSON files in the application's directory. For the web version, it uses `localStorage`.
-- **Simple Configuration**: Easily configure the URL and model name for your local LLM provider.
 - **Built-in Documentation**: Access functional and technical manuals directly within the app.
 - **Live Logging**: Monitor application activity with a built-in, filterable logging panel.
 
@@ -39,8 +40,8 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 
 4.  **Configuration**:
     -   Open the application and click the settings (gear) icon.
-    -   Ensure the "LLM Provider URL" points to your local service's API endpoint (e.g., Ollama's default is `http://localhost:11434/api/generate`).
-    -   Set the "Model Name" to the model you wish to use (e.g., `llama3`).
+    -   The app will automatically detect running services.
+    -   Simply select your desired service and model from the dropdown menus and click "Save".
 
 ## Building for Production
 
