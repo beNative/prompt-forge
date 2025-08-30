@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import type { Prompt, Settings } from '../types';
 import { llmService } from '../services/llmService';
-import { SparklesIcon, TrashIcon } from './Icons';
+import { SparklesIcon, TrashIcon, UndoIcon, RedoIcon } from './Icons';
 import Spinner from './Spinner';
 import Modal from './Modal';
 import { useLogger } from '../hooks/useLogger';
+import { useHistoryState } from '../hooks/useHistoryState';
+import IconButton from './IconButton';
 
 interface PromptEditorProps {
   prompt: Prompt;
@@ -15,7 +17,8 @@ interface PromptEditorProps {
 
 const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, settings }) => {
   const [title, setTitle] = useState(prompt.title);
-  const [content, setContent] = useState(prompt.content);
+  const { state: content, setState: setContent, undo, redo, canUndo, canRedo } = useHistoryState(prompt.content);
+  
   const [isRefining, setIsRefining] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refinedContent, setRefinedContent] = useState<string | null>(null);
@@ -23,12 +26,21 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      if (title !== prompt.title || content !== prompt.content) {
+      // Save title changes immediately
+      if (title !== prompt.title) {
         onSave({ ...prompt, title, content });
       }
-    }, 500); // Debounce save
+    }, 500);
     return () => clearTimeout(handler);
-  }, [title, content, prompt, onSave]);
+  }, [title, prompt.title, onSave, prompt, content]);
+
+  useEffect(() => {
+    // Save content changes (from history state) only when they differ from original prompt content
+    if (content !== prompt.content) {
+      onSave({ ...prompt, title, content });
+    }
+  }, [content, prompt.content, onSave, prompt, title]);
+
 
   const handleRefine = async () => {
     setIsRefining(true);
@@ -52,8 +64,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
 
   const acceptRefinement = () => {
     if (refinedContent) {
-      setContent(refinedContent);
-      onSave({ ...prompt, title, content: refinedContent });
+      setContent(refinedContent); // This pushes the new state to history
       addLog('INFO', `AI refinement accepted for prompt: "${title}"`);
     }
     setRefinedContent(null);
@@ -63,12 +74,22 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
     addLog('INFO', `AI refinement discarded for prompt: "${title}"`);
     setRefinedContent(null);
   }
-  
-  const handleDeleteClick = () => {
-    if (window.confirm(`Are you sure you want to delete "${prompt.title}"?`)) {
-      onDelete(prompt.id);
+
+  const handleContentKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const isUndo = (isMac ? e.metaKey : e.ctrlKey) && e.key === 'z';
+    const isRedo = (isMac ? e.metaKey && e.shiftKey : e.ctrlKey) && e.key === 'y';
+
+    if (isUndo) {
+        e.preventDefault();
+        undo();
+    }
+    if (isRedo) {
+        e.preventDefault();
+        redo();
     }
   };
+
 
   return (
     <div className="flex-1 flex flex-col p-4 md:p-6 bg-background overflow-y-auto">
@@ -81,7 +102,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
           className="bg-transparent text-2xl font-bold text-text-main focus:outline-none w-full"
         />
         <button
-            onClick={handleDeleteClick}
+            onClick={() => onDelete(prompt.id)}
             className="flex items-center gap-2 px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white transition-colors duration-200 disabled:opacity-50"
           >
             <TrashIcon className="w-5 h-5" />
@@ -92,13 +113,22 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
+        onKeyDown={handleContentKeyDown}
         placeholder="Enter your prompt here..."
         className="w-full flex-1 p-4 rounded-md bg-secondary text-text-secondary border border-border-color focus:ring-2 focus:ring-primary focus:border-primary resize-none font-mono text-sm"
       />
       
       {error && <div className="mt-4 text-red-400 p-3 bg-red-900/50 rounded-md">{error}</div>}
 
-      <div className="mt-4 flex justify-end">
+      <div className="mt-4 flex justify-between items-center">
+        <div className="flex items-center gap-1">
+            <IconButton onClick={undo} disabled={!canUndo} tooltip="Undo (Ctrl+Z)">
+                <UndoIcon className={!canUndo ? 'text-gray-600' : ''} />
+            </IconButton>
+            <IconButton onClick={redo} disabled={!canRedo} tooltip="Redo (Ctrl+Y)">
+                <RedoIcon className={!canRedo ? 'text-gray-600' : ''} />
+            </IconButton>
+        </div>
         <button
           onClick={handleRefine}
           disabled={isRefining || !content.trim()}

@@ -1,16 +1,17 @@
 import React from 'react';
 import IconButton from './IconButton';
-import { GearIcon, PlusIcon, FileIcon, InfoIcon, FileCodeIcon } from './Icons';
+import { GearIcon, PlusIcon, FileIcon, InfoIcon, FileCodeIcon, CommandIcon } from './Icons';
 
 interface HeaderProps {
   onNewPrompt: () => void;
   onOpenSettings: () => void;
   onToggleInfoView: () => void;
   onToggleLogger: () => void;
+  onOpenCommandPalette: () => void;
   isInfoViewActive: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ onNewPrompt, onOpenSettings, onToggleInfoView, onToggleLogger, isInfoViewActive }) => {
+const Header: React.FC<HeaderProps> = ({ onNewPrompt, onOpenSettings, onToggleInfoView, onToggleLogger, onOpenCommandPalette, isInfoViewActive }) => {
   return (
     <header className="flex items-center justify-between p-3 border-b border-border-color bg-secondary flex-shrink-0">
       <div className="flex items-center gap-2">
@@ -20,6 +21,9 @@ const Header: React.FC<HeaderProps> = ({ onNewPrompt, onOpenSettings, onToggleIn
       <div className="flex items-center gap-2">
         <IconButton onClick={onNewPrompt} tooltip="New Prompt">
           <PlusIcon />
+        </IconButton>
+        <IconButton onClick={onOpenCommandPalette} tooltip="Command Palette (Ctrl+Shift+P)">
+          <CommandIcon />
         </IconButton>
         <IconButton onClick={onToggleInfoView} tooltip="Info" className={isInfoViewActive ? 'bg-primary text-white' : ''}>
           <InfoIcon />

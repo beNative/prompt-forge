@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.1.0] - 2024-07-31
+
+### Added
+
+- **Editor History (Undo/Redo)**:
+  - Implemented a full history stack for the prompt content area.
+  - Added support for keyboard shortcuts: `Ctrl+Z` (Undo) and `Ctrl+Y` (Redo).
+  - Added UI buttons with icons for undo and redo actions in the editor.
+- **Command Palette**:
+  - Introduced a VS Code-style command palette for quick, keyboard-driven actions.
+  - Accessible via `Ctrl+Shift+P` shortcut or a new header icon.
+  - Includes commands for creating prompts, opening settings, deleting the current prompt, and toggling views.
+
+---
+
 ## [1.0.0] - 2024-07-30
 
 ### Added

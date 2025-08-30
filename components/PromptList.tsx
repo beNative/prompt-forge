@@ -15,9 +15,7 @@ const PromptList: React.FC<PromptListProps> = ({ prompts, activePromptId, onSele
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this prompt?')) {
-        onDeletePrompt(id);
-    }
+    onDeletePrompt(id);
   };
 
   return (

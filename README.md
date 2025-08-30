@@ -6,6 +6,8 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 
 - **Prompt Management**: Organize your prompts in a clean, intuitive interface. Create, edit, and delete prompts with ease.
 - **AI-Powered Refinement**: Connect to a local LLM provider (like Ollama or LMStudio) to get AI-driven suggestions for improving your prompts.
+- **Undo/Redo History**: A full history system in the editor allows you to undo and redo changes to your prompt content.
+- **Command Palette**: A quick-access command palette (Ctrl+Shift+P) for power users to perform actions like creating, deleting, and navigating.
 - **Local First**: Your data is saved locally. For the web version, it uses your browser's `localStorage`. For the Electron build, it's designed to save to a JSON file in the application's directory.
 - **Simple Configuration**: Easily configure the URL and model name for your local LLM provider.
 - **Built-in Documentation**: Access functional and technical manuals directly within the app.

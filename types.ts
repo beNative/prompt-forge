@@ -21,3 +21,10 @@ export interface LogMessage {
 }
 
 export type LLMStatus = 'checking' | 'connected' | 'error';
+
+export interface Command {
+  id: string;
+  name: string;
+  keywords?: string;
+  action: () => void;
+}

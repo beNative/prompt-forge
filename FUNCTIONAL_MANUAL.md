@@ -14,30 +14,46 @@ The application window is divided into three main sections:
 - **Prompt List (Left Sidebar)**: Displays all your saved prompts.
 - **Editor (Main Area)**: The primary workspace where you write and refine the selected prompt.
 
-## 3. Managing Prompts
+## 3. The Command Palette
 
-### 3.1. Creating a New Prompt
+For quick, keyboard-driven access to common actions, use the Command Palette.
+
+- **Open the Palette**: Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS) or click the **Command (</>) icon** in the header.
+- **Usage**:
+    - Type to search for a command (e.g., "new", "delete").
+    - Use the `Up` and `Down` arrow keys to navigate the list.
+    - Press `Enter` to execute the selected command.
+    - Press `Esc` to close the palette.
+
+## 4. Managing Prompts
+
+### 4.1. Creating a New Prompt
 
 - Click the **Plus (+) icon** in the header.
+- Or, open the **Command Palette** and select "Create New Prompt".
 - A new "Untitled Prompt" will be created and appear at the top of the Prompt List. It will automatically become the active prompt in the editor.
 
-### 3.2. Selecting a Prompt
+### 4.2. Selecting a Prompt
 
 - Click on any prompt title in the Prompt List on the left to open it in the editor.
 - The currently active prompt is highlighted.
 
-### 3.3. Editing a Prompt
+### 4.3. Editing a Prompt
 
 - Once a prompt is selected, you can edit its title and content directly in the editor pane.
 - Changes are saved automatically after a brief delay.
+- **Undo/Redo**: You can undo and redo changes to the prompt's content using:
+    - Keyboard shortcuts: `Ctrl+Z` (Undo) and `Ctrl+Y` (Redo). On macOS, use `Cmd+Z` and `Cmd+Shift+Z`.
+    - UI Buttons: Click the **Undo** and **Redo** arrow buttons at the bottom-left of the editor.
 
-### 3.4. Deleting a Prompt
+### 4.4. Deleting a Prompt
 
 - **From the Editor**: Click the "Delete" button in the top right of the editor.
 - **From the List**: Hover over a prompt in the list (that is not active) and click the small trash can icon that appears.
+- **From the Command Palette**: Open the palette and select "Delete Current Prompt".
 - A confirmation dialog will appear before the prompt is permanently deleted.
 
-## 4. AI-Powered Refinement
+## 5. AI-Powered Refinement
 
 This is one of PromptForge's key features. You can ask your connected local LLM to improve your prompt.
 
@@ -45,22 +61,23 @@ This is one of PromptForge's key features. You can ask your connected local LLM 
 2.  Click the **"Refine with AI"** button at the bottom right of the editor.
 3.  The application will send your prompt to the configured LLM with instructions to improve it.
 4.  A modal will appear showing the AI's suggested refinement.
-5.  You can choose to **"Accept"** the suggestion, which will replace your current prompt content, or **"Discard"** it to keep your original text.
+5.  You can choose to **"Accept"** the suggestion, which will replace your current prompt content, or **"Discard"** it to keep your original text. Accepting the change adds it to the undo history, so you can easily revert it.
 
-## 5. Application Settings
+## 6. Application Settings
 
 - Click the **Gear (⚙️) icon** in the header to open the Settings modal.
+- Or, open the **Command Palette** and select "Open Settings".
 - **LLM Provider URL**: The API endpoint for your local LLM. For Ollama, this is typically `http://localhost:11434/api/generate`. For LMStudio, it's often `http://localhost:1234/v1/chat/completions`. *Note: The service must be compatible with the Ollama generate API structure.*
 - **Model Name**: The specific model you want to use for refinement (e.g., `llama3`, `mistral`).
 - Click **"Save"** to apply your changes.
 
-## 6. Info & Documentation
+## 7. Info & Documentation
 
 - Click the **Information (ℹ️) icon** in the header to switch to the Info View.
 - This view contains tabs to read the application's `README`, this `Functional Manual`, the `Technical Manual`, and the `Version Log`.
-- Click the icon again to return to the prompt editor.
+- Click the icon again or use the Command Palette to return to the prompt editor.
 
-## 7. Logging
+## 8. Logging
 
 - Click the **File Code icon** in the header to open the Application Logs panel.
 - This panel shows real-time activity within the app, such as API calls and errors.

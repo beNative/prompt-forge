@@ -29,10 +29,11 @@ The project follows a standard feature-oriented structure:
 
 ## 3. Core Components & Logic
 
-### 3.1. State Management
+### 3.1. State Management & Hooks
 
 - **`usePrompts` Hook**: Manages the lifecycle of prompts (CRUD operations). It abstracts away the persistence layer, loading from and saving to storage.
 - **`useSettings` Hook**: Manages application settings, providing a simple interface to load and save configuration.
+- **`useHistoryState` Hook**: A specialized state hook that maintains a history of state changes. It manages an array of past states and a pointer to the current state, providing `undo`, `redo`, `setState` functions, and `canUndo`/`canRedo` booleans. This powers the editor's history feature.
 - **`LoggerContext`**: A global context that provides logging functionality to any component in the application. It holds the log message state and exposes an `addLog` function.
 
 ### 3.2. Services
@@ -43,9 +44,13 @@ The project follows a standard feature-oriented structure:
 
 - **`llmService.ts`**: Manages all communication with the external local LLM provider. It constructs the meta-prompt for the refinement task and handles the `fetch` request, including error handling.
 
-### 3.3. Views & Layout (`App.tsx`)
+### 3.3. UI Components
 
-The main `App.tsx` component acts as the application's router and layout manager. It holds the state for the current view (`editor` or `info`) and the visibility of modal components like the `SettingsModal` and the `LoggerPanel`.
+- **`App.tsx`**: The application's main component. It acts as a router, layout manager, and orchestrator. It holds the state for the current view (`editor` or `info`), the visibility of modals, and the state of the command palette. It is also responsible for defining the list of available commands.
+
+- **`CommandPalette.tsx`**: A modal component that provides keyboard-driven access to application commands. It manages its own internal state for filtering the command list and handling keyboard navigation (`Up`, `Down`, `Enter`, `Esc`). It receives its list of commands from `App.tsx`, allowing for context-aware commands.
+
+- **`PromptEditor.tsx`**: The core text editing component. It uses the `useHistoryState` hook to manage the prompt's content, enabling the undo/redo functionality. It also handles keyboard shortcuts for these actions.
 
 ### 3.4. Logging System
 
@@ -55,4 +60,5 @@ The main `App.tsx` component acts as the application's router and layout manager
 - **Integration**: `addLog` calls are placed at key points in the application flow:
   - When prompts/settings are loaded or saved.
   - Before and after making an API call to the LLM.
+  - When commands are executed from the palette.
   - When errors occur in any service or component.
