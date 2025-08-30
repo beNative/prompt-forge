@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { Prompt } from '../types';
-import { useSettings } from '../hooks/useSettings';
+import type { Prompt, Settings } from '../types';
 import { llmService } from '../services/llmService';
 import { SparklesIcon, TrashIcon } from './Icons';
 import Spinner from './Spinner';
@@ -11,15 +10,15 @@ interface PromptEditorProps {
   prompt: Prompt;
   onSave: (prompt: Prompt) => void;
   onDelete: (id: string) => void;
+  settings: Settings;
 }
 
-const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete }) => {
+const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, settings }) => {
   const [title, setTitle] = useState(prompt.title);
   const [content, setContent] = useState(prompt.content);
   const [isRefining, setIsRefining] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refinedContent, setRefinedContent] = useState<string | null>(null);
-  const { settings } = useSettings();
   const { addLog } = useLogger();
 
   useEffect(() => {

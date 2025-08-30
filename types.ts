@@ -19,3 +19,5 @@ export interface LogMessage {
   level: LogLevel;
   message: string;
 }
+
+export type LLMStatus = 'checking' | 'connected' | 'error';

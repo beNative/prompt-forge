@@ -8,11 +8,16 @@ import type { Prompt } from './types';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import InfoView from './components/InfoView';
 import LoggerPanel from './components/LoggerPanel';
+import StatusBar from './components/StatusBar';
+import { useSettings } from './hooks/useSettings';
+import { useLLMStatus } from './hooks/useLLMStatus';
 
 type View = 'editor' | 'info';
 
 export default function App() {
   const { prompts, addPrompt, updatePrompt, deletePrompt } = usePrompts();
+  const { settings, saveSettings } = useSettings();
+  const llmStatus = useLLMStatus(settings.llmProviderUrl);
   const [activePromptId, setActivePromptId] = useState<string | null>(null);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
   const [view, setView] = useState<View>('editor');
@@ -79,6 +84,7 @@ export default function App() {
                   prompt={activePrompt}
                   onSave={handleSavePrompt}
                   onDelete={handleDeletePrompt}
+                  settings={settings}
                 />
               ) : (
                 <WelcomeScreen onNewPrompt={handleNewPrompt} />
@@ -90,6 +96,12 @@ export default function App() {
         )}
       </main>
       <LoggerPanel isVisible={isLoggerVisible} onToggleVisibility={() => setLoggerVisible(false)} />
+      <StatusBar
+        status={llmStatus}
+        modelName={settings.llmModelName}
+        promptCount={prompts.length}
+        lastSaved={activePrompt?.updatedAt}
+      />
       {isSettingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
     </div>
   );
