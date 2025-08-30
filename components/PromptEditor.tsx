@@ -126,7 +126,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Prompt Title"
-              className="bg-transparent text-3xl font-semibold text-text-main focus:outline-none w-full truncate placeholder:text-text-secondary"
+              className="bg-transparent text-3xl font-semibold text-accent focus:outline-none w-full truncate placeholder:text-text-secondary"
             />
             {isDirty && (
                 <div className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse flex-shrink-0" title="Unsaved changes"></div>

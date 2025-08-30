@@ -9,12 +9,12 @@ interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
 }
 
 const IconButton: React.FC<IconButtonProps> = ({ children, tooltip, className, variant = 'primary', size='md', ...props }) => {
-  const baseClasses = "relative group flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-primary";
+  const baseClasses = "relative group flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-primary transition-colors";
   
   const variantClasses = {
       primary: 'text-text-secondary hover:bg-secondary-light hover:text-text-main',
       ghost: 'text-text-secondary/80 hover:bg-secondary-light/60 hover:text-text-main',
-      destructive: 'text-destructive-text hover:bg-destructive-bg-hover'
+      destructive: 'text-destructive-text bg-transparent hover:bg-destructive-bg-hover'
   };
 
   const sizeClasses = {

@@ -1,5 +1,4 @@
 
-
 import React, { useEffect } from 'react';
 
 interface ModalProps {
@@ -27,7 +26,7 @@ const Modal: React.FC<ModalProps> = ({ onClose, children, title }) => {
       onClick={onClose}
     >
       <div
-        className="bg-background rounded-lg shadow-xl w-full max-w-xl mx-4 border border-border-color animate-fade-in-up"
+        className="bg-background rounded-lg shadow-xl w-full max-w-xl mx-4 border border-border-color"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center p-4 border-b border-border-color">
@@ -36,15 +35,6 @@ const Modal: React.FC<ModalProps> = ({ onClose, children, title }) => {
         </div>
         {children}
       </div>
-      <style>{`
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in-up {
-          animation: fade-in-up 0.3s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 };

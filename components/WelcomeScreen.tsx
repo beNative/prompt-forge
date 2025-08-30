@@ -9,7 +9,7 @@ interface WelcomeScreenProps {
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNewPrompt }) => {
     return (
         <div className="flex flex-col items-center justify-center h-full text-center text-text-secondary p-8 bg-grid-pattern">
-            <div className="p-8 bg-background rounded-2xl shadow-2xl border border-border-color">
+            <div className="p-8 bg-secondary rounded-2xl shadow-2xl border border-accent">
                 <FileIcon className="w-24 h-24 text-primary mx-auto mb-6" />
                 <h2 className="text-3xl font-bold text-text-main mb-2">Welcome to PromptForge</h2>
                 <p className="max-w-md mb-8">

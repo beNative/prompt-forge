@@ -90,9 +90,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
             <button
                 onClick={handleDetectServices}
                 disabled={isDetecting}
-                className="flex items-center gap-2 px-4 py-2 rounded-md bg-secondary-light hover:bg-border-color text-text-main font-semibold disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 rounded-md border border-accent text-accent hover:bg-accent hover:text-primary-text font-semibold disabled:opacity-50 transition-colors"
             >
-                {isDetecting ? <Spinner /> : <SparklesIcon className="w-5 h-5 text-primary" />}
+                {isDetecting ? <Spinner /> : <SparklesIcon className="w-5 h-5" />}
                 {isDetecting ? 'Detecting Services...' : 'Re-Detect Services'}
             </button>
         </div>

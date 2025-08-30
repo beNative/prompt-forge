@@ -93,7 +93,7 @@ const InfoView: React.FC = () => {
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
               activeTab === tab
-                ? 'border-primary text-text-main'
+                ? 'border-primary text-primary'
                 : 'border-transparent text-text-secondary hover:text-text-main'
             }`}
           >
@@ -118,6 +118,7 @@ const InfoView: React.FC = () => {
             font-size: 1.875rem; /* text-3xl */
             border-bottom: 1px solid rgb(var(--color-border));
             padding-bottom: 0.4em;
+            color: rgb(var(--color-primary));
         }
         .markdown-content h2 {
             font-size: 1.5rem; /* text-2xl */
@@ -144,7 +145,7 @@ const InfoView: React.FC = () => {
             margin-bottom: 0.5em;
         }
         .markdown-content a {
-            color: rgb(var(--color-primary));
+            color: rgb(var(--color-accent));
             text-decoration: underline;
         }
         .markdown-content a:hover {
