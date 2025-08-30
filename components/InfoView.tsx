@@ -9,10 +9,10 @@ declare const marked: {
 type DocTab = 'Readme' | 'Functional Manual' | 'Technical Manual' | 'Version Log';
 
 const docFiles: Record<DocTab, string> = {
-  'Readme': './README.md',
-  'Functional Manual': './FUNCTIONAL_MANUAL.md',
-  'Technical Manual': './TECHNICAL_MANUAL.md',
-  'Version Log': './VERSION_LOG.md',
+  'Readme': 'README.md',
+  'Functional Manual': 'FUNCTIONAL_MANUAL.md',
+  'Technical Manual': 'TECHNICAL_MANUAL.md',
+  'Version Log': 'VERSION_LOG.md',
 };
 
 const InfoView: React.FC = () => {
@@ -27,13 +27,26 @@ const InfoView: React.FC = () => {
 
   useEffect(() => {
     const fetchDocs = async () => {
+      const isElectron = !!window.electronAPI;
       try {
         const docPromises = (Object.keys(docFiles) as DocTab[]).map(async (tab) => {
-          const response = await fetch(docFiles[tab]);
-          if (!response.ok) {
-            throw new Error(`Failed to load ${docFiles[tab]} (${response.status} ${response.statusText})`);
+          const filename = docFiles[tab];
+          let text = '';
+
+          if (isElectron) {
+            const result = await window.electronAPI!.readDoc(filename);
+            if (result.success && result.content) {
+              text = result.content;
+            } else {
+              throw new Error(result.error || `Failed to load ${filename} from main process.`);
+            }
+          } else {
+            const response = await fetch(`./${filename}`);
+            if (!response.ok) {
+              throw new Error(`Failed to load ${filename} (${response.status} ${response.statusText})`);
+            }
+            text = await response.text();
           }
-          const text = await response.text();
           return { tab, text };
         });
 
@@ -49,7 +62,7 @@ const InfoView: React.FC = () => {
       } catch (err) {
         if (err instanceof Error) {
             console.error("Error fetching documents:", err);
-            setError(`Could not load documentation. Please ensure the .md files are accessible. Error: ${err.message}`);
+            setError(`Could not load documentation. Error: ${err.message}`);
             const errorState = (Object.keys(docFiles) as DocTab[]).reduce((acc, tab) => {
                 acc[tab] = `# Error\nFailed to load content for ${tab}.`;
                 return acc;

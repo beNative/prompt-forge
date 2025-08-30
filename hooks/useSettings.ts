@@ -6,20 +6,19 @@ import { useLogger } from './useLogger';
 
 export const useSettings = () => {
   const { addLog } = useLogger();
-  const [settings, setSettings] = useState<Settings>(() => {
-    const loadedSettings = storageService.load(LOCAL_STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
-    addLog('DEBUG', 'Settings loaded from storage.');
-    return loadedSettings;
-  });
+  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
 
   useEffect(() => {
-    storageService.save(LOCAL_STORAGE_KEYS.SETTINGS, settings);
-    addLog('DEBUG', 'Settings saved to storage.');
-  }, [settings, addLog]);
+    storageService.load(LOCAL_STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS).then(loadedSettings => {
+        setSettings(loadedSettings);
+        addLog('DEBUG', 'Settings loaded from storage.');
+    });
+  }, [addLog]);
 
-  const saveSettings = useCallback((newSettings: Settings) => {
+  const saveSettings = useCallback(async (newSettings: Settings) => {
     setSettings(newSettings);
-    addLog('INFO', 'Application settings updated.');
+    await storageService.save(LOCAL_STORAGE_KEYS.SETTINGS, newSettings);
+    addLog('INFO', 'Application settings updated and saved.');
   }, [addLog]);
 
   return { settings, saveSettings };

@@ -4,11 +4,13 @@ This document outlines the technical architecture and structure of the PromptFor
 
 ## 1. Architecture Overview
 
-PromptForge is a single-page application (SPA) built with **React** and **TypeScript**. It utilizes a modern React hooks-based architecture for state management and component logic. The application is designed to be self-contained and can be packaged as a desktop application using **Electron**.
+PromptForge is a desktop application built with **Electron** and **React**. It utilizes a modern React hooks-based architecture for state management and component logic.
 
+- **Desktop Framework**: Electron
 - **UI Library**: React 19
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
+- **Bundler**: ESBuild
 - **State Management**: React Hooks (`useState`, `useEffect`, `useContext`, `useCallback`)
 
 ## 2. Project Structure
@@ -16,49 +18,50 @@ PromptForge is a single-page application (SPA) built with **React** and **TypeSc
 The project follows a standard feature-oriented structure:
 
 ```
-/src
-|-- /components     # Reusable React components (Modals, Buttons, Editor, etc.)
-|-- /contexts       # React Context providers for global state (e.g., Logger)
-|-- /hooks          # Custom hooks for business logic (usePrompts, useSettings)
-|-- /services       # Modules for external interactions (storage, LLM API)
-|-- App.tsx         # Main application component, orchestrates layout and views
-|-- constants.ts    # Application-wide constants
-|-- index.tsx       # Entry point for the React application
-|-- types.ts        # TypeScript type definitions and interfaces
+/
+|-- /dist           # Bundled output from esbuild
+|-- /electron       # Source code for the Electron main and preload processes
+|-- /release        # Packaged application output from electron-builder
+|-- /src            # Source code for the React renderer process (UI)
+|   |-- /components # Reusable React components
+|   |-- /contexts   # React Context providers
+|   |-- /hooks      # Custom hooks for business logic
+|   |-- /services   # Modules for external interactions
+|   |-- App.tsx     # Main application component
+|   |-- ...
+|-- esbuild.config.js # Configuration for the esbuild bundler
+|-- package.json    # Project dependencies, scripts, and build configuration
+|-- tsconfig.json   # TypeScript configuration
 ```
 
 ## 3. Core Components & Logic
 
-### 3.1. State Management & Hooks
+### 3.1. Electron Main Process (`electron/main.ts`)
 
-- **`usePrompts` Hook**: Manages the lifecycle of prompts (CRUD operations). It abstracts away the persistence layer, loading from and saving to storage.
-- **`useSettings` Hook**: Manages application settings, providing a simple interface to load and save configuration.
-- **`useHistoryState` Hook**: A specialized state hook that maintains a history of state changes. It manages an array of past states and a pointer to the current state, providing `undo`, `redo`, `setState` functions, and `canUndo`/`canRedo` booleans. This powers the editor's history feature.
-- **`LoggerContext`**: A global context that provides logging functionality to any component in the application. It holds the log message state and exposes an `addLog` function.
+- This is the application's entry point. It creates the `BrowserWindow` that renders the React UI.
+- It is responsible for all Node.js and OS-level integrations.
+- **IPC (Inter-Process Communication)**: It listens for events from the renderer process to perform actions that the browser cannot, such as accessing the file system. It exposes handlers for saving and loading data.
 
-### 3.2. Services
+### 3.2. State Management & Hooks (Async)
 
-- **`storageService.ts`**: Handles data persistence.
-  - **Web Version**: Uses the browser's `localStorage` for synchronous storage of prompts and settings.
-  - **Electron Compatibility**: Designed to be extended. Comments indicate where to plug in Electron's IPC (Inter-Process Communication) to interact with the Node.js `fs` module for file-based storage (`settings.json`, `prompts.json`). The `saveLogToFile` function demonstrates this dual-mode capability (file download for web, file save for Electron).
+The introduction of file-based storage required making the data hooks asynchronous.
 
-- **`llmService.ts`**: Manages all communication with the external local LLM provider. It constructs the meta-prompt for the refinement task and handles the `fetch` request, including error handling.
+- **`usePrompts` & `useSettings` Hooks**: These hooks now initialize with an empty/default state and then use a `useEffect` to asynchronously call the `storageService` to load data. All data mutations (add, update, delete) now call an `async` function to persist the changes back to the file system.
+- **`useHistoryState` Hook**: A specialized state hook that maintains a history of state changes for the editor's undo/redo feature.
+- **`LoggerContext`**: A global context that provides logging functionality to any component in the application.
 
-### 3.3. UI Components
+### 3.3. Services
 
-- **`App.tsx`**: The application's main component. It acts as a router, layout manager, and orchestrator. It holds the state for the current view (`editor` or `info`), the visibility of modals, and the state of the command palette. It is also responsible for defining the list of available commands.
+- **`storageService.ts`**: Handles data persistence with a dual-mode strategy.
+  - **Electron Version**: It checks for the presence of the `window.electronAPI` (exposed by `preload.ts`). If found, it makes `async` IPC calls to the main process to read/write JSON files.
+  - **Web Fallback**: If `window.electronAPI` is not present, it falls back to using the browser's `localStorage` for synchronous storage.
 
-- **`CommandPalette.tsx`**: A modal component that provides keyboard-driven access to application commands. It manages its own internal state for filtering the command list and handling keyboard navigation (`Up`, `Down`, `Enter`, `Esc`). It receives its list of commands from `App.tsx`, allowing for context-aware commands.
+- **`llmService.ts`**: Manages all communication with the external local LLM provider via `fetch`.
 
-- **`PromptEditor.tsx`**: The core text editing component. It uses the `useHistoryState` hook to manage the prompt's content, enabling the undo/redo functionality. It also handles keyboard shortcuts for these actions.
+### 3.4. Build Process
 
-### 3.4. Logging System
-
-- **`LoggerContext.tsx`**: The provider that holds the array of log messages and distributes the `addLog` function.
-- **`useLogger.ts`**: A simple consumer hook for easy access to the `addLog` function.
-- **`LoggerPanel.tsx`**: The UI component that displays and filters logs. It consumes the `LoggerContext` to get the log data.
-- **Integration**: `addLog` calls are placed at key points in the application flow:
-  - When prompts/settings are loaded or saved.
-  - Before and after making an API call to the LLM.
-  - When commands are executed from the palette.
-  - When errors occur in any service or component.
+- **`esbuild.config.js`**: This script configures ESBuild to bundle three separate entry points:
+    1.  `electron/main.ts` -> `dist/main.js` (Node environment)
+    2.  `electron/preload.ts` -> `dist/preload.js` (Node environment with Electron APIs)
+    3.  `index.tsx` -> `dist/renderer.js` (Browser environment)
+- **`electron-builder`**: This tool, configured in `package.json`, takes the output from `esbuild` and packages it into a distributable Windows installer (`.exe`), handling code signing, icons, and installer options.

@@ -1,43 +1,61 @@
-// In an Electron app, this file would be replaced by IPC (Inter-Process Communication) calls
-// to the main process, which would then use Node.js `fs` module to read/write to a JSON file.
 
-// For example, a preload script might expose the following API to the renderer process:
+// For type hints
 declare global {
   interface Window {
     electronAPI?: {
-      save: (key: string, value: string) => Promise<void>;
-      load: (key: string) => Promise<string | null>;
-      saveLog: (filename: string, content: string) => Promise<void>;
+      save: (key: string, value: string) => Promise<{ success: boolean; error?: string }>;
+      load: (key: string) => Promise<{ success: boolean; data: string | null; error?: string }>;
+      saveLog: (filename: string, content: string) => Promise<{ success: boolean; error?: string }>;
+      readDoc: (filename: string) => Promise<{ success: boolean; content?: string; error?: string }>;
     };
   }
 }
 
+const isElectron = !!window.electronAPI;
 
 export const storageService = {
-  save: <T,>(key: string, value: T): void => {
-    // In a real Electron app this would be an async call to the main process.
-    // To avoid a major refactor of the synchronous hooks, we'll keep it sync for web.
-    // if (window.electronAPI) { window.electronAPI.save(key, JSON.stringify(value)); }
-    try {
-      const serializedValue = JSON.stringify(value);
-      localStorage.setItem(key, serializedValue);
-    } catch (error) {
-      console.error(`Error saving to localStorage for key "${key}":`, error);
+  save: async <T,>(key: string, value: T): Promise<void> => {
+    const serializedValue = JSON.stringify(value);
+    if (isElectron) {
+      const result = await window.electronAPI!.save(key, serializedValue);
+      if (!result.success) {
+        console.error(`Electron: Failed to save data for key "${key}":`, result.error);
+      }
+    } else {
+      try {
+        localStorage.setItem(key, serializedValue);
+      } catch (error) {
+        console.error(`Web: Error saving to localStorage for key "${key}":`, error);
+      }
     }
   },
 
-  load: <T,>(key: string, defaultValue: T): T => {
-    // In a real Electron app this would be an async call to the main process.
-    // if (window.electronAPI) { ... }
-    try {
-      const serializedValue = localStorage.getItem(key);
-      if (serializedValue === null) {
+  load: async <T,>(key: string, defaultValue: T): Promise<T> => {
+    if (isElectron) {
+      const result = await window.electronAPI!.load(key);
+      if (result.success && result.data !== null) {
+        try {
+          return JSON.parse(result.data) as T;
+        } catch (error) {
+          console.error(`Electron: Error parsing loaded data for key "${key}":`, error);
+          return defaultValue;
+        }
+      }
+      if (!result.success) {
+        console.error(`Electron: Failed to load data for key "${key}":`, result.error);
+      }
+      return defaultValue;
+    } else {
+      try {
+        const serializedValue = localStorage.getItem(key);
+        if (serializedValue === null) {
+          return defaultValue;
+        }
+        return JSON.parse(serializedValue) as T;
+      } catch (error) {
+        console.error(`Web: Error loading from localStorage for key "${key}":`, error);
         return defaultValue;
       }
-      return JSON.parse(serializedValue) as T;
-    } catch (error) {
-      console.error(`Error loading from localStorage for key "${key}":`, error);
-      return defaultValue;
     }
   },
 
@@ -45,12 +63,11 @@ export const storageService = {
     const date = new Date().toISOString().split('T')[0];
     const filename = `promptforge-log-${date}.log`;
 
-    if (window.electronAPI?.saveLog) {
-      try {
-        await window.electronAPI.saveLog(filename, content);
-      } catch (error) {
-        console.error(`Electron: Failed to save log file:`, error);
-        alert('Failed to save log file.');
+    if (isElectron) {
+      const result = await window.electronAPI!.saveLog(filename, content);
+      if (!result.success) {
+        console.error('Electron: Failed to save log file:', result.error);
+        alert(`Failed to save log file: ${result.error}`);
       }
     } else {
       // Fallback for web: download the file

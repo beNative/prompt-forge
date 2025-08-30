@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.3.0] - 2024-08-02
+
+### Added
+
+- **Electron Build Support**:
+  - Integrated Electron to allow packaging the application as a standalone Windows desktop executable.
+  - Added `package.json` with scripts for development (`npm start`) and packaging (`npm run package`).
+  - Implemented an `esbuild` configuration for fast and efficient bundling of main, preload, and renderer processes.
+- **File-Based Storage**:
+  - In the Electron app, prompts and settings are now saved to `.json` files in the application's directory, replacing `localStorage`.
+  - The application retains `localStorage` as a fallback for web-based environments.
+- **Asynchronous Data Loading**: Refactored data hooks (`usePrompts`, `useSettings`) to be asynchronous to support file system operations.
+
+---
+
 ## [1.2.0] - 2024-08-01
 
 ### Added
@@ -46,4 +61,3 @@ All notable changes to this project will be documented in this file.
   - Introduced a comprehensive logging system with levels (DEBUG, INFO, WARNING, ERROR).
   - Added a collapsible Logger Panel, accessible from the header.
   - The panel allows for filtering logs by level and saving the log to a file.
-  - Integrated logging throughout the application for better monitoring and debugging.
