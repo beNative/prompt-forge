@@ -41,7 +41,8 @@ For quick, keyboard-driven access to common actions, use the Command Palette.
 ### 4.3. Editing a Prompt
 
 - Once a prompt is selected, you can edit its title and content directly in the editor pane.
-- Changes are saved automatically after a brief delay.
+- A yellow dot will appear next to the title to indicate unsaved changes.
+- Changes are saved automatically after you stop typing for a moment.
 - **Undo/Redo**: You can undo and redo changes to the prompt's content using:
     - Keyboard shortcuts: `Ctrl+Z` (Undo) and `Ctrl+Y` (Redo). On macOS, use `Cmd+Z` and `Cmd+Shift+Z`.
     - UI Buttons: Click the **Undo** and **Redo** arrow buttons at the bottom-left of the editor.

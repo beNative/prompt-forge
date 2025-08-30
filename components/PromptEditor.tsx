@@ -22,24 +22,27 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
   const [isRefining, setIsRefining] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refinedContent, setRefinedContent] = useState<string | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
   const { addLog } = useLogger();
-
+  
+  // Effect to detect unsaved changes
   useEffect(() => {
-    const handler = setTimeout(() => {
-      // Save title changes immediately
-      if (title !== prompt.title) {
-        onSave({ ...prompt, title, content });
-      }
-    }, 500);
-    return () => clearTimeout(handler);
-  }, [title, prompt.title, onSave, prompt, content]);
+    const hasUnsavedChanges = title !== prompt.title || content !== prompt.content;
+    setIsDirty(hasUnsavedChanges);
+  }, [title, content, prompt.title, prompt.content]);
 
+  // Consolidated and debounced auto-save effect
   useEffect(() => {
-    // Save content changes (from history state) only when they differ from original prompt content
-    if (content !== prompt.content) {
-      onSave({ ...prompt, title, content });
+    if (!isDirty) {
+      return;
     }
-  }, [content, prompt.content, onSave, prompt, title]);
+
+    const handler = setTimeout(() => {
+      onSave({ ...prompt, title, content });
+    }, 500); // 500ms debounce time
+
+    return () => clearTimeout(handler);
+  }, [title, content, isDirty, onSave, prompt]);
 
 
   const handleRefine = async () => {
@@ -78,7 +81,8 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
   const handleContentKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
     const isUndo = (isMac ? e.metaKey : e.ctrlKey) && e.key === 'z';
-    const isRedo = (isMac ? e.metaKey && e.shiftKey : e.ctrlKey) && e.key === 'y';
+    const isRedo = ((isMac ? e.metaKey && e.shiftKey : e.ctrlKey) && e.key === 'y') || ((isMac ? e.metaKey : e.ctrlKey) && e.key === 'y');
+
 
     if (isUndo) {
         e.preventDefault();
@@ -93,14 +97,19 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
 
   return (
     <div className="flex-1 flex flex-col p-4 md:p-6 bg-background overflow-y-auto">
-      <div className="flex justify-between items-center mb-4">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Prompt Title"
-          className="bg-transparent text-2xl font-bold text-text-main focus:outline-none w-full"
-        />
+      <div className="flex justify-between items-center mb-4 gap-4">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Prompt Title"
+              className="bg-transparent text-2xl font-bold text-text-main focus:outline-none w-full truncate"
+            />
+            {isDirty && (
+                <div className="w-2.5 h-2.5 bg-yellow-400 rounded-full animate-pulse flex-shrink-0" title="Unsaved changes"></div>
+            )}
+        </div>
         <button
             onClick={() => onDelete(prompt.id)}
             className="flex items-center gap-2 px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white transition-colors duration-200 disabled:opacity-50"

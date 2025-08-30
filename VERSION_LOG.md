@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.2.0] - 2024-08-01
+
+### Added
+
+- **Unsaved Changes Indicator**: Added a yellow pulsing dot next to the prompt title to clearly indicate when there are unsaved modifications.
+
+### Changed
+
+- **Improved Auto-Save**: Refactored the auto-save mechanism in the prompt editor to be more reliable and consistent for both title and content changes.
+- Ensured that accepting an AI refinement correctly triggers the auto-save process.
+
+---
+
 ## [1.1.0] - 2024-07-31
 
 ### Added
