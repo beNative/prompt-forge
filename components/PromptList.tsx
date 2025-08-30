@@ -29,7 +29,7 @@ const PromptList: React.FC<PromptListProps> = ({ prompts, activePromptId, onSele
               className={`w-full text-left p-2 rounded-md group flex justify-between items-center transition-colors duration-150 ${
                 activePromptId === prompt.id
                   ? 'bg-primary text-primary-text font-semibold'
-                  : 'hover:bg-secondary-light text-text-secondary hover:text-text-main'
+                  : 'hover:bg-accent/10 text-text-secondary hover:text-text-main'
               }`}
             >
               <span className="truncate flex-1 pr-2">{prompt.title}</span>

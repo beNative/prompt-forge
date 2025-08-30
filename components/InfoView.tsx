@@ -105,7 +105,6 @@ const InfoView: React.FC = () => {
         <div dangerouslySetInnerHTML={{ __html: renderedHtml }} />
       </div>
 
-      {/* Styles for the rendered markdown content */}
       <style>{`
         .markdown-content h1, .markdown-content h2, .markdown-content h3 {
             color: rgb(var(--color-text-main));
@@ -151,13 +150,14 @@ const InfoView: React.FC = () => {
             opacity: 0.8;
         }
         .markdown-content code {
-            background-color: rgb(var(--color-secondary-light));
+            background-color: rgb(var(--color-background));
             padding: 0.2em 0.4em;
             margin: 0;
             font-size: 85%;
             border-radius: 6px;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            color: rgb(var(--color-text-main));
+            color: rgb(var(--color-accent));
+            border: 1px solid rgb(var(--color-border));
         }
         .markdown-content pre {
             background-color: rgb(var(--color-background));

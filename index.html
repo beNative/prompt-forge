@@ -25,106 +25,69 @@
     <style>
       :root {
         /* Light Theme */
-        --color-primary: 8 145 178; /* cyan-600 */
-        --color-primary-hover: 6 182 212; /* cyan-500 */
+        --color-primary: 190 24 93; /* Fuchsia 600 */
+        --color-primary-hover: 219 39 119; /* Fuchsia 500 */
         --color-primary-text: 255 255 255; /* white */
-        --color-accent: 219 39 119; /* pink-600 */
-        --color-accent-hover: 236 72 153; /* pink-500 */
-        --color-accent-soft-bg: 253 232 248; /* pink-50 */
-        --color-secondary: 240 249 255; /* sky-50 - Sidebar */
-        --color-secondary-light: 224 242 254; /* sky-100 - Inputs, Hovers */
+        --color-accent: 101 163 13; /* Lime 600 */
+        --color-accent-hover: 132 204 22; /* Lime 500 */
+        --color-secondary: 240 253 244; /* Green 50 - Sidebar, Inputs */
         --color-background: 255 255 255; /* white - Main content area */
-        --color-text-main: 17 24 39; /* gray-900 */
-        --color-text-secondary: 75 85 99; /* gray-500 */
-        --color-border: 229 231 235; /* gray-200 */
-        --color-tooltip-bg: 17 24 39; /* gray-900 */
-        --color-tooltip-text: 249 250 251; /* gray-50 */
-        --color-grid-pattern: 0 0 0 / 0.05;
-        --color-modal-backdrop: 240 249 255 / 1; /* sky-50 solid */
-        --gradient-header-from: 14 116 144; /* cyan-700 */
-        --gradient-header-to: 67 56 202; /* indigo-800 */
+        --color-text-main: 28 25 23; /* Stone 900 */
+        --color-text-secondary: 87 83 78; /* Stone 600 */
+        --color-border: 228 228 228; /* Stone 200 */
+        --color-modal-backdrop: 255 255 255 / 1; /* white solid */
+        --gradient-header-from: 190 24 93; /* Fuchsia 600 */
+        --gradient-header-to: 132 204 22; /* Lime 500 */
+        --color-primary-glow: 190 24 93; /* Fuchsia 600 */
         /* Semantic Colors */
-        --color-destructive-text: 190 18 60; /* rose-700 */
-        --color-destructive-border: 253 164 175; /* rose-300 */
-        --color-destructive-bg: 255 228 230; /* rose-100 */
-        --color-destructive-bg-hover: 254 205 211; /* rose-200 */
-        --color-success: 21 128 61; /* green-700 */
-        --color-warning: 180 83 9; /* amber-600 */
-        --color-error: 185 28 28; /* red-700 */
-        --color-info: 29 78 216; /* blue-700 */
-        --color-debug: 4 120 87; /* emerald-700 */
+        --color-destructive-text: 190 18 60;
+        --color-destructive-border: 253 164 175;
+        --color-destructive-bg: 255 228 230;
+        --color-destructive-bg-hover: 254 205 211;
+        --color-success: 21 128 61;
+        --color-warning: 180 83 9;
+        --color-error: 185 28 28;
+        --color-info: 29 78 216;
+        --color-debug: 4 120 87;
       }
       .dark {
-        /* Dark Theme */
-        --color-primary: 34 211 238; /* cyan-400 */
-        --color-primary-hover: 72 224 247; /* cyan-300 */
-        --color-primary-text: 19 78 74; /* cyan-950 */
-        --color-accent: 244 114 182; /* pink-400 */
-        --color-accent-hover: 249 168 212; /* pink-300 */
-        --color-accent-soft-bg: 80 7 49; /* pink-950 */
-        --color-secondary: 17 24 39; /* gray-900 - Sidebar */
-        --color-secondary-light: 31 41 55; /* gray-800 - Inputs, Hovers */
-        --color-background: 3 7 18; /* gray-950 - Main content area */
-        --color-text-main: 243 244 246; /* gray-100 */
-        --color-text-secondary: 156 163 175; /* gray-400 */
-        --color-border: 55 65 81; /* gray-700 */
-        --color-tooltip-bg: 249 250 251; /* gray-50 */
-        --color-tooltip-text: 17 24 39; /* gray-900 */
-        --color-grid-pattern: 255 255 255 / 0.04;
-        --color-modal-backdrop: 3 7 18 / 1; /* gray-950 solid */
-        --gradient-header-from: 22 78 99; /* cyan-800 */
-        --gradient-header-to: 49 46 129; /* indigo-900 */
+        /* Dark Theme - Synthwave Inspired */
+        --color-primary: 219 39 119; /* Fuchsia 500 */
+        --color-primary-hover: 236 72 153; /* Fuchsia 400 */
+        --color-primary-text: 255 255 255; /* white */
+        --color-accent: 163 230 53; /* Lime 400 */
+        --color-accent-hover: 190 242 100; /* Lime 300 */
+        --color-secondary: 23 23 34; /* Dark Blue/Tealish - Sidebar, Inputs */
+        --color-background: 14 11 22; /* Deep Purple - Main content area */
+        --color-text-main: 229 231 235; /* Gray 200 */
+        --color-text-secondary: 156 163 175; /* Gray 400 */
+        --color-border: 42 42 60; /* Darker Purple-Gray */
+        --color-modal-backdrop: 14 11 22 / 1; /* Deep Purple solid */
+        --gradient-header-from: 190 24 93; /* Fuchsia 600 */
+        --gradient-header-to: 5 150 105; /* Emerald 600 */
+        --color-primary-glow: 219 39 119; /* Fuchsia 500 */
         /* Semantic Colors */
-        --color-destructive-text: 251 113 133; /* rose-400 */
-        --color-destructive-border: 136 19 55; /* rose-800 */
-        --color-destructive-bg: 136 19 55; /* rose-800 solid */
-        --color-destructive-bg-hover: 159 18 57; /* rose-700 */
-        --color-success: 74 222 128; /* green-400 */
-        --color-warning: 252 211 77; /* amber-300 */
-        --color-error: 248 113 113; /* red-400 */
-        --color-info: 96 165 250; /* blue-400 */
-        --color-debug: 52 211 153; /* emerald-400 */
+        --color-destructive-text: 251 113 133;
+        --color-destructive-border: 136 19 55;
+        --color-destructive-bg: 136 19 55;
+        --color-destructive-bg-hover: 159 18 57;
+        --color-success: 74 222 128;
+        --color-warning: 252 211 77;
+        --color-error: 248 113 113;
+        --color-info: 96 165 250;
+        --color-debug: 52 211 153;
       }
       body {
         font-family: 'Inter', sans-serif;
       }
-      /* Custom scrollbar for webkit browsers */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-thumb {
-        background-color: rgba(var(--color-text-secondary), 0.3);
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(var(--color-text-secondary), 0.5);
-      }
-      
-      /* --- Syntax Highlighting Styles --- */
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background-color: rgba(var(--color-text-secondary), 0.3); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background-color: rgba(var(--color-text-secondary), 0.5); }
       code[class*="language-"], pre[class*="language-"] {
-        color: rgb(var(--color-text-main));
-        background: none;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        font-size: 1em; /* Inherit from parent */
-        text-align: left;
-        white-space: pre;
-        word-spacing: normal;
-        word-break: normal;
-        word-wrap: normal;
-        line-height: 1.5;
-        -moz-tab-size: 4; -o-tab-size: 4; tab-size: 4;
-        -webkit-hyphens: none; -moz-hyphens: none; -ms-hyphens: none; hyphens: none;
+        color: rgb(var(--color-text-main)); background: none; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 1em; text-align: left; white-space: pre; word-spacing: normal; word-break: normal; word-wrap: normal; line-height: 1.5; -moz-tab-size: 4; -o-tab-size: 4; tab-size: 4; -webkit-hyphens: none; -moz-hyphens: none; -ms-hyphens: none; hyphens: none;
       }
-      /* Code blocks */
-      pre[class*="language-"] {
-        padding: 0; /* Let the container handle padding */
-        margin: 0;
-        overflow: hidden; /* Let the container handle scroll */
-      }
+      pre[class*="language-"] { padding: 0; margin: 0; overflow: hidden; }
       .token.comment, .token.prolog, .token.doctype, .token.cdata { color: rgb(var(--color-text-secondary)); font-style: italic; }
       .token.punctuation { color: rgb(var(--color-text-secondary)); }
       .token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted { color: rgb(var(--color-accent)); }
@@ -133,72 +96,48 @@
       .token.atrule, .token.attr-value, .token.keyword { color: rgb(var(--color-primary)); }
       .token.function, .token.class-name { color: rgb(var(--color-info)); }
       .token.regex, .token.important, .token.variable { color: rgb(var(--color-info)); }
-      /* Markdown specific */
       .token.title { color: rgb(var(--color-text-main)); font-weight: 700; }
       .token.code { background-color: rgb(var(--color-secondary-light)); }
       .token.url > .token.content { color: rgb(var(--color-success)); }
       .token.bold { font-weight: bold; }
       .token.italic { font-style: italic; }
       .token.entity { cursor: help; }
-
-      /* Editor placeholder */
-      .editor-container[data-placeholder]::after {
-        content: attr(data-placeholder);
-        position: absolute;
-        top: 1rem; /* p-4 */
-        left: 1rem; /* p-4 */
-        color: rgb(var(--color-text-secondary));
-        pointer-events: none;
-      }
+      .editor-container[data-placeholder]::after { content: attr(data-placeholder); position: absolute; top: 1rem; left: 1rem; color: rgb(var(--color-text-secondary)); pointer-events: none; }
     </style>
     <script>
-      // Helper function to use CSS variables with opacity
       const withOpacity = (variableName) => ({ opacityValue }) => {
-        if (opacityValue !== undefined) {
-          return `rgba(var(${variableName}), ${opacityValue})`;
-        }
+        if (opacityValue !== undefined) { return `rgba(var(${variableName}), ${opacityValue})`; }
         return `rgb(var(${variableName}))`;
       };
-
       tailwind.config = {
-        darkMode: 'class', // Enable class-based dark mode
+        darkMode: 'class',
         theme: {
           extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
+            boxShadow: {
+              'glow-primary': '0 0 15px 2px rgba(var(--color-primary-glow), 0.6)',
             },
-            backgroundImage: {
-               'header-gradient': 'linear-gradient(to right, var(--gradient-header-from), var(--gradient-header-to))',
-            },
+            fontFamily: { sans: ['Inter', 'sans-serif'], },
+            backgroundImage: { 'header-gradient': 'linear-gradient(to right, rgb(var(--gradient-header-from)), rgb(var(--gradient-header-to)))', },
             colors: {
               'primary': withOpacity('--color-primary'),
               'primary-hover': withOpacity('--color-primary-hover'),
               'primary-text': withOpacity('--color-primary-text'),
               'accent': withOpacity('--color-accent'),
               'accent-hover': withOpacity('--color-accent-hover'),
-              'accent-soft-bg': withOpacity('--color-accent-soft-bg'),
               'secondary': withOpacity('--color-secondary'),
-              'secondary-light': withOpacity('--color-secondary-light'),
               'background': withOpacity('--color-background'),
               'text-main': withOpacity('--color-text-main'),
               'text-secondary': withOpacity('--color-text-secondary'),
               'border-color': withOpacity('--color-border'),
               'modal-backdrop': withOpacity('--color-modal-backdrop'),
               'destructive': {
-                'text': withOpacity('--color-destructive-text'),
-                'border': withOpacity('--color-destructive-border'),
-                'bg-hover': withOpacity('--color-destructive-bg-hover'),
-                'bg': withOpacity('--color-destructive-bg'),
+                'text': withOpacity('--color-destructive-text'), 'border': withOpacity('--color-destructive-border'), 'bg-hover': withOpacity('--color-destructive-bg-hover'), 'bg': withOpacity('--color-destructive-bg'),
               },
               'success': withOpacity('--color-success'),
               'warning': withOpacity('--color-warning'),
               'error': withOpacity('--color-error'),
               'info': withOpacity('--color-info'),
               'debug': withOpacity('--color-debug'),
-              'tooltip': {
-                'bg': withOpacity('--color-tooltip-bg'),
-                'text': withOpacity('--color-tooltip-text'),
-              }
             }
           }
         }

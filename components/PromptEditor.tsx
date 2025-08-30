@@ -177,7 +177,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         <button
           onClick={handleRefine}
           disabled={isRefining || !content.trim()}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-md bg-primary hover:bg-primary-hover text-primary-text font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-md bg-primary hover:bg-primary-hover text-primary-text font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-glow-primary"
         >
           {isRefining ? <Spinner /> : <SparklesIcon className="w-5 h-5" />}
           {isRefining ? 'Refining...' : 'Refine with AI'}
@@ -192,7 +192,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
                     {refinedContent}
                 </div>
                 <div className="flex justify-end gap-3 mt-4">
-                    <button onClick={discardRefinement} className="px-4 py-2 rounded-md bg-secondary-light hover:bg-border-color text-text-main font-semibold">
+                    <button onClick={discardRefinement} className="px-4 py-2 rounded-md bg-secondary hover:bg-border-color text-text-main font-semibold">
                         Discard
                     </button>
                     <button onClick={acceptRefinement} className="px-4 py-2 rounded-md bg-primary hover:bg-primary-hover text-primary-text font-semibold">
