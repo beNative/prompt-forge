@@ -1,3 +1,4 @@
+
 export interface Prompt {
   id: string;
   title: string;
@@ -9,6 +10,7 @@ export interface Prompt {
 export interface Settings {
   llmProviderUrl: string;
   llmModelName: string;
+  apiType: 'ollama' | 'openai' | 'unknown';
 }
 
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR';
@@ -27,4 +29,17 @@ export interface Command {
   name: string;
   keywords?: string;
   action: () => void;
+}
+
+export interface DiscoveredLLMService {
+  id: string; // e.g., 'ollama-11434'
+  name: string; // e.g., 'Ollama (localhost:11434)'
+  modelsUrl: string; // Full URL to fetch models
+  generateUrl: string; // Full URL to generate content
+  apiType: 'ollama' | 'openai';
+}
+
+export interface DiscoveredLLMModel {
+  id: string; // The model name/id from the API
+  name: string; // A user-friendly name, often the same as id
 }

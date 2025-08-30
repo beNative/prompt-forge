@@ -19,7 +19,7 @@ type View = 'editor' | 'info';
 
 export default function App() {
   const { prompts, addPrompt, updatePrompt, deletePrompt } = usePrompts();
-  const { settings } = useSettings();
+  const { settings, loaded: settingsLoaded } = useSettings();
   const llmStatus = useLLMStatus(settings.llmProviderUrl);
   const [activePromptId, setActivePromptId] = useState<string | null>(null);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
@@ -36,6 +36,13 @@ export default function App() {
       setActivePromptId(null);
     }
   }, [prompts, activePromptId]);
+
+  // On first launch, if no provider is configured, open settings.
+  useEffect(() => {
+    if (settingsLoaded && !settings.llmProviderUrl) {
+      setSettingsOpen(true);
+    }
+  }, [settingsLoaded, settings.llmProviderUrl]);
 
   // Command Palette global shortcut
   useEffect(() => {

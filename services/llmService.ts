@@ -1,3 +1,4 @@
+
 import type { Settings } from '../types';
 
 interface OllamaResponse {
@@ -7,12 +8,20 @@ interface OllamaResponse {
   done: boolean;
 }
 
+interface OpenAIResponse {
+  choices: {
+    message: {
+      content: string;
+    };
+  }[];
+}
+
 export const llmService = {
   refinePrompt: async (prompt: string, settings: Settings, addLog: (level: 'INFO' | 'ERROR', message: string) => void): Promise<string> => {
-    const { llmProviderUrl, llmModelName } = settings;
+    const { llmProviderUrl, llmModelName, apiType } = settings;
 
-    if (!llmProviderUrl || !llmModelName) {
-      const errorMsg = 'LLM provider URL or model name is not configured.';
+    if (!llmProviderUrl || !llmModelName || apiType === 'unknown') {
+      const errorMsg = 'LLM provider is not configured. Please check your settings.';
       addLog('ERROR', errorMsg);
       throw new Error(errorMsg);
     }
@@ -26,17 +35,29 @@ ${prompt}
 Refined Prompt:`;
 
     try {
-      addLog('INFO', `Sending refine request to ${llmProviderUrl} with model ${llmModelName}.`);
+      addLog('INFO', `Sending refine request to ${llmProviderUrl} with model ${llmModelName} (API: ${apiType}).`);
+      
+      let body;
+      if (apiType === 'ollama') {
+        body = JSON.stringify({
+          model: llmModelName,
+          prompt: metaPrompt,
+          stream: false,
+        });
+      } else { // openai compatible
+        body = JSON.stringify({
+          model: llmModelName,
+          messages: [{ role: 'user', content: metaPrompt }],
+          stream: false,
+        });
+      }
+
       const response = await fetch(llmProviderUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          model: llmModelName,
-          prompt: metaPrompt,
-          stream: false,
-        }),
+        body,
       });
 
       if (!response.ok) {
@@ -46,9 +67,15 @@ Refined Prompt:`;
         throw new Error(errorMsg);
       }
 
-      const data = (await response.json()) as OllamaResponse;
+      const data = await response.json();
       addLog('INFO', 'Successfully received refined prompt from LLM provider.');
-      return data.response.trim();
+
+      if (apiType === 'ollama') {
+        return (data as OllamaResponse).response.trim();
+      } else { // openai compatible
+        return (data as OpenAIResponse).choices[0].message.content.trim();
+      }
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
       const connectionError = `Failed to connect to LLM provider at ${llmProviderUrl}. Please check your settings and ensure the provider is running. Details: ${errorMessage}`;

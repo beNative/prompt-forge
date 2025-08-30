@@ -7,6 +7,7 @@ export const LOCAL_STORAGE_KEYS = {
 };
 
 export const DEFAULT_SETTINGS: Settings = {
-  llmProviderUrl: 'http://localhost:11434/api/generate',
-  llmModelName: 'llama3',
+  llmProviderUrl: '',
+  llmModelName: '',
+  apiType: 'unknown',
 };
