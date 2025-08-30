@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { Command } from '../types';
 
@@ -72,16 +73,16 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
   }
 
   return (
-    <div className="fixed inset-0 bg-modal-backdrop backdrop-blur-sm z-60 flex justify-center pt-20" onClick={onClose}>
+    <div className="fixed inset-0 bg-modal-backdrop z-60 flex justify-center pt-20" onClick={onClose}>
       <div className="w-full max-w-lg bg-secondary rounded-lg shadow-2xl border border-border-color flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
-        <div className="p-2 border-b border-border-color">
+        <div className="p-3 border-b border-border-color">
           <input
             ref={inputRef}
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Type a command..."
-            className="w-full bg-secondary text-text-main placeholder-text-secondary focus:outline-none p-2"
+            className="w-full bg-secondary-light text-text-main placeholder:text-text-secondary focus:outline-none p-2 rounded-md border border-border-color focus:border-primary focus:ring-1 focus:ring-primary"
           />
         </div>
         <ul className="flex-1 overflow-y-auto max-h-80 p-2">

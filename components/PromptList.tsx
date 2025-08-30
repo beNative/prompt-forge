@@ -29,8 +29,8 @@ const PromptList: React.FC<PromptListProps> = ({ prompts, activePromptId, onSele
               onClick={() => onSelectPrompt(prompt.id)}
               className={`w-full text-left p-2 rounded-md group flex justify-between items-center transition-colors duration-150 ${
                 activePromptId === prompt.id
-                  ? 'bg-primary/10 text-primary font-medium'
-                  : 'hover:bg-secondary-light/60 text-text-secondary'
+                  ? 'bg-primary text-primary-text font-semibold'
+                  : 'hover:bg-secondary-light text-text-secondary'
               }`}
             >
               <span className="truncate flex-1 pr-2">{prompt.title}</span>

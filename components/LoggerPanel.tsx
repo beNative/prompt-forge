@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useLogger } from '../hooks/useLogger';
 import { LogLevel, LogMessage } from '../types';
@@ -72,7 +73,7 @@ const LoggerPanel: React.FC<LoggerPanelProps> = ({ isVisible, onToggleVisibility
       <div ref={scrollRef} className="flex-1 p-2 overflow-y-auto font-mono text-xs">
         {filteredLogs.map(log => (
           <div key={log.id} className="flex items-center gap-2">
-            <span className="text-text-secondary/80">{log.timestamp}</span>
+            <span className="text-text-secondary">{log.timestamp}</span>
             <span className={`w-2 h-2 rounded-full ${logLevelColors[log.level]}`}></span>
             <span className="flex-1 text-text-secondary">{log.message}</span>
           </div>

@@ -101,7 +101,7 @@ const InfoView: React.FC = () => {
           </button>
         ))}
       </div>
-      {error && <div className="mb-4 text-red-400 p-3 bg-red-900/50 rounded-md">{error}</div>}
+      {error && <div className="mb-4 text-destructive-text p-3 bg-destructive-bg rounded-md">{error}</div>}
       <div className="flex-1 bg-secondary p-4 rounded-md overflow-y-auto markdown-content text-text-secondary">
         <div dangerouslySetInnerHTML={{ __html: renderedHtml }} />
       </div>
@@ -151,7 +151,7 @@ const InfoView: React.FC = () => {
             opacity: 0.8;
         }
         .markdown-content code {
-            background-color: rgba(var(--color-secondary-light), 0.5);
+            background-color: rgb(var(--color-secondary-light));
             padding: 0.2em 0.4em;
             margin: 0;
             font-size: 85%;
@@ -160,7 +160,7 @@ const InfoView: React.FC = () => {
             color: rgb(var(--color-text-main));
         }
         .markdown-content pre {
-            background-color: rgb(var(--color-secondary));
+            background-color: rgb(var(--color-background));
             padding: 1em;
             border: 1px solid rgb(var(--color-border));
             border-radius: 6px;
