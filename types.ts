@@ -1,4 +1,3 @@
-
 export interface Prompt {
   id: string;
   title: string;
@@ -10,4 +9,13 @@ export interface Prompt {
 export interface Settings {
   llmProviderUrl: string;
   llmModelName: string;
+}
+
+export type LogLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR';
+
+export interface LogMessage {
+  id: number;
+  timestamp: string;
+  level: LogLevel;
+  message: string;
 }

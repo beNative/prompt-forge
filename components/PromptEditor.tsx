@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import type { Prompt } from '../types';
 import { useSettings } from '../hooks/useSettings';
@@ -6,6 +5,7 @@ import { llmService } from '../services/llmService';
 import { SparklesIcon, TrashIcon } from './Icons';
 import Spinner from './Spinner';
 import Modal from './Modal';
+import { useLogger } from '../hooks/useLogger';
 
 interface PromptEditorProps {
   prompt: Prompt;
@@ -20,6 +20,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete })
   const [error, setError] = useState<string | null>(null);
   const [refinedContent, setRefinedContent] = useState<string | null>(null);
   const { settings } = useSettings();
+  const { addLog } = useLogger();
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -33,14 +34,17 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete })
   const handleRefine = async () => {
     setIsRefining(true);
     setError(null);
+    addLog('INFO', `Requesting AI refinement for prompt: "${title}"`);
     try {
-      const result = await llmService.refinePrompt(content, settings);
+      const result = await llmService.refinePrompt(content, settings, addLog);
       setRefinedContent(result);
     } catch (e) {
       if (e instanceof Error) {
         setError(e.message);
+        addLog('ERROR', `AI refinement failed: ${e.message}`);
       } else {
         setError('An unknown error occurred.');
+        addLog('ERROR', 'AI refinement failed with an unknown error.');
       }
     } finally {
       setIsRefining(false);
@@ -51,9 +55,15 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete })
     if (refinedContent) {
       setContent(refinedContent);
       onSave({ ...prompt, title, content: refinedContent });
+      addLog('INFO', `AI refinement accepted for prompt: "${title}"`);
     }
     setRefinedContent(null);
   };
+
+  const discardRefinement = () => {
+    addLog('INFO', `AI refinement discarded for prompt: "${title}"`);
+    setRefinedContent(null);
+  }
   
   const handleDeleteClick = () => {
     if (window.confirm(`Are you sure you want to delete "${prompt.title}"?`)) {
@@ -101,14 +111,14 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete })
       </div>
       
       {refinedContent && (
-        <Modal onClose={() => setRefinedContent(null)} title="AI Refinement Suggestion">
+        <Modal onClose={discardRefinement} title="AI Refinement Suggestion">
             <div className="p-4 bg-background text-text-main">
                 <p className="text-text-secondary mb-2">The AI suggests the following refinement. You can accept this change or discard it.</p>
                 <div className="p-3 my-4 bg-secondary border border-border-color rounded-md whitespace-pre-wrap font-mono text-sm max-h-96 overflow-y-auto">
                     {refinedContent}
                 </div>
                 <div className="flex justify-end gap-3 mt-4">
-                    <button onClick={() => setRefinedContent(null)} className="px-4 py-2 rounded-md bg-secondary-light hover:bg-border-color text-text-main font-semibold">
+                    <button onClick={discardRefinement} className="px-4 py-2 rounded-md bg-secondary-light hover:bg-border-color text-text-main font-semibold">
                         Discard
                     </button>
                     <button onClick={acceptRefinement} className="px-4 py-2 rounded-md bg-primary hover:bg-primary-hover text-white font-semibold">

@@ -1,14 +1,16 @@
-
 import React from 'react';
 import IconButton from './IconButton';
-import { GearIcon, PlusIcon, FileIcon } from './Icons';
+import { GearIcon, PlusIcon, FileIcon, InfoIcon, FileCodeIcon } from './Icons';
 
 interface HeaderProps {
   onNewPrompt: () => void;
   onOpenSettings: () => void;
+  onToggleInfoView: () => void;
+  onToggleLogger: () => void;
+  isInfoViewActive: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ onNewPrompt, onOpenSettings }) => {
+const Header: React.FC<HeaderProps> = ({ onNewPrompt, onOpenSettings, onToggleInfoView, onToggleLogger, isInfoViewActive }) => {
   return (
     <header className="flex items-center justify-between p-3 border-b border-border-color bg-secondary flex-shrink-0">
       <div className="flex items-center gap-2">
@@ -18,6 +20,12 @@ const Header: React.FC<HeaderProps> = ({ onNewPrompt, onOpenSettings }) => {
       <div className="flex items-center gap-2">
         <IconButton onClick={onNewPrompt} tooltip="New Prompt">
           <PlusIcon />
+        </IconButton>
+        <IconButton onClick={onToggleInfoView} tooltip="Info" className={isInfoViewActive ? 'bg-primary text-white' : ''}>
+          <InfoIcon />
+        </IconButton>
+        <IconButton onClick={onToggleLogger} tooltip="Logs">
+          <FileCodeIcon />
         </IconButton>
         <IconButton onClick={onOpenSettings} tooltip="Settings">
           <GearIcon />

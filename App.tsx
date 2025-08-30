@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import Header from './components/Header';
 import PromptList from './components/PromptList';
@@ -7,11 +6,17 @@ import SettingsModal from './components/SettingsModal';
 import { usePrompts } from './hooks/usePrompts';
 import type { Prompt } from './types';
 import { WelcomeScreen } from './components/WelcomeScreen';
+import InfoView from './components/InfoView';
+import LoggerPanel from './components/LoggerPanel';
+
+type View = 'editor' | 'info';
 
 export default function App() {
   const { prompts, addPrompt, updatePrompt, deletePrompt } = usePrompts();
   const [activePromptId, setActivePromptId] = useState<string | null>(null);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
+  const [view, setView] = useState<View>('editor');
+  const [isLoggerVisible, setLoggerVisible] = useState(false);
 
   useEffect(() => {
     if (prompts.length > 0 && activePromptId === null) {
@@ -25,6 +30,7 @@ export default function App() {
   const handleNewPrompt = () => {
     const newPrompt = addPrompt();
     setActivePromptId(newPrompt.id);
+    setView('editor'); // Switch to editor view when a new prompt is created
   };
 
   const activePrompt = useMemo(() => {
@@ -42,31 +48,48 @@ export default function App() {
     }
   };
 
+  const handleToggleInfoView = () => {
+    setView(currentView => currentView === 'editor' ? 'info' : 'editor');
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background text-text-main font-sans">
-      <Header onNewPrompt={handleNewPrompt} onOpenSettings={() => setSettingsOpen(true)} />
+      <Header 
+        onNewPrompt={handleNewPrompt} 
+        onOpenSettings={() => setSettingsOpen(true)}
+        onToggleInfoView={handleToggleInfoView}
+        onToggleLogger={() => setLoggerVisible(v => !v)}
+        isInfoViewActive={view === 'info'}
+      />
       <main className="flex flex-1 overflow-hidden">
-        <div className="w-1/4 max-w-xs border-r border-border-color overflow-y-auto">
-          <PromptList
-            prompts={prompts}
-            activePromptId={activePromptId}
-            onSelectPrompt={setActivePromptId}
-            onDeletePrompt={handleDeletePrompt}
-          />
-        </div>
-        <div className="flex-1 flex flex-col">
-          {activePrompt ? (
-            <PromptEditor
-              key={activePrompt.id}
-              prompt={activePrompt}
-              onSave={handleSavePrompt}
-              onDelete={handleDeletePrompt}
-            />
-          ) : (
-            <WelcomeScreen onNewPrompt={handleNewPrompt} />
-          )}
-        </div>
+        {view === 'editor' ? (
+          <>
+            <div className="w-1/4 max-w-xs border-r border-border-color overflow-y-auto">
+              <PromptList
+                prompts={prompts}
+                activePromptId={activePromptId}
+                onSelectPrompt={setActivePromptId}
+                onDeletePrompt={handleDeletePrompt}
+              />
+            </div>
+            <div className="flex-1 flex flex-col">
+              {activePrompt ? (
+                <PromptEditor
+                  key={activePrompt.id}
+                  prompt={activePrompt}
+                  onSave={handleSavePrompt}
+                  onDelete={handleDeletePrompt}
+                />
+              ) : (
+                <WelcomeScreen onNewPrompt={handleNewPrompt} />
+              )}
+            </div>
+          </>
+        ) : (
+          <InfoView />
+        )}
       </main>
+      <LoggerPanel isVisible={isLoggerVisible} onToggleVisibility={() => setLoggerVisible(false)} />
       {isSettingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
     </div>
   );
