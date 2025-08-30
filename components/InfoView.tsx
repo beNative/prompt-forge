@@ -109,14 +109,14 @@ const InfoView: React.FC = () => {
       {/* Styles for the rendered markdown content */}
       <style>{`
         .markdown-content h1, .markdown-content h2, .markdown-content h3 {
-            color: #e2e8f0; /* text-main */
+            color: rgb(var(--color-text-main));
             margin-top: 1.5em;
             margin-bottom: 0.8em;
             font-weight: 600;
         }
         .markdown-content h1 {
             font-size: 1.875rem; /* text-3xl */
-            border-bottom: 1px solid #334155; /* border-border-color */
+            border-bottom: 1px solid rgb(var(--color-border));
             padding-bottom: 0.4em;
         }
         .markdown-content h2 {
@@ -144,23 +144,25 @@ const InfoView: React.FC = () => {
             margin-bottom: 0.5em;
         }
         .markdown-content a {
-            color: #3b82f6; /* primary */
+            color: rgb(var(--color-primary));
             text-decoration: underline;
         }
         .markdown-content a:hover {
-            color: #60a5fa;
+            opacity: 0.8;
         }
         .markdown-content code {
-            background-color: #0f172a; /* bg-background */
+            background-color: rgba(var(--color-secondary-light), 0.5);
             padding: 0.2em 0.4em;
             margin: 0;
             font-size: 85%;
             border-radius: 6px;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            color: rgb(var(--color-text-main));
         }
         .markdown-content pre {
-            background-color: #0f172a; /* bg-background */
+            background-color: rgb(var(--color-secondary));
             padding: 1em;
+            border: 1px solid rgb(var(--color-border));
             border-radius: 6px;
             overflow-x: auto;
             margin-bottom: 1em;
@@ -170,6 +172,7 @@ const InfoView: React.FC = () => {
             margin: 0;
             font-size: 100%;
             background-color: transparent;
+            border: none;
         }
       `}</style>
     </div>

@@ -26,7 +26,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNewPrompt }) => 
             </div>
             <style>{`
                 .bg-grid-pattern {
-                    background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+                    background-image: linear-gradient(rgba(var(--color-grid-pattern)) 1px, transparent 1px), linear-gradient(90deg, rgba(var(--color-grid-pattern)) 1px, transparent 1px);
                     background-size: 2rem 2rem;
                 }
             `}</style>

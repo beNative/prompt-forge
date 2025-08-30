@@ -11,21 +11,94 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+      // Prevents theme flash
+      (function() {
+        const theme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (theme === 'dark' || (!theme && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
+    <style>
+      :root {
+        /* Light Theme */
+        --color-primary: 59 130 246; /* blue-500 */
+        --color-primary-hover: 37 99 235; /* blue-600 */
+        --color-secondary: 241 245 249; /* slate-100 */
+        --color-secondary-light: 226 232 240; /* slate-200 */
+        --color-background: 255 255 255; /* white */
+        --color-text-main: 15 23 42; /* slate-900 */
+        --color-text-secondary: 71 85 105; /* slate-500 */
+        --color-border: 203 213 225; /* slate-300 */
+        --color-tooltip-bg: 15 23 42; /* slate-900 */
+        --color-tooltip-text: 248 250 252; /* slate-50 */
+        --color-grid-pattern: 0 0 0 / 0.05;
+      }
+      .dark {
+        /* Dark Theme */
+        --color-primary: 59 130 246; /* blue-500 */
+        --color-primary-hover: 37 99 235; /* blue-600 */
+        --color-secondary: 30 41 59; /* slate-800 */
+        --color-secondary-light: 51 65 85; /* slate-700 */
+        --color-background: 15 23 42; /* slate-900 */
+        --color-text-main: 226 232 240; /* slate-200 */
+        --color-text-secondary: 148 163 184; /* slate-400 */
+        --color-border: 51 65 85; /* slate-700 */
+        --color-tooltip-bg: 248 250 252; /* slate-50 */
+        --color-tooltip-text: 15 23 42; /* slate-900 */
+        --color-grid-pattern: 255 255 255 / 0.03;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      /* Custom scrollbar for webkit browsers */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: rgba(var(--color-text-secondary), 0.3);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(var(--color-text-secondary), 0.5);
+      }
+    </style>
+    <script>
+      // Helper function to use CSS variables with opacity
+      const withOpacity = (variableName) => ({ opacityValue }) => {
+        if (opacityValue !== undefined) {
+          return `rgba(var(${variableName}), ${opacityValue})`;
+        }
+        return `rgb(var(${variableName}))`;
+      };
+
       tailwind.config = {
+        darkMode: 'class', // Enable class-based dark mode
         theme: {
           extend: {
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
             },
             colors: {
-              'primary': '#3b82f6', // blue-500
-              'primary-hover': '#2563eb', // blue-600
-              'secondary': '#1e293b', // slate-800
-              'secondary-light': '#334155', // slate-700
-              'background': '#0f172a', // slate-900
-              'text-main': '#e2e8f0', // slate-200
-              'text-secondary': '#94a3b8', // slate-400
-              'border-color': '#334155', // slate-700
+              'primary': withOpacity('--color-primary'),
+              'primary-hover': withOpacity('--color-primary-hover'),
+              'secondary': withOpacity('--color-secondary'),
+              'secondary-light': withOpacity('--color-secondary-light'),
+              'background': withOpacity('--color-background'),
+              'text-main': withOpacity('--color-text-main'),
+              'text-secondary': withOpacity('--color-text-secondary'),
+              'border-color': withOpacity('--color-border'),
+              'tooltip': {
+                'bg': withOpacity('--color-tooltip-bg'),
+                'text': withOpacity('--color-tooltip-text'),
+              }
             }
           }
         }
@@ -44,13 +117,8 @@
 }
 </script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-  </style>
 </head>
-  <body class="bg-background">
+  <body class="bg-background text-text-main">
     <div id="root"></div>
     <script type="module" src="./dist/renderer.js"></script>
   </body>

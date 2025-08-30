@@ -105,7 +105,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Prompt Title"
-              className="bg-transparent text-3xl font-semibold text-text-main focus:outline-none w-full truncate placeholder:text-slate-600"
+              className="bg-transparent text-3xl font-semibold text-text-main focus:outline-none w-full truncate placeholder:text-text-secondary/60"
             />
             {isDirty && (
                 <div className="w-2.5 h-2.5 bg-yellow-400 rounded-full animate-pulse flex-shrink-0" title="Unsaved changes"></div>
@@ -125,7 +125,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={handleContentKeyDown}
         placeholder="Enter your prompt here..."
-        className="w-full flex-1 p-4 rounded-lg bg-secondary text-text-main border border-border-color focus:ring-2 focus:ring-primary focus:border-primary resize-none font-mono text-base"
+        className="w-full flex-1 p-4 rounded-lg bg-secondary text-text-main border border-border-color focus:ring-2 focus:ring-primary focus:border-primary resize-none font-mono text-base placeholder:text-text-secondary/60"
       />
       
       {error && <div className="mt-4 text-red-400 p-3 bg-red-900/50 rounded-md">{error}</div>}
@@ -133,10 +133,10 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
       <div className="mt-4 flex justify-between items-center">
         <div className="flex items-center gap-1">
             <IconButton onClick={undo} disabled={!canUndo} tooltip="Undo (Ctrl+Z)">
-                <UndoIcon className={!canUndo ? 'text-gray-600' : ''} />
+                <UndoIcon className={!canUndo ? 'text-text-secondary/50' : ''} />
             </IconButton>
             <IconButton onClick={redo} disabled={!canRedo} tooltip="Redo (Ctrl+Y)">
-                <RedoIcon className={!canRedo ? 'text-gray-600' : ''} />
+                <RedoIcon className={!canRedo ? 'text-text-secondary/50' : ''} />
             </IconButton>
         </div>
         <button

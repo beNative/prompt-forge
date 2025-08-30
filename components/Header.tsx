@@ -2,6 +2,7 @@
 import React from 'react';
 import IconButton from './IconButton';
 import { GearIcon, PlusIcon, FileIcon, InfoIcon, FileCodeIcon, CommandIcon } from './Icons';
+import ThemeToggleButton from './ThemeToggleButton';
 
 interface HeaderProps {
   onNewPrompt: () => void;
@@ -26,12 +27,13 @@ const Header: React.FC<HeaderProps> = ({ onNewPrompt, onOpenSettings, onToggleIn
         <IconButton onClick={onOpenCommandPalette} tooltip="Command Palette (Ctrl+Shift+P)">
           <CommandIcon />
         </IconButton>
-        <IconButton onClick={onToggleInfoView} tooltip="Info" className={isInfoViewActive ? 'bg-primary text-white' : ''}>
+        <IconButton onClick={onToggleInfoView} tooltip="Info" className={isInfoViewActive ? 'bg-secondary-light text-text-main' : ''}>
           <InfoIcon />
         </IconButton>
         <IconButton onClick={onToggleLogger} tooltip="Logs">
           <FileCodeIcon />
         </IconButton>
+        <ThemeToggleButton />
         <IconButton onClick={onOpenSettings} tooltip="Settings">
           <GearIcon />
         </IconButton>

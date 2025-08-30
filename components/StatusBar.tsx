@@ -45,12 +45,12 @@ const StatusBar: React.FC<StatusBarProps> = ({ status, modelName, promptCount, l
         <div className="relative group flex items-center gap-2 cursor-default">
           <div className={`w-2.5 h-2.5 rounded-full ${color}`}></div>
           <span>{text}</span>
-          <span className="absolute bottom-full mb-2 w-max px-2 py-1 text-xs text-white bg-gray-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <span className="absolute bottom-full mb-2 w-max px-2 py-1 text-xs text-tooltip-text bg-tooltip-bg rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
             {tooltip}
           </span>
         </div>
         <div className="h-4 w-px bg-border-color"></div>
-        <span>Model: <span className="font-semibold text-text-main">{modelName}</span></span>
+        <span>Model: <span className="font-semibold text-text-main">{modelName || 'N/A'}</span></span>
       </div>
       <div className="flex items-center gap-4">
         <span>Prompts: <span className="font-semibold text-text-main">{promptCount}</span></span>

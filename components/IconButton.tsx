@@ -13,7 +13,7 @@ const IconButton: React.FC<IconButtonProps> = ({ children, tooltip, className, v
   
   const variantClasses = {
       primary: 'text-text-secondary hover:bg-secondary-light hover:text-text-main',
-      ghost: 'text-gray-400 hover:bg-gray-700 hover:text-white'
+      ghost: 'text-text-secondary/80 hover:bg-secondary-light/60 hover:text-text-main'
   };
 
   const sizeClasses = {
@@ -27,7 +27,7 @@ const IconButton: React.FC<IconButtonProps> = ({ children, tooltip, className, v
       {...props}
     >
       {children}
-      <span className="absolute bottom-full mb-2 w-max px-2 py-1 text-xs text-white bg-gray-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+      <span className="absolute bottom-full mb-2 w-max px-2 py-1 text-xs text-tooltip-text bg-tooltip-bg rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
         {tooltip}
       </span>
     </button>
