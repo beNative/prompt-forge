@@ -30,7 +30,8 @@
     "files": [
       "dist/",
       "index.html",
-      "package.json"
+      "package.json",
+      "node_modules/"
     ],
     "directories": {
       "output": "release"
