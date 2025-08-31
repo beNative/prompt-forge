@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import type { PromptOrFolder } from '../types';
 import IconButton from './IconButton';
@@ -64,7 +63,11 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('text/plain', node.id);
     e.dataTransfer.effectAllowed = 'move';
-    setIsBeingDragged(true);
+    // FIX: Delay state update to prevent flickering by allowing the browser
+    // to capture a snapshot of the node before it becomes transparent.
+    setTimeout(() => {
+        setIsBeingDragged(true);
+    }, 0);
   };
 
   const handleDragEnd = () => {
@@ -121,7 +124,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         draggable={renamingId !== node.id}
-        className={`relative ${isBeingDragged ? 'opacity-40' : ''}`}
+        className={`relative transition-opacity ${isBeingDragged ? 'opacity-40' : ''}`}
     >
       {renderDropIndicator()}
       <div style={{ paddingLeft: `${level * 1.25}rem` }} className="py-0.5">
@@ -145,7 +148,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
             title={node.title}
             className={`w-full text-left p-1.5 rounded-md group flex justify-between items-center transition-colors duration-150 text-sm ${
               activeNodeId === node.id
-                ? 'bg-border-color/50 text-text-main font-semibold'
+                ? 'bg-background text-text-main font-semibold'
                 : 'hover:bg-background text-text-secondary hover:text-text-main'
             }`}
           >

@@ -22,7 +22,6 @@ const PromptList: React.FC<PromptListProps> = ({
 }) => {
   const [expandedIds, setExpandedIds] = useState(new Set<string>());
   const [isStateLoaded, setIsStateLoaded] = useState(false);
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   // Load expanded IDs from storage on mount
   useEffect(() => {
@@ -85,7 +84,6 @@ const PromptList: React.FC<PromptListProps> = ({
   
   const handleRootDrop = (e: React.DragEvent) => {
       e.preventDefault();
-      setIsDraggingOver(false);
       const draggedId = e.dataTransfer.getData('text/plain');
       if (draggedId) {
           onMoveNode(draggedId, null, 'after');
@@ -95,7 +93,6 @@ const PromptList: React.FC<PromptListProps> = ({
   const handleRootDragOver = (e: React.DragEvent) => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
-      setIsDraggingOver(true);
   };
 
 
@@ -116,9 +113,7 @@ const PromptList: React.FC<PromptListProps> = ({
           className="flex-1 p-2 relative overflow-y-auto"
           onDrop={handleRootDrop}
           onDragOver={handleRootDragOver}
-          onDragLeave={() => setIsDraggingOver(false)}
       >
-        {isDraggingOver && <div className="absolute inset-2 bg-primary/10 border-2 border-primary border-dashed rounded-lg" />}
         <ul className="space-y-0.5">
           {tree.map((node) => (
             <PromptTreeItem
