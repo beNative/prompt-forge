@@ -125,6 +125,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
           <button
             onClick={() => onSelectNode(node.id)}
             onDoubleClick={handleRenameStart}
+            title="" // Disable native tooltip for truncated text
             className={`w-full text-left p-1.5 rounded-md group flex justify-between items-center transition-colors duration-150 text-sm ${
               activeNodeId === node.id
                 ? 'bg-background text-text-main'
