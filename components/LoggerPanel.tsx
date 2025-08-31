@@ -62,7 +62,7 @@ const LoggerPanel: React.FC<LoggerPanelProps> = ({ isVisible, onToggleVisibility
   const panelContent = (
     <div
       style={{ height: `${height}px` }}
-      className={`fixed bottom-0 left-0 right-0 z-20 flex flex-col overflow-hidden bg-secondary shadow-lg transition-transform duration-300 ease-in-out ${
+      className={`fixed bottom-0 left-0 right-0 z-20 flex flex-col bg-secondary shadow-lg transition-transform duration-300 ease-in-out ${
         isVisible ? 'translate-y-0' : 'translate-y-full'
       }`}
       aria-hidden={!isVisible}
