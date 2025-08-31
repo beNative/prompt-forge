@@ -1,9 +1,10 @@
 
 
-export interface Prompt {
+export interface PromptOrFolder {
   id: string;
+  type: 'prompt' | 'folder';
   title: string;
-  content: string;
+  content?: string;
   createdAt: string;
   updatedAt: string;
   parentId: string | null;

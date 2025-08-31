@@ -1,36 +1,51 @@
 import React, { useState, useMemo } from 'react';
-import type { Prompt } from '../types';
+import type { PromptOrFolder } from '../types';
 import PromptTreeItem, { PromptNode } from './PromptTreeItem';
 
 interface PromptListProps {
-  prompts: Prompt[];
-  activePromptId: string | null;
-  onSelectPrompt: (id: string) => void;
-  onDeletePrompt: (id: string) => void;
-  onRenamePrompt: (id: string, newTitle: string) => void;
-  onMovePrompt: (draggedId: string, targetId: string | null, position: 'before' | 'after' | 'inside') => void;
+  items: PromptOrFolder[];
+  activeNodeId: string | null;
+  onSelectNode: (id: string) => void;
+  onDeleteNode: (id: string) => void;
+  onRenameNode: (id: string, newTitle: string) => void;
+  onMoveNode: (draggedId: string, targetId: string | null, position: 'before' | 'after' | 'inside') => void;
 }
 
-const PromptList: React.FC<PromptListProps> = ({ prompts, activePromptId, onSelectPrompt, onDeletePrompt, onRenamePrompt, onMovePrompt }) => {
+const PromptList: React.FC<PromptListProps> = ({ items, activeNodeId, onSelectNode, onDeleteNode, onRenameNode, onMoveNode }) => {
   const [expandedIds, setExpandedIds] = useState(new Set<string>());
   const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   const tree = useMemo(() => {
-    const promptsById = new Map<string, PromptNode>(
-      prompts.map(p => [p.id, { ...p, children: [] }])
+    const itemsById = new Map<string, PromptNode>(
+      items.map(p => [p.id, { ...p, children: [] }])
     );
     const rootNodes: PromptNode[] = [];
 
-    for (const prompt of prompts) {
-      const node = promptsById.get(prompt.id)!;
-      if (prompt.parentId && promptsById.has(prompt.parentId)) {
-        promptsById.get(prompt.parentId)!.children.push(node);
+    for (const item of items) {
+      const node = itemsById.get(item.id)!;
+      if (item.parentId && itemsById.has(item.parentId)) {
+        itemsById.get(item.parentId)!.children.push(node);
       } else {
         rootNodes.push(node);
       }
     }
-    return rootNodes;
-  }, [prompts]);
+    // Sort so folders come before prompts
+    const sortNodes = (nodes: PromptNode[]): PromptNode[] => {
+        nodes.sort((a, b) => {
+            if (a.type === 'folder' && b.type === 'prompt') return -1;
+            if (a.type === 'prompt' && b.type === 'folder') return 1;
+            return a.title.localeCompare(b.title);
+        });
+        nodes.forEach(node => {
+            if (node.children.length) {
+                node.children = sortNodes(node.children);
+            }
+        });
+        return nodes;
+    };
+    
+    return sortNodes(rootNodes);
+  }, [items]);
 
   const handleToggleExpand = (id: string) => {
     setExpandedIds(prev => {
@@ -49,15 +64,12 @@ const PromptList: React.FC<PromptListProps> = ({ prompts, activePromptId, onSele
       setIsDraggingOver(false);
       const draggedId = e.dataTransfer.getData('text/plain');
       if (draggedId) {
-          // Dropping on the root container means moving the item to the top level.
-          // We use targetId=null and position='after' to signify appending to the root.
-          onMovePrompt(draggedId, null, 'after');
+          onMoveNode(draggedId, null, 'after');
       }
   };
 
   const handleRootDragOver = (e: React.DragEvent) => {
       e.preventDefault();
-      // This is necessary to allow dropping
       e.dataTransfer.dropEffect = 'move';
       setIsDraggingOver(true);
   };
@@ -78,18 +90,18 @@ const PromptList: React.FC<PromptListProps> = ({ prompts, activePromptId, onSele
             key={node.id}
             node={node}
             level={0}
-            activePromptId={activePromptId}
+            activeNodeId={activeNodeId}
             expandedIds={expandedIds}
-            onSelectPrompt={onSelectPrompt}
-            onDeletePrompt={onDeletePrompt}
-            onRenamePrompt={onRenamePrompt}
-            onMovePrompt={onMovePrompt}
+            onSelectNode={onSelectNode}
+            onDeleteNode={onDeleteNode}
+            onRenameNode={onRenameNode}
+            onMoveNode={onMoveNode}
             onToggleExpand={handleToggleExpand}
           />
         ))}
-         {prompts.length === 0 && (
+         {items.length === 0 && (
             <li className="text-center text-text-secondary p-4 text-sm">
-                No prompts yet.
+                No prompts or folders yet.
             </li>
          )}
       </ul>

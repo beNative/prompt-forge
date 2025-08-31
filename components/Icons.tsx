@@ -81,3 +81,18 @@ export const MoonIcon: React.FC<IconProps> = (props) => {
     const { iconSet } = useIconSet();
     return iconSet === 'lucide' ? <LucideIcons.MoonIcon {...props} /> : <HeroIcons.MoonIcon {...props} />;
 };
+
+export const FolderIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    return iconSet === 'lucide' ? <LucideIcons.FolderIcon {...props} /> : <HeroIcons.FolderIcon {...props} />;
+};
+
+export const FolderOpenIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    return iconSet === 'lucide' ? <LucideIcons.FolderOpenIcon {...props} /> : <HeroIcons.FolderOpenIcon {...props} />;
+};
+
+export const FolderPlusIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    return iconSet === 'lucide' ? <LucideIcons.FolderPlusIcon {...props} /> : <HeroIcons.FolderPlusIcon {...props} />;
+};

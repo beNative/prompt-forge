@@ -1,25 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
-import type { Prompt } from '../types';
+import type { PromptOrFolder } from '../types';
 import IconButton from './IconButton';
-import { TrashIcon, ChevronDownIcon, ChevronRightIcon } from './Icons';
+import { TrashIcon, ChevronDownIcon, ChevronRightIcon, FileIcon, FolderIcon, FolderOpenIcon } from './Icons';
 
-export type PromptNode = Prompt & { children: PromptNode[] };
+export type PromptNode = PromptOrFolder & { children: PromptNode[] };
 type DropPosition = 'before' | 'after' | 'inside' | null;
 
 interface PromptTreeItemProps {
   node: PromptNode;
   level: number;
-  activePromptId: string | null;
+  activeNodeId: string | null;
   expandedIds: Set<string>;
-  onSelectPrompt: (id: string) => void;
-  onDeletePrompt: (id: string) => void;
-  onRenamePrompt: (id: string, newTitle: string) => void;
-  onMovePrompt: (draggedId: string, targetId: string | null, position: 'before' | 'after' | 'inside') => void;
+  onSelectNode: (id: string) => void;
+  onDeleteNode: (id: string) => void;
+  onRenameNode: (id: string, newTitle: string) => void;
+  onMoveNode: (draggedId: string, targetId: string | null, position: 'before' | 'after' | 'inside') => void;
   onToggleExpand: (id: string) => void;
 }
 
 const PromptTreeItem: React.FC<PromptTreeItemProps> = ({ 
-  node, level, activePromptId, expandedIds, onSelectPrompt, onDeletePrompt, onRenamePrompt, onMovePrompt, onToggleExpand 
+  node, level, activeNodeId, expandedIds, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onToggleExpand 
 }) => {
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
@@ -29,10 +29,11 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
 
   const isExpanded = expandedIds.has(node.id);
   const hasChildren = node.children.length > 0;
+  const isFolder = node.type === 'folder';
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onDeletePrompt(node.id);
+    onDeleteNode(node.id);
   };
 
   const handleRenameStart = () => {
@@ -42,7 +43,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
 
   const handleRenameSubmit = () => {
     if (renamingId && renameValue.trim()) {
-      onRenamePrompt(renamingId, renameValue.trim());
+      onRenameNode(renamingId, renameValue.trim());
     }
     setRenamingId(null);
   };
@@ -62,7 +63,6 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('text/plain', node.id);
     e.dataTransfer.effectAllowed = 'move';
-    // A little hack to make the drag image more transparent
     setTimeout(() => {
         if (itemRef.current) itemRef.current.classList.add('opacity-50');
     }, 0);
@@ -78,9 +78,14 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
     const y = e.clientY - rect.top;
     const height = rect.height;
 
-    if (y < height * 0.25) setDropPosition('before');
-    else if (y > height * 0.75) setDropPosition('after');
-    else setDropPosition('inside');
+    if (y < height * 0.25) {
+      setDropPosition('before');
+    } else if (y > height * 0.75) {
+      setDropPosition('after');
+    } else {
+      // Only allow dropping 'inside' if the target is a folder
+      setDropPosition(isFolder ? 'inside' : 'after');
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -88,7 +93,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
     e.stopPropagation();
     const draggedId = e.dataTransfer.getData('text/plain');
     if (draggedId && draggedId !== node.id && dropPosition) {
-      onMovePrompt(draggedId, node.id, dropPosition);
+      onMoveNode(draggedId, node.id, dropPosition);
     }
     setDropPosition(null);
   };
@@ -97,11 +102,17 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
     switch (dropPosition) {
         case 'before': return <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary z-10" />;
         case 'after': return <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary z-10" />;
-        case 'inside': return <div className="absolute inset-0 rounded-md ring-2 ring-primary ring-inset z-10" />;
+        case 'inside': return isFolder ? <div className="absolute inset-0 rounded-md ring-2 ring-primary ring-inset z-10" /> : null;
         default: return null;
     }
   };
 
+  const renderIcon = () => {
+      if (isFolder) {
+          return isExpanded ? <FolderOpenIcon className="w-4 h-4 text-primary" /> : <FolderIcon className="w-4 h-4 text-primary" />;
+      }
+      return <FileIcon className="w-4 h-4" />;
+  };
 
   return (
     <li 
@@ -117,7 +128,11 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
       {renderDropIndicator()}
       <div style={{ paddingLeft: `${level * 1.25}rem` }} className="py-0.5">
         {renamingId === node.id ? (
-          <div className="p-1">
+          <div className="p-1 flex items-center gap-1">
+            <span onClick={(e) => { e.stopPropagation(); (hasChildren || isFolder) && onToggleExpand(node.id); }} className="p-1">
+                {(hasChildren || isFolder) ? <ChevronRightIcon className="w-4 h-4 flex-shrink-0 opacity-0" /> : <span className="w-4 h-4 block" />}
+            </span>
+             {renderIcon()}
             <input
               ref={renameInputRef} type="text" value={renameValue}
               onChange={(e) => setRenameValue(e.target.value)}
@@ -127,25 +142,26 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
           </div>
         ) : (
           <button
-            onClick={() => onSelectPrompt(node.id)}
+            onClick={() => onSelectNode(node.id)}
             onDoubleClick={handleRenameStart}
-            title={activePromptId === node.id ? 'Double-click to rename' : node.title}
+            title={node.title}
             className={`w-full text-left p-1.5 rounded-md group flex justify-between items-center transition-colors duration-150 text-sm ${
-              activePromptId === node.id
+              activeNodeId === node.id
                 ? 'bg-primary/10 text-primary font-semibold'
                 : 'hover:bg-background text-text-secondary hover:text-text-main'
             }`}
           >
             <div className="flex items-center gap-1 flex-1 truncate">
-               <span onClick={(e) => { e.stopPropagation(); hasChildren && onToggleExpand(node.id); }} className="p-1">
-                {hasChildren ? (
+               <span onClick={(e) => { e.stopPropagation(); (hasChildren || isFolder) && onToggleExpand(node.id); }} className="p-1">
+                {(hasChildren || isFolder) ? (
                     isExpanded ? <ChevronDownIcon className="w-4 h-4 flex-shrink-0" /> : <ChevronRightIcon className="w-4 h-4 flex-shrink-0" />
                 ) : <span className="w-4 h-4 block" /> }
                </span>
-              <span className="truncate flex-1 pr-2">{node.title}</span>
+               <span className="flex-shrink-0">{renderIcon()}</span>
+              <span className="truncate flex-1 px-1">{node.title}</span>
             </div>
-            <div className={`opacity-0 ${activePromptId !== node.id ? 'group-hover:opacity-100' : ''} transition-opacity pr-1`}>
-              <IconButton onClick={handleDelete} tooltip="Delete Prompt" size="sm" variant="destructive">
+            <div className={`opacity-0 ${activeNodeId !== node.id ? 'group-hover:opacity-100' : ''} transition-opacity pr-1`}>
+              <IconButton onClick={handleDelete} tooltip="Delete" size="sm" variant="destructive">
                 <TrashIcon className="w-4 h-4" />
               </IconButton>
             </div>
@@ -159,12 +175,12 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
               key={childNode.id}
               node={childNode}
               level={level + 1}
-              activePromptId={activePromptId}
+              activeNodeId={activeNodeId}
               expandedIds={expandedIds}
-              onSelectPrompt={onSelectPrompt}
-              onDeletePrompt={onDeletePrompt}
-              onRenamePrompt={onRenamePrompt}
-              onMovePrompt={onMovePrompt}
+              onSelectNode={onSelectNode}
+              onDeleteNode={onDeleteNode}
+              onRenameNode={onRenameNode}
+              onMoveNode={onMoveNode}
               onToggleExpand={onToggleExpand}
             />
           ))}

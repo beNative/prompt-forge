@@ -16,7 +16,7 @@ import LoggerPanel from './components/LoggerPanel';
 import CommandPalette from './components/CommandPalette';
 import InfoView from './components/InfoView';
 // Types
-import type { Prompt, Command } from './types';
+import type { PromptOrFolder, Command } from './types';
 // Context
 import { IconProvider } from './contexts/IconContext';
 // Services & Constants
@@ -35,8 +35,8 @@ const MAX_LOGGER_HEIGHT = 600;
 const App: React.FC = () => {
     // State Hooks
     const { settings, saveSettings, loaded: settingsLoaded } = useSettings();
-    const { prompts, addPrompt, updatePrompt, deletePrompt, movePrompt } = usePrompts();
-    const [activePromptId, setActivePromptId] = useState<string | null>(null);
+    const { items, addPrompt, addFolder, updateItem, deleteItem, moveItem, getDescendantIds } = usePrompts();
+    const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
 
     // UI State
     const [view, setView] = useState<'editor' | 'info' | 'settings'>('editor');
@@ -50,6 +50,15 @@ const App: React.FC = () => {
 
     const llmStatus = useLLMStatus(settings.llmProviderUrl);
 
+    // Derived State
+    const activeNode = useMemo(() => {
+        return items.find(p => p.id === activeNodeId) || null;
+    }, [items, activeNodeId]);
+
+    const activePrompt = useMemo(() => {
+        return activeNode?.type === 'prompt' ? activeNode : null;
+    }, [activeNode]);
+
     // Load panel sizes from storage on initial render
     useEffect(() => {
         storageService.load(LOCAL_STORAGE_KEYS.SIDEBAR_WIDTH, DEFAULT_SIDEBAR_WIDTH).then(width => {
@@ -60,64 +69,88 @@ const App: React.FC = () => {
         });
     }, []);
 
-    // Select the first prompt on load or when prompts change
+    // Select the first item on load or when items change
     useEffect(() => {
-        if (prompts.length > 0 && activePromptId === null) {
-            setActivePromptId(prompts[0].id);
-        } else if (prompts.length === 0) {
-            setActivePromptId(null);
+        if (items.length > 0 && activeNodeId === null) {
+            setActiveNodeId(items[0].id);
+        } else if (items.length === 0) {
+            setActiveNodeId(null);
         }
-    }, [prompts, activePromptId]);
+    }, [items, activeNodeId]);
 
     // Handlers
-    const handleNewPrompt = useCallback(() => {
-        const newPrompt = addPrompt(null); // Create as a root-level prompt
-        setActivePromptId(newPrompt.id);
-        setView('editor');
-    }, [addPrompt]);
+    const getParentIdForNewItem = useCallback(() => {
+        if (!activeNode) return null;
+        return activeNode.type === 'folder' ? activeNode.id : activeNode.parentId;
+    }, [activeNode]);
 
-    const handleSelectPrompt = (id: string) => {
-        setActivePromptId(id);
+    const handleNewPrompt = useCallback(() => {
+        const parentId = getParentIdForNewItem();
+        const newPrompt = addPrompt(parentId);
+        setActiveNodeId(newPrompt.id);
+        setView('editor');
+    }, [addPrompt, getParentIdForNewItem]);
+    
+    const handleNewFolder = useCallback(() => {
+        const parentId = getParentIdForNewItem();
+        const newFolder = addFolder(parentId);
+        setActiveNodeId(newFolder.id);
+        setView('editor');
+    }, [addFolder, getParentIdForNewItem]);
+
+    const handleSelectNode = (id: string) => {
+        setActiveNodeId(id);
         setView('editor');
     };
 
-    const handleSavePrompt = (updatedPrompt: Partial<Omit<Prompt, 'id'>>) => {
-        if (activePromptId) {
-            updatePrompt(activePromptId, updatedPrompt);
+    const handleSavePrompt = (updatedPrompt: Partial<Omit<PromptOrFolder, 'id'>>) => {
+        if (activeNodeId) {
+            updateItem(activeNodeId, updatedPrompt);
         }
     };
     
-    const handleRenamePrompt = (id: string, title: string) => {
-        updatePrompt(id, { title });
+    const handleRenameNode = (id: string, title: string) => {
+        updateItem(id, { title });
     };
 
-    const handleDeletePrompt = useCallback((id: string) => {
-        // Find the next prompt to select before deleting
-        let nextPromptToSelect: Prompt | null = null;
-        const currentPromptIndex = prompts.findIndex(p => p.id === id);
+    const handleDeleteNode = useCallback((id: string) => {
+        const itemToDelete = items.find(p => p.id === id);
+        if (!itemToDelete) return;
 
-        if (currentPromptIndex !== -1) {
-             // Try to select the next sibling, or previous, or parent
-            const deletedPrompt = prompts[currentPromptIndex];
-            const siblings = prompts.filter(p => p.parentId === deletedPrompt.parentId && p.id !== deletedPrompt.id);
+        if (itemToDelete.type === 'folder') {
+            const descendantCount = getDescendantIds(id).size;
+            const message = descendantCount > 0 
+                ? `Are you sure you want to delete the folder "${itemToDelete.title}" and its ${descendantCount} contents?`
+                : `Are you sure you want to delete the empty folder "${itemToDelete.title}"?`;
+            
+            if (!window.confirm(message)) {
+                return;
+            }
+        }
+
+        let nextNodeToSelect: PromptOrFolder | null = null;
+        const currentItemIndex = items.findIndex(p => p.id === id);
+
+        if (currentItemIndex !== -1) {
+            const siblings = items.filter(p => p.parentId === itemToDelete.parentId && p.id !== itemToDelete.id);
             if (siblings.length > 0) {
-                const siblingIndex = siblings.findIndex(s => prompts.indexOf(s) > currentPromptIndex);
-                nextPromptToSelect = siblings[siblingIndex] || siblings[siblings.length - 1];
-            } else if (deletedPrompt.parentId) {
-                nextPromptToSelect = prompts.find(p => p.id === deletedPrompt.parentId) || null;
+                const siblingIndex = siblings.findIndex(s => items.indexOf(s) > currentItemIndex);
+                nextNodeToSelect = siblings[siblingIndex] || siblings[siblings.length - 1];
+            } else if (itemToDelete.parentId) {
+                nextNodeToSelect = items.find(p => p.id === itemToDelete.parentId) || null;
             }
         }
         
-        const newPrompts = deletePrompt(id);
+        const newItems = deleteItem(id);
 
-        if (activePromptId === id) {
-            if (nextPromptToSelect) {
-                 setActivePromptId(nextPromptToSelect.id);
-            } else {
-                 setActivePromptId(newPrompts.length > 0 ? newPrompts[0].id : null);
-            }
+        if (activeNodeId === id) {
+             if (nextNodeToSelect) {
+                 setActiveNodeId(nextNodeToSelect.id);
+             } else {
+                 setActiveNodeId(newItems.length > 0 ? newItems[0].id : null);
+             }
         }
-    }, [prompts, deletePrompt, activePromptId]);
+    }, [items, deleteItem, activeNodeId, getDescendantIds]);
 
     const toggleSettingsView = () => {
         setView(v => v === 'settings' ? 'editor' : 'settings')
@@ -199,20 +232,16 @@ const App: React.FC = () => {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [handleNewPrompt]);
-
-    // Derived State
-    const activePrompt = useMemo(() => {
-        return prompts.find(p => p.id === activePromptId) || null;
-    }, [prompts, activePromptId]);
     
     // Command Palette Commands
     const commands: Command[] = useMemo(() => [
-        { id: 'new-prompt', name: 'Create New Prompt', keywords: 'add create', action: handleNewPrompt },
-        { id: 'delete-prompt', name: 'Delete Current Prompt', keywords: 'remove discard', action: () => activePromptId && handleDeletePrompt(activePromptId) },
+        { id: 'new-prompt', name: 'Create New Prompt', keywords: 'add create file', action: handleNewPrompt },
+        { id: 'new-folder', name: 'Create New Folder', keywords: 'add create directory', action: handleNewFolder },
+        { id: 'delete-item', name: 'Delete Current Item', keywords: 'remove discard', action: () => activeNodeId && handleDeleteNode(activeNodeId) },
         { id: 'toggle-settings', name: 'Toggle Settings View', keywords: 'configure options', action: toggleSettingsView },
         { id: 'toggle-info', name: 'Toggle Info View', keywords: 'help docs readme', action: () => setView(v => v === 'info' ? 'editor' : 'info') },
         { id: 'toggle-logs', name: 'Toggle Logs Panel', keywords: 'debug console', action: () => setIsLoggerVisible(v => !v) },
-    ], [activePromptId, handleNewPrompt, handleDeletePrompt]);
+    ], [activeNodeId, handleNewPrompt, handleNewFolder, handleDeleteNode]);
 
     if (!settingsLoaded) {
         return <div className="w-screen h-screen flex items-center justify-center bg-background"><p className="text-text-main">Loading application...</p></div>;
@@ -223,6 +252,7 @@ const App: React.FC = () => {
             <div className="flex flex-col h-screen font-sans bg-background text-text-main antialiased">
                 <Header 
                     onNewPrompt={handleNewPrompt}
+                    onNewFolder={handleNewFolder}
                     onToggleSettingsView={toggleSettingsView}
                     isSettingsViewActive={view === 'settings'}
                     onToggleInfoView={() => setView(v => v === 'info' ? 'editor' : 'info')}
@@ -238,12 +268,12 @@ const App: React.FC = () => {
                                 className="bg-secondary border-r border-border-color overflow-y-auto flex-shrink-0"
                             >
                                 <PromptList 
-                                    prompts={prompts}
-                                    activePromptId={activePromptId}
-                                    onSelectPrompt={handleSelectPrompt}
-                                    onDeletePrompt={handleDeletePrompt}
-                                    onRenamePrompt={handleRenamePrompt}
-                                    onMovePrompt={movePrompt}
+                                    items={items}
+                                    activeNodeId={activeNodeId}
+                                    onSelectNode={handleSelectNode}
+                                    onDeleteNode={handleDeleteNode}
+                                    onRenameNode={handleRenameNode}
+                                    onMoveNode={moveItem}
                                 />
                             </aside>
                             <div 
@@ -259,7 +289,7 @@ const App: React.FC = () => {
                                     key={activePrompt.id}
                                     prompt={activePrompt}
                                     onSave={(p) => handleSavePrompt(p)}
-                                    onDelete={handleDeletePrompt}
+                                    onDelete={handleDeleteNode}
                                     settings={settings}
                                 />
                             ) : (
@@ -273,7 +303,7 @@ const App: React.FC = () => {
                 <StatusBar 
                     status={llmStatus}
                     modelName={settings.llmModelName}
-                    promptCount={prompts.length}
+                    promptCount={items.filter(i => i.type === 'prompt').length}
                     lastSaved={activePrompt?.updatedAt}
                 />
             </div>

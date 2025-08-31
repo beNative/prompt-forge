@@ -1,6 +1,7 @@
 
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import type { Prompt, Settings } from '../types';
+import type { PromptOrFolder, Settings } from '../types';
 import { llmService } from '../services/llmService';
 import { SparklesIcon, TrashIcon, UndoIcon, RedoIcon } from './Icons';
 import Spinner from './Spinner';
@@ -14,15 +15,15 @@ import Button from './Button';
 declare const Prism: any;
 
 interface PromptEditorProps {
-  prompt: Prompt;
-  onSave: (prompt: Prompt) => void;
+  prompt: PromptOrFolder;
+  onSave: (prompt: PromptOrFolder) => void;
   onDelete: (id: string) => void;
   settings: Settings;
 }
 
 const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, settings }) => {
   const [title, setTitle] = useState(prompt.title);
-  const { state: content, setState: setContent, undo, redo, canUndo, canRedo } = useHistoryState(prompt.content);
+  const { state: content, setState: setContent, undo, redo, canUndo, canRedo } = useHistoryState(prompt.content || '');
   
   const [isRefining, setIsRefining] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +57,8 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
 
   // Effect for auto-naming untitled prompts
   useEffect(() => {
+    if (prompt.type !== 'prompt') return;
+
     const isUntitled = prompt.title === 'Untitled Prompt';
     const hasEnoughContent = content.trim().length >= 50;
 
@@ -96,7 +99,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         clearTimeout(autoNameTimeoutRef.current);
       }
     };
-  }, [content, prompt.title, settings, addLog, isAutoNaming]);
+  }, [content, prompt.title, prompt.type, settings, addLog, isAutoNaming]);
   
   const highlightedContent = useMemo(() => {
     if (typeof Prism === 'undefined' || !Prism.languages.markdown) {
