@@ -52,6 +52,11 @@ export const ChevronDownIcon: React.FC<IconProps> = (props) => {
     return iconSet === 'lucide' ? <LucideIcons.ChevronDownIcon {...props} /> : <HeroIcons.ChevronDownIcon {...props} />;
 };
 
+export const ChevronRightIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    return iconSet === 'lucide' ? <LucideIcons.ChevronRightIcon {...props} /> : <HeroIcons.ChevronRightIcon {...props} />;
+};
+
 export const UndoIcon: React.FC<IconProps> = (props) => {
     const { iconSet } = useIconSet();
     return iconSet === 'lucide' ? <LucideIcons.UndoIcon {...props} /> : <HeroIcons.UndoIcon {...props} />;

@@ -29,7 +29,7 @@ const MAX_SIDEBAR_WIDTH = 500;
 const App: React.FC = () => {
     // State Hooks
     const { settings, saveSettings, loaded: settingsLoaded } = useSettings();
-    const { prompts, addPrompt, updatePrompt, deletePrompt } = usePrompts();
+    const { prompts, addPrompt, updatePrompt, deletePrompt, movePrompt } = usePrompts();
     const [activePromptId, setActivePromptId] = useState<string | null>(null);
 
     // UI State
@@ -61,7 +61,7 @@ const App: React.FC = () => {
 
     // Handlers
     const handleNewPrompt = useCallback(() => {
-        const newPrompt = addPrompt();
+        const newPrompt = addPrompt(null); // Create as a root-level prompt
         setActivePromptId(newPrompt.id);
         setView('editor');
     }, [addPrompt]);
@@ -82,11 +82,32 @@ const App: React.FC = () => {
     };
 
     const handleDeletePrompt = useCallback((id: string) => {
-        const newPrompts = deletePrompt(id);
-        if (activePromptId === id) {
-            setActivePromptId(newPrompts.length > 0 ? newPrompts[0].id : null);
+        // Find the next prompt to select before deleting
+        let nextPromptToSelect: Prompt | null = null;
+        const currentPromptIndex = prompts.findIndex(p => p.id === id);
+
+        if (currentPromptIndex !== -1) {
+             // Try to select the next sibling, or previous, or parent
+            const deletedPrompt = prompts[currentPromptIndex];
+            const siblings = prompts.filter(p => p.parentId === deletedPrompt.parentId && p.id !== deletedPrompt.id);
+            if (siblings.length > 0) {
+                const siblingIndex = siblings.findIndex(s => prompts.indexOf(s) > currentPromptIndex);
+                nextPromptToSelect = siblings[siblingIndex] || siblings[siblings.length - 1];
+            } else if (deletedPrompt.parentId) {
+                nextPromptToSelect = prompts.find(p => p.id === deletedPrompt.parentId) || null;
+            }
         }
-    }, [deletePrompt, activePromptId]);
+        
+        const newPrompts = deletePrompt(id);
+
+        if (activePromptId === id) {
+            if (nextPromptToSelect) {
+                 setActivePromptId(nextPromptToSelect.id);
+            } else {
+                 setActivePromptId(newPrompts.length > 0 ? newPrompts[0].id : null);
+            }
+        }
+    }, [prompts, deletePrompt, activePromptId]);
 
     const toggleSettingsView = () => {
         setView(v => v === 'settings' ? 'editor' : 'settings')
@@ -191,6 +212,7 @@ const App: React.FC = () => {
                             onSelectPrompt={handleSelectPrompt}
                             onDeletePrompt={handleDeletePrompt}
                             onRenamePrompt={handleRenamePrompt}
+                            onMovePrompt={movePrompt}
                         />
                     </aside>
                     <div 

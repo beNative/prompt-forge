@@ -6,6 +6,7 @@ export interface Prompt {
   content: string;
   createdAt: string;
   updatedAt: string;
+  parentId: string | null;
 }
 
 export interface Settings {
