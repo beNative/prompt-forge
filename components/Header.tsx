@@ -6,8 +6,6 @@ import { GearIcon, PlusIcon, FileIcon, InfoIcon, FileCodeIcon, CommandIcon, Fold
 import ThemeToggleButton from './ThemeToggleButton';
 
 interface HeaderProps {
-  onNewPrompt: () => void;
-  onNewFolder: () => void;
   onToggleSettingsView: () => void;
   onToggleInfoView: () => void;
   onToggleLogger: () => void;
@@ -16,7 +14,7 @@ interface HeaderProps {
   isSettingsViewActive: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ onNewPrompt, onNewFolder, onToggleSettingsView, onToggleInfoView, onToggleLogger, onOpenCommandPalette, isInfoViewActive, isSettingsViewActive }) => {
+const Header: React.FC<HeaderProps> = ({ onToggleSettingsView, onToggleInfoView, onToggleLogger, onOpenCommandPalette, isInfoViewActive, isSettingsViewActive }) => {
   return (
     <header className="flex items-center justify-between px-3 h-14 flex-shrink-0 bg-secondary border-b border-border-color z-30">
       <div className="flex items-center gap-3">
@@ -24,12 +22,6 @@ const Header: React.FC<HeaderProps> = ({ onNewPrompt, onNewFolder, onToggleSetti
         <h1 className="text-lg font-semibold text-text-main tracking-wide">PromptForge</h1>
       </div>
       <div className="flex items-center gap-1">
-        <IconButton onClick={onNewPrompt} tooltip="New Prompt (Ctrl+N)">
-          <PlusIcon />
-        </IconButton>
-        <IconButton onClick={onNewFolder} tooltip="New Folder">
-          <FolderPlusIcon />
-        </IconButton>
         <IconButton onClick={onOpenCommandPalette} tooltip="Command Palette (Ctrl+Shift+P)">
           <CommandIcon />
         </IconButton>

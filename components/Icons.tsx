@@ -96,3 +96,8 @@ export const FolderPlusIcon: React.FC<IconProps> = (props) => {
     const { iconSet } = useIconSet();
     return iconSet === 'lucide' ? <LucideIcons.FolderPlusIcon {...props} /> : <HeroIcons.FolderPlusIcon {...props} />;
 };
+
+export const KeyboardIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    return iconSet === 'lucide' ? <LucideIcons.KeyboardIcon {...props} /> : <HeroIcons.KeyboardIcon {...props} />;
+};

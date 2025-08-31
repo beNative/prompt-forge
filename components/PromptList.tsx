@@ -3,6 +3,8 @@ import type { PromptOrFolder } from '../types';
 import PromptTreeItem, { PromptNode } from './PromptTreeItem';
 import { storageService } from '../services/storageService';
 import { LOCAL_STORAGE_KEYS } from '../constants';
+import IconButton from './IconButton';
+import { FolderPlusIcon, PlusIcon } from './Icons';
 
 interface PromptListProps {
   items: PromptOrFolder[];
@@ -11,9 +13,13 @@ interface PromptListProps {
   onDeleteNode: (id: string) => void;
   onRenameNode: (id: string, newTitle: string) => void;
   onMoveNode: (draggedId: string, targetId: string | null, position: 'before' | 'after' | 'inside') => void;
+  onNewPrompt: () => void;
+  onNewFolder: () => void;
 }
 
-const PromptList: React.FC<PromptListProps> = ({ items, activeNodeId, onSelectNode, onDeleteNode, onRenameNode, onMoveNode }) => {
+const PromptList: React.FC<PromptListProps> = ({ 
+  items, activeNodeId, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onNewPrompt, onNewFolder 
+}) => {
   const [expandedIds, setExpandedIds] = useState(new Set<string>());
   const [isStateLoaded, setIsStateLoaded] = useState(false);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -94,35 +100,47 @@ const PromptList: React.FC<PromptListProps> = ({ items, activeNodeId, onSelectNo
 
 
   return (
-    <div 
-        className="h-full p-2 relative"
-        onDrop={handleRootDrop}
-        onDragOver={handleRootDragOver}
-        onDragLeave={() => setIsDraggingOver(false)}
-    >
-      {isDraggingOver && <div className="absolute inset-0 bg-primary/10 border-2 border-primary border-dashed rounded-lg" />}
-      <h2 className="text-sm font-semibold text-text-secondary mb-2 px-2 tracking-wider uppercase">Prompts</h2>
-      <ul className="space-y-0.5">
-        {tree.map((node) => (
-          <PromptTreeItem
-            key={node.id}
-            node={node}
-            level={0}
-            activeNodeId={activeNodeId}
-            expandedIds={expandedIds}
-            onSelectNode={onSelectNode}
-            onDeleteNode={onDeleteNode}
-            onRenameNode={onRenameNode}
-            onMoveNode={onMoveNode}
-            onToggleExpand={handleToggleExpand}
-          />
-        ))}
-         {items.length === 0 && (
-            <li className="text-center text-text-secondary p-4 text-sm">
-                No prompts or folders yet.
-            </li>
-         )}
-      </ul>
+    <div className="h-full flex flex-col">
+      <header className="flex items-center justify-between p-2 flex-shrink-0">
+        <h2 className="text-sm font-semibold text-text-secondary px-2 tracking-wider uppercase">Prompts</h2>
+        <div className="flex items-center gap-1">
+          <IconButton onClick={onNewFolder} tooltip="New Folder" size="sm">
+            <FolderPlusIcon />
+          </IconButton>
+          <IconButton onClick={onNewPrompt} tooltip="New Prompt (Ctrl+N)" size="sm">
+            <PlusIcon />
+          </IconButton>
+        </div>
+      </header>
+      <div 
+          className="flex-1 p-2 relative overflow-y-auto"
+          onDrop={handleRootDrop}
+          onDragOver={handleRootDragOver}
+          onDragLeave={() => setIsDraggingOver(false)}
+      >
+        {isDraggingOver && <div className="absolute inset-2 bg-primary/10 border-2 border-primary border-dashed rounded-lg" />}
+        <ul className="space-y-0.5">
+          {tree.map((node) => (
+            <PromptTreeItem
+              key={node.id}
+              node={node}
+              level={0}
+              activeNodeId={activeNodeId}
+              expandedIds={expandedIds}
+              onSelectNode={onSelectNode}
+              onDeleteNode={onDeleteNode}
+              onRenameNode={onRenameNode}
+              onMoveNode={onMoveNode}
+              onToggleExpand={handleToggleExpand}
+            />
+          ))}
+          {items.length === 0 && (
+              <li className="text-center text-text-secondary p-4 text-sm">
+                  No prompts or folders yet.
+              </li>
+          )}
+        </ul>
+      </div>
     </div>
   );
 };

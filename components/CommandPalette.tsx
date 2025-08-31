@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import type { Command } from '../types';
@@ -14,13 +15,16 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
 
   const filteredCommands = useMemo(() => {
+    // Sort commands by category first to ensure consistent grouping
+    const sorted = [...commands].sort((a, b) => a.category.localeCompare(b.category));
     if (!searchTerm) {
-      return commands;
+      return sorted;
     }
     const lowercasedTerm = searchTerm.toLowerCase();
-    return commands.filter(
+    return sorted.filter(
       (command) =>
         command.name.toLowerCase().includes(lowercasedTerm) ||
         command.keywords?.toLowerCase().includes(lowercasedTerm)
@@ -31,14 +35,19 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
     if (isOpen) {
       setSearchTerm('');
       setSelectedIndex(0);
-      // Timeout needed to allow the element to render before focusing
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [isOpen]);
-
+  
+  // Scroll the selected item into view
   useEffect(() => {
-    setSelectedIndex(0);
-  }, [searchTerm]);
+    if (listRef.current) {
+        const selectedElement = listRef.current.querySelector(`[data-index="${selectedIndex}"]`);
+        if (selectedElement) {
+            selectedElement.scrollIntoView({ block: 'nearest' });
+        }
+    }
+  }, [selectedIndex]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -71,6 +80,49 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
   if (!isOpen || !overlayRoot) {
     return null;
   }
+  
+  const renderCommands = () => {
+    const items: React.ReactNode[] = [];
+    let lastCategory: string | undefined = undefined;
+
+    filteredCommands.forEach((command, index) => {
+      if (command.category !== lastCategory) {
+        items.push(
+          <li key={`category-${command.category}`} className="text-xs font-semibold text-text-secondary uppercase px-2 pt-3 pb-1 sticky top-0 bg-secondary">
+            {command.category}
+          </li>
+        );
+        lastCategory = command.category;
+      }
+      items.push(
+        <li
+          key={command.id}
+          data-index={index}
+          onClick={() => {
+            command.action();
+            onClose();
+          }}
+          className={`flex items-center justify-between p-2 mx-2 rounded-md cursor-pointer text-sm ${
+            selectedIndex === index ? 'bg-primary text-primary-text' : 'text-text-main hover:bg-background'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <command.icon className="w-4 h-4 text-text-secondary" />
+            <span>{command.name}</span>
+          </div>
+          {command.shortcut && (
+            <div className="flex items-center gap-1">
+              {command.shortcut.map(key => (
+                <kbd key={key} className="px-1.5 py-0.5 text-xs bg-border-color rounded font-sans">{key}</kbd>
+              ))}
+            </div>
+          )}
+        </li>
+      );
+    });
+    return items;
+  };
+
 
   const paletteContent = (
     <div 
@@ -94,22 +146,9 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
             className="w-full bg-transparent text-text-main placeholder:text-text-secondary focus:outline-none"
           />
         </div>
-        <ul className="flex-1 overflow-y-auto max-h-[22rem] p-2">
+        <ul ref={listRef} className="flex-1 overflow-y-auto max-h-[25rem] py-1">
           {filteredCommands.length > 0 ? (
-            filteredCommands.map((command, index) => (
-              <li
-                key={command.id}
-                onClick={() => {
-                  command.action();
-                  onClose();
-                }}
-                className={`p-2 rounded-md cursor-pointer text-sm ${
-                  selectedIndex === index ? 'bg-primary text-primary-text' : 'text-text-main hover:bg-background'
-                }`}
-              >
-                {command.name}
-              </li>
-            ))
+            renderCommands()
           ) : (
             <li className="p-4 text-center text-sm text-text-secondary">No matching commands found.</li>
           )}

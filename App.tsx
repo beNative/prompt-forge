@@ -15,6 +15,7 @@ import StatusBar from './components/StatusBar';
 import LoggerPanel from './components/LoggerPanel';
 import CommandPalette from './components/CommandPalette';
 import InfoView from './components/InfoView';
+import { PlusIcon, FolderPlusIcon, TrashIcon, GearIcon, InfoIcon, FileCodeIcon } from './components/Icons';
 // Types
 import type { PromptOrFolder, Command } from './types';
 // Context
@@ -235,13 +236,13 @@ const App: React.FC = () => {
     
     // Command Palette Commands
     const commands: Command[] = useMemo(() => [
-        { id: 'new-prompt', name: 'Create New Prompt', keywords: 'add create file', action: handleNewPrompt },
-        { id: 'new-folder', name: 'Create New Folder', keywords: 'add create directory', action: handleNewFolder },
-        { id: 'delete-item', name: 'Delete Current Item', keywords: 'remove discard', action: () => activeNodeId && handleDeleteNode(activeNodeId) },
-        { id: 'toggle-settings', name: 'Toggle Settings View', keywords: 'configure options', action: toggleSettingsView },
-        { id: 'toggle-info', name: 'Toggle Info View', keywords: 'help docs readme', action: () => setView(v => v === 'info' ? 'editor' : 'info') },
-        { id: 'toggle-logs', name: 'Toggle Logs Panel', keywords: 'debug console', action: () => setIsLoggerVisible(v => !v) },
-    ], [activeNodeId, handleNewPrompt, handleNewFolder, handleDeleteNode]);
+        { id: 'new-prompt', name: 'Create New Prompt', action: handleNewPrompt, category: 'File', icon: PlusIcon, shortcut: ['Ctrl', 'N'], keywords: 'add create file' },
+        { id: 'new-folder', name: 'Create New Folder', action: handleNewFolder, category: 'File', icon: FolderPlusIcon, keywords: 'add create directory' },
+        { id: 'delete-item', name: 'Delete Current Item', action: () => activeNodeId && handleDeleteNode(activeNodeId), category: 'File', icon: TrashIcon, keywords: 'remove discard' },
+        { id: 'toggle-settings', name: 'Toggle Settings View', action: toggleSettingsView, category: 'View', icon: GearIcon, keywords: 'configure options' },
+        { id: 'toggle-info', name: 'Toggle Info View', action: () => setView(v => v === 'info' ? 'editor' : 'info'), category: 'View', icon: InfoIcon, keywords: 'help docs readme' },
+        { id: 'toggle-logs', name: 'Toggle Logs Panel', action: () => setIsLoggerVisible(v => !v), category: 'View', icon: FileCodeIcon, keywords: 'debug console' },
+    ], [activeNodeId, handleNewPrompt, handleNewFolder, handleDeleteNode, toggleSettingsView]);
 
     if (!settingsLoaded) {
         return <div className="w-screen h-screen flex items-center justify-center bg-background"><p className="text-text-main">Loading application...</p></div>;
@@ -251,8 +252,6 @@ const App: React.FC = () => {
         <IconProvider value={{ iconSet: settings.iconSet }}>
             <div className="flex flex-col h-screen font-sans bg-background text-text-main antialiased">
                 <Header 
-                    onNewPrompt={handleNewPrompt}
-                    onNewFolder={handleNewFolder}
                     onToggleSettingsView={toggleSettingsView}
                     isSettingsViewActive={view === 'settings'}
                     onToggleInfoView={() => setView(v => v === 'info' ? 'editor' : 'info')}
@@ -265,7 +264,7 @@ const App: React.FC = () => {
                         <>
                              <aside 
                                 style={{ width: `${sidebarWidth}px` }} 
-                                className="bg-secondary border-r border-border-color overflow-y-auto flex-shrink-0"
+                                className="bg-secondary border-r border-border-color flex flex-col flex-shrink-0"
                             >
                                 <PromptList 
                                     items={items}
@@ -274,6 +273,8 @@ const App: React.FC = () => {
                                     onDeleteNode={handleDeleteNode}
                                     onRenameNode={handleRenameNode}
                                     onMoveNode={moveItem}
+                                    onNewPrompt={handleNewPrompt}
+                                    onNewFolder={handleNewFolder}
                                 />
                             </aside>
                             <div 
@@ -284,14 +285,18 @@ const App: React.FC = () => {
                     )}
                     <section className="flex-1 flex flex-col overflow-y-auto">
                         {view === 'editor' && (
-                            activePrompt ? (
-                                <PromptEditor 
-                                    key={activePrompt.id}
-                                    prompt={activePrompt}
-                                    onSave={(p) => handleSavePrompt(p)}
-                                    onDelete={handleDeleteNode}
-                                    settings={settings}
-                                />
+                            activeNode ? (
+                                activeNode.type === 'prompt' ? (
+                                    <PromptEditor 
+                                        key={activeNode.id}
+                                        prompt={activeNode}
+                                        onSave={(p) => handleSavePrompt(p)}
+                                        onDelete={handleDeleteNode}
+                                        settings={settings}
+                                    />
+                                ) : (
+                                    <WelcomeScreen onNewPrompt={handleNewPrompt} /> // Show welcome if a folder is selected
+                                )
                             ) : (
                                 <WelcomeScreen onNewPrompt={handleNewPrompt} />
                             )
