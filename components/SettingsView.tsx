@@ -130,96 +130,103 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
         </Button>
       </div>
 
-      <div className="space-y-8 max-w-3xl">
-        <section>
-            <SectionTitle>Appearance</SectionTitle>
-            <div className="p-6 bg-secondary rounded-lg border border-border-color">
-                <Label htmlFor="iconSet">Icon Set</Label>
-                <Select
-                    id="iconSet"
-                    value={currentSettings.iconSet}
-                    onChange={(e) => handleIconSetChange(e.target.value as 'heroicons' | 'lucide')}
-                >
-                    <option value="heroicons">Heroicons (Classic)</option>
-                    <option value="lucide">Lucide (Modern)</option>
-                </Select>
-            </div>
-        </section>
-
-        <section>
-          <SectionTitle>LLM Provider</SectionTitle>
-          <div className="p-6 bg-secondary rounded-lg border border-border-color space-y-4">
-            <div className="flex justify-center my-4">
-                <Button
-                    onClick={onDetectServices}
-                    disabled={isDetecting}
-                    variant="secondary"
-                    isLoading={isDetecting}
-                >
-                    {!isDetecting && <SparklesIcon className="w-5 h-5 mr-2" />}
-                    {isDetecting ? 'Detecting...' : 'Re-Detect Services'}
-                </Button>
-            </div>
-
-            {detectionError && <p className="text-center text-sm text-destructive-text mt-2">{detectionError}</p>}
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="llmService">Detected Service</Label>
-                <Select
-                  id="llmService"
-                  value={selectedService?.id || ''}
-                  onChange={(e) => handleServiceChange(e.target.value)}
-                  disabled={discoveredServices.length === 0}
-                >
-                  <option value="" disabled>{discoveredServices.length > 0 ? 'Select a service' : 'No services detected'}</option>
-                  {discoveredServices.map(service => (
-                    <option key={service.id} value={service.id}>{service.name}</option>
-                  ))}
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="llmModelName">Model Name</Label>
-                <div className="relative">
-                  <Select
-                    id="llmModelName"
-                    value={currentSettings.llmModelName}
-                    onChange={(e) => handleModelChange(e.target.value)}
-                    disabled={!selectedService || availableModels.length === 0}
-                    className="appearance-none pr-8"
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1">
+        
+        {/* Main Content Area */}
+        <div className="lg:col-span-2 space-y-8">
+          <section>
+            <SectionTitle>LLM Provider</SectionTitle>
+            <div className="p-6 bg-secondary rounded-lg border border-border-color space-y-4">
+              <div className="flex justify-center my-4">
+                  <Button
+                      onClick={onDetectServices}
+                      disabled={isDetecting}
+                      variant="secondary"
+                      isLoading={isDetecting}
                   >
-                    <option value="" disabled>{!selectedService ? 'Select a service first' : 'Select a model'}</option>
-                    {availableModels.map(model => (
-                      <option key={model.id} value={model.id}>{model.name}</option>
+                      {!isDetecting && <SparklesIcon className="w-5 h-5 mr-2" />}
+                      {isDetecting ? 'Detecting...' : 'Re-Detect Services'}
+                  </Button>
+              </div>
+
+              {detectionError && <p className="text-center text-sm text-destructive-text mt-2">{detectionError}</p>}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="llmService">Detected Service</Label>
+                  <Select
+                    id="llmService"
+                    value={selectedService?.id || ''}
+                    onChange={(e) => handleServiceChange(e.target.value)}
+                    disabled={discoveredServices.length === 0}
+                  >
+                    <option value="" disabled>{discoveredServices.length > 0 ? 'Select a service' : 'No services detected'}</option>
+                    {discoveredServices.map(service => (
+                      <option key={service.id} value={service.id}>{service.name}</option>
                     ))}
                   </Select>
-                  {isFetchingModels && <div className="absolute right-3 top-1/2 -translate-y-1/2"><Spinner /></div>}
+                </div>
+                <div>
+                  <Label htmlFor="llmModelName">Model Name</Label>
+                  <div className="relative">
+                    <Select
+                      id="llmModelName"
+                      value={currentSettings.llmModelName}
+                      onChange={(e) => handleModelChange(e.target.value)}
+                      disabled={!selectedService || availableModels.length === 0}
+                      className="appearance-none pr-8"
+                    >
+                      <option value="" disabled>{!selectedService ? 'Select a service first' : 'Select a model'}</option>
+                      {availableModels.map(model => (
+                        <option key={model.id} value={model.id}>{model.name}</option>
+                      ))}
+                    </Select>
+                    {isFetchingModels && <div className="absolute right-3 top-1/2 -translate-y-1/2"><Spinner /></div>}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
 
-         <section>
-            <SectionTitle>Logging</SectionTitle>
-            <div className="p-6 bg-secondary rounded-lg border border-border-color">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <label htmlFor="autoSaveLogs" className="font-medium text-text-main">Auto-save Logs</label>
-                        <p className="text-sm text-text-secondary">Automatically save all log messages to a file. (Desktop app only)</p>
-                    </div>
-                    <button
-                        id="autoSaveLogs"
-                        role="switch"
-                        aria-checked={currentSettings.autoSaveLogs}
-                        onClick={() => setCurrentSettings(prev => ({ ...prev, autoSaveLogs: !prev.autoSaveLogs }))}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${currentSettings.autoSaveLogs ? 'bg-primary' : 'bg-border-color'}`}
-                    >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${currentSettings.autoSaveLogs ? 'translate-x-6' : 'translate-x-1'}`} />
-                    </button>
-                </div>
-            </div>
-        </section>
+        {/* Sidebar */}
+        <div className="lg:col-span-1 space-y-8">
+           <section>
+              <SectionTitle>Appearance</SectionTitle>
+              <div className="p-6 bg-secondary rounded-lg border border-border-color">
+                  <Label htmlFor="iconSet">Icon Set</Label>
+                  <Select
+                      id="iconSet"
+                      value={currentSettings.iconSet}
+                      onChange={(e) => handleIconSetChange(e.target.value as 'heroicons' | 'lucide')}
+                  >
+                      <option value="heroicons">Heroicons (Classic)</option>
+                      <option value="lucide">Lucide (Modern)</option>
+                  </Select>
+              </div>
+          </section>
+          
+           <section>
+              <SectionTitle>Logging</SectionTitle>
+              <div className="p-6 bg-secondary rounded-lg border border-border-color">
+                  <div className="flex items-center justify-between">
+                      <div>
+                          <label htmlFor="autoSaveLogs" className="font-medium text-text-main">Auto-save Logs</label>
+                          <p className="text-sm text-text-secondary">Automatically save all log messages to a file. (Desktop app only)</p>
+                      </div>
+                      <button
+                          id="autoSaveLogs"
+                          role="switch"
+                          aria-checked={currentSettings.autoSaveLogs}
+                          onClick={() => setCurrentSettings(prev => ({ ...prev, autoSaveLogs: !prev.autoSaveLogs }))}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${currentSettings.autoSaveLogs ? 'bg-primary' : 'bg-border-color'}`}
+                      >
+                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${currentSettings.autoSaveLogs ? 'translate-x-6' : 'translate-x-1'}`} />
+                      </button>
+                  </div>
+              </div>
+          </section>
+        </div>
       </div>
     </div>
   );

@@ -32,7 +32,7 @@ const potentialServices: (Omit<DiscoveredLLMService, 'id' | 'apiType'> & { apiTy
     apiType: 'ollama',
   },
   {
-    name: 'LM Studio / OpenAI-compatible (localhost:1234)',
+    name: 'LM Studio (localhost:1234)',
     modelsUrl: 'http://localhost:1234/v1/models',
     generateUrl: 'http://localhost:1234/v1/chat/completions',
     apiType: 'openai',
