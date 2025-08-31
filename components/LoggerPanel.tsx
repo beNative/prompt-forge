@@ -31,6 +31,14 @@ const activeFilterClasses: Record<LogLevel, string> = {
   ERROR: 'bg-error text-white',
 };
 
+const inactiveFilterClasses: Record<LogLevel, string> = {
+    DEBUG: 'bg-background text-debug hover:bg-debug/10',
+    INFO: 'bg-background text-info hover:bg-info/10',
+    WARNING: 'bg-background text-warning hover:bg-warning/10',
+    ERROR: 'bg-background text-error hover:bg-error/10',
+};
+
+
 const LoggerPanel: React.FC<LoggerPanelProps> = ({ isVisible, onToggleVisibility, height, onResizeStart }) => {
   const { logs, clearLogs } = useLogger();
   const [filter, setFilter] = useState<LogLevel | 'ALL'>('ALL');
@@ -79,7 +87,7 @@ const LoggerPanel: React.FC<LoggerPanelProps> = ({ isVisible, onToggleVisibility
           <span className="text-xs text-text-secondary mr-2">Filter:</span>
           <button onClick={() => setFilter('ALL')} className={`px-2 py-1 text-xs rounded-md font-semibold transition-colors ${filter === 'ALL' ? 'bg-primary text-primary-text' : 'bg-background hover:bg-border-color text-text-main'}`}>ALL</button>
           {logLevels.map(level => (
-            <button key={level} onClick={() => setFilter(level)} className={`px-2 py-1 text-xs rounded-md font-semibold transition-colors ${filter === level ? activeFilterClasses[level] : 'bg-background hover:bg-border-color text-text-main'}`}>{level}</button>
+            <button key={level} onClick={() => setFilter(level)} className={`px-2 py-1 text-xs rounded-md font-semibold transition-colors ${filter === level ? activeFilterClasses[level] : inactiveFilterClasses[level]}`}>{level}</button>
           ))}
           <div className="h-4 w-px bg-border-color mx-2"></div>
           <IconButton onClick={handleSaveLog} tooltip="Save Log" variant="ghost" size="sm">
@@ -98,7 +106,7 @@ const LoggerPanel: React.FC<LoggerPanelProps> = ({ isVisible, onToggleVisibility
           <div key={log.id} className="flex items-start gap-3">
             <span className={`${logLevelClasses[log.level].text} opacity-90`}>{log.timestamp}</span>
             <span className={`px-1.5 py-0.5 rounded-full text-xs font-semibold border ${logLevelClasses[log.level].bg} ${logLevelClasses[log.level].border} ${logLevelClasses[log.level].text}`}>{log.level}</span>
-            <span className="flex-1 text-text-secondary whitespace-pre-wrap break-all">{log.message}</span>
+            <span className={`flex-1 ${logLevelClasses[log.level].text} whitespace-pre-wrap break-all`}>{log.message}</span>
           </div>
         ))}
          {filteredLogs.length === 0 && (
