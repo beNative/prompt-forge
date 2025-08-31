@@ -12,7 +12,6 @@ PromptForge is a desktop application built with **Electron** and **React**. It u
 - **Styling**: Tailwind CSS
 - **Bundler**: ESBuild
 - **State Management**: React Hooks (`useState`, `useEffect`, `useContext`, `useCallback`)
-- **AI SDK**: `@google/genai` for Google Gemini integration.
 
 ## 2. Project Structure
 
@@ -41,7 +40,7 @@ The project follows a standard feature-oriented structure:
 
 - This is the application's entry point. It creates the `BrowserWindow` that renders the React UI.
 - It is responsible for all Node.js and OS-level integrations.
-- **IPC (Inter-Process Communication)**: It listens for events from the renderer process to perform actions that the browser cannot, such as accessing the file system or reading environment variables (`API_KEY`). It exposes handlers for saving/loading data and retrieving the API key.
+- **IPC (Inter-Process Communication)**: It listens for events from the renderer process to perform actions that the browser cannot, such as accessing the file system. It exposes handlers for saving and loading data.
 
 ### 3.2. State Management & Hooks
 
@@ -56,11 +55,10 @@ The project follows a standard feature-oriented structure:
   - **Electron Version**: It checks for the presence of the `window.electronAPI` (exposed by `preload.ts`). If found, it makes `async` IPC calls to the main process to read/write JSON files.
   - **Web Fallback**: If `window.electronAPI` is not present, it falls back to using the browser's `localStorage` for synchronous storage.
 
-- **`llmService.ts`**: Manages all communication with external LLM providers. It supports multiple API types (Ollama, OpenAI-compatible, Gemini). For Gemini, it uses the official `@google/genai` SDK.
+- **`llmService.ts`**: Manages all communication with external LLM providers. It supports multiple API types (Ollama, OpenAI-compatible).
 
 - **`llmDiscoveryService.ts`**: This service is responsible for discovering available LLM providers.
   - It probes predefined local endpoints (e.g., `localhost:11434` for Ollama) to discover active local services.
-  - It also uses an IPC call to check for the `API_KEY` environment variable. If present, it adds Google Gemini to the list of available services.
   - It then fetches the list of available models from the discovered service, supporting different API structures.
 
 ### 3.4. Build Process

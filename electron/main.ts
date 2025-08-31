@@ -108,15 +108,6 @@ app.whenReady().then(() => {
     }
   });
 
-  // IPC Handler for reading the Gemini API Key
-  ipcMain.handle('env:get-api-key', async () => {
-    try {
-      return { success: true, apiKey: process.env.API_KEY };
-    } catch (error) {
-      return { success: false, error: (error as Error).message };
-    }
-  });
-
 
   createWindow();
 

@@ -64,28 +64,7 @@ export const llmDiscoveryService = {
     });
 
     const results = await Promise.all(checks);
-    // FIX: Removed incorrect type predicate and explicitly typed `discovered` as DiscoveredLLMService[]
-    // to allow for adding the Gemini service later, which resolves multiple downstream type errors.
-    const discovered: DiscoveredLLMService[] = results.filter(result => result !== null);
-
-    // Check for Gemini API Key in Electron environment
-    if (window.electronAPI) {
-        try {
-            const result = await window.electronAPI.getApiKey();
-            if (result.success && result.apiKey) {
-                discovered.push({
-                    id: 'gemini-api',
-                    name: 'Google Gemini',
-                    // These URLs are placeholders as they aren't used for API calls
-                    modelsUrl: 'gemini-models',
-                    generateUrl: 'gemini-generate',
-                    apiType: 'gemini',
-                });
-            }
-        } catch (error) {
-            console.error('Failed to check for Gemini API key:', error);
-        }
-    }
+    const discovered: DiscoveredLLMService[] = results.filter((result): result is DiscoveredLLMService => result !== null);
 
     return discovered;
   },
@@ -95,12 +74,6 @@ export const llmDiscoveryService = {
    */
   fetchModels: async (service: DiscoveredLLMService): Promise<DiscoveredLLMModel[]> => {
     try {
-      if (service.apiType === 'gemini') {
-        return Promise.resolve([
-            { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' }
-        ]);
-      }
-      
       const response = await fetch(service.modelsUrl);
       if (!response.ok) {
         throw new Error(`Failed to fetch models from ${service.name}. Status: ${response.status}`);

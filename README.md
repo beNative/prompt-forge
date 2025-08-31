@@ -6,7 +6,6 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 
 - **Prompt Management**: Organize your prompts in a clean, intuitive interface. Create, edit, and delete prompts with ease.
 - **AI-Powered Refinement**: Connect to a local LLM provider to get AI-driven suggestions for improving your prompts.
-- **Google Gemini Support**: Connect to Google's Gemini models via API key for cloud-powered prompt refinement.
 - **Automatic Service Discovery**: Automatically detects running local LLM services like Ollama and LM Studio, simplifying setup.
 - **Light/Dark Mode**: A beautiful, consistent experience in both light and dark themes, with a manual toggle and respect for system preferences.
 - **Undo/Redo History**: A full history system in the editor allows you to undo and redo changes to your prompt content.
@@ -27,7 +26,6 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 1.  **Prerequisites**:
     -   Node.js and npm.
     -   A local LLM provider running (e.g., [Ollama](https://ollama.com/)). Ensure you have a model downloaded, such as `llama3`.
-    -   (Optional) For Gemini support, set the `API_KEY` environment variable with your Google Gemini API key.
 
 2.  **Installation**:
     ```bash
@@ -42,7 +40,7 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 
 4.  **Configuration**:
     -   Open the application and click the settings (gear) icon.
-    -   The app will automatically detect running services, including Google Gemini if your API key is set.
+    -   The app will automatically detect running services.
     -   Simply select your desired service and model from the dropdown menus and click "Save".
 
 ## Building for Production

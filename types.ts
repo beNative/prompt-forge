@@ -11,7 +11,7 @@ export interface Prompt {
 export interface Settings {
   llmProviderUrl: string;
   llmModelName: string;
-  apiType: 'ollama' | 'openai' | 'gemini' | 'unknown';
+  apiType: 'ollama' | 'openai' | 'unknown';
   iconSet: 'heroicons' | 'lucide';
 }
 
@@ -38,7 +38,7 @@ export interface DiscoveredLLMService {
   name: string; // e.g., 'Ollama (localhost:11434)'
   modelsUrl: string; // Full URL to fetch models
   generateUrl: string; // Full URL to generate content
-  apiType: 'ollama' | 'openai' | 'gemini';
+  apiType: 'ollama' | 'openai';
 }
 
 export interface DiscoveredLLMModel {
