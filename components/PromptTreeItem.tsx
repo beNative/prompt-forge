@@ -23,7 +23,6 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
 }) => {
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
-  const [dropPosition, setDropPosition] = useState<DropPosition>(null);
   const renameInputRef = useRef<HTMLInputElement>(null);
 
   const isExpanded = expandedIds.has(node.id);
@@ -62,50 +61,35 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('text/plain', node.id);
     e.dataTransfer.effectAllowed = 'move';
-    // By not changing the component's state here, we prevent the UI flicker.
-    // The browser will create a "ghost" image of the node as it currently appears.
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    const rect = e.currentTarget.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const height = rect.height;
-
-    let newDropPosition: DropPosition;
-    if (y < height * 0.25) {
-      newDropPosition = 'before';
-    } else if (y > height * 0.75) {
-      newDropPosition = 'after';
-    } else {
-      // Only allow dropping 'inside' if the target is a folder
-      newDropPosition = isFolder ? 'inside' : 'after';
-    }
-    
-    if (newDropPosition !== dropPosition) {
-        setDropPosition(newDropPosition);
-    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const height = rect.height;
+
+    let dropPosition: DropPosition;
+    if (y < height * 0.25) {
+      dropPosition = 'before';
+    } else if (y > height * 0.75) {
+      dropPosition = 'after';
+    } else {
+      dropPosition = isFolder ? 'inside' : 'after';
+    }
+
     const draggedId = e.dataTransfer.getData('text/plain');
-    if (draggedId && draggedId !== node.id && dropPosition) {
+    if (draggedId && draggedId !== node.id) {
       onMoveNode(draggedId, node.id, dropPosition);
     }
-    setDropPosition(null);
   };
   
-  const renderDropIndicator = () => {
-    switch (dropPosition) {
-        case 'before': return <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary z-10" />;
-        case 'after': return <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary z-10" />;
-        case 'inside': return isFolder ? <div className="absolute inset-0 rounded-md bg-primary/20" /> : null;
-        default: return null;
-    }
-  };
-
   const renderIcon = () => {
       if (isFolder) {
           return isExpanded ? <FolderOpenIcon className="w-4 h-4 text-primary" /> : <FolderIcon className="w-4 h-4 text-primary" />;
@@ -116,13 +100,11 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
   return (
     <li 
         onDragOver={handleDragOver}
-        onDragLeave={() => setDropPosition(null)}
         onDrop={handleDrop}
         onDragStart={handleDragStart}
         draggable={renamingId !== node.id}
         className="relative"
     >
-      {renderDropIndicator()}
       <div style={{ paddingLeft: `${level * 1.25}rem` }} className="py-0.5 relative z-0">
         {renamingId === node.id ? (
           <div className="p-1 flex items-center gap-1">
