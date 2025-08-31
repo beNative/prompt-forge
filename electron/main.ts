@@ -13,15 +13,14 @@ if (require('electron-squirrel-startup')) {
 
 const isDev = !app.isPackaged;
 
-// The directory for storing user data. In production, this is next to the executable.
+// The directory for storing user data.
 const getDataPath = (filename: string) => {
   if (isDev) {
     // In development, store data in the project root for easy access.
     return path.join(app.getAppPath(), filename);
   }
-  // For the packaged app, store data next to the executable as requested.
-  // WARNING: This can fail if the app is installed in a write-protected directory like C:\Program Files
-  return path.join(path.dirname(app.getPath('exe')), filename);
+  // For the packaged app, use the standard user data directory to avoid permission issues.
+  return path.join(app.getPath('userData'), filename);
 };
 
 
@@ -48,6 +47,8 @@ app.whenReady().then(() => {
   ipcMain.handle('storage:save', async (_, key: string, value: string) => {
     try {
       const filePath = getDataPath(`${key}.json`);
+      // Ensure the directory exists before writing. This is crucial for the first run in a packaged app.
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
       await fs.writeFile(filePath, value, 'utf-8');
       return { success: true };
     } catch (error) {
@@ -77,7 +78,7 @@ app.whenReady().then(() => {
 
     const { canceled, filePath } = await dialog.showSaveDialog(window, {
       title: 'Save Log File',
-      defaultPath: getDataPath(defaultFilename),
+      defaultPath: path.join(app.getPath('downloads'), defaultFilename),
       filters: [{ name: 'Log Files', extensions: ['log'] }, { name: 'All Files', extensions: ['*'] }]
     });
 

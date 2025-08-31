@@ -92,25 +92,24 @@
         .dark .token.function, .dark .token.class-name { color: #ffb86c; }
         .dark .token.regex, .dark .token.important, .dark .token.variable { color: #f1fa8c; }
     </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "fs/": "https://aistudiocdn.com/fs@^0.0.1-security/",
+    "electron": "https://aistudiocdn.com/electron@^37.4.0",
+    "path": "https://aistudiocdn.com/path@^0.12.7"
+  }
+}
+</script>
 </head>
 <body class="bg-background">
     <div id="root"></div>
     <div id="overlay-root"></div>
     <!-- The app is loaded via an ES module script -->
-    <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@19.1.1",
-    "react-dom/client": "https://esm.sh/react-dom@19.1.1/client",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
-    "react-dom": "https://aistudiocdn.com/react-dom@^19.1.1",
-    "electron": "https://aistudiocdn.com/electron@^37.4.0",
-    "path": "https://aistudiocdn.com/path@^0.12.7",
-    "fs/": "https://aistudiocdn.com/fs@^0.0.1-security/"
-  }
-}
-</script>
     <script type="module" src="./dist/renderer.js"></script>
 </body>
 </html>
