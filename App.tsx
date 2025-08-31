@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 // Hooks
 import { usePrompts } from './hooks/usePrompts';
 import { useSettings } from './hooks/useSettings';
@@ -8,7 +9,7 @@ import Header from './components/Header';
 import PromptList from './components/PromptList';
 import PromptEditor from './components/PromptEditor';
 import { WelcomeScreen } from './components/WelcomeScreen';
-import SettingsModal from './components/SettingsModal';
+import SettingsView from './components/SettingsView';
 import StatusBar from './components/StatusBar';
 import LoggerPanel from './components/LoggerPanel';
 import CommandPalette from './components/CommandPalette';
@@ -17,6 +18,13 @@ import InfoView from './components/InfoView';
 import type { Prompt, Command } from './types';
 // Context
 import { IconProvider } from './contexts/IconContext';
+// Services & Constants
+import { storageService } from './services/storageService';
+import { LOCAL_STORAGE_KEYS } from './constants';
+
+const DEFAULT_SIDEBAR_WIDTH = 288; // Corresponds to w-72
+const MIN_SIDEBAR_WIDTH = 200;
+const MAX_SIDEBAR_WIDTH = 500;
 
 const App: React.FC = () => {
     // State Hooks
@@ -25,12 +33,22 @@ const App: React.FC = () => {
     const [activePromptId, setActivePromptId] = useState<string | null>(null);
 
     // UI State
-    const [view, setView] = useState<'editor' | 'info'>('editor');
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [view, setView] = useState<'editor' | 'info' | 'settings'>('editor');
     const [isLoggerVisible, setIsLoggerVisible] = useState(false);
     const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+    const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
+    const isResizing = useRef(false);
 
     const llmStatus = useLLMStatus(settings.llmProviderUrl);
+
+    // Load sidebar width from storage on initial render
+    useEffect(() => {
+        storageService.load(LOCAL_STORAGE_KEYS.SIDEBAR_WIDTH, DEFAULT_SIDEBAR_WIDTH).then(width => {
+            if (typeof width === 'number') {
+                setSidebarWidth(width);
+            }
+        });
+    }, []);
 
     // Select the first prompt on load or when prompts change
     useEffect(() => {
@@ -58,6 +76,10 @@ const App: React.FC = () => {
             updatePrompt(activePromptId, updatedPrompt);
         }
     };
+    
+    const handleRenamePrompt = (id: string, title: string) => {
+        updatePrompt(id, { title });
+    };
 
     const handleDeletePrompt = useCallback((id: string) => {
         const newPrompts = deletePrompt(id);
@@ -65,6 +87,48 @@ const App: React.FC = () => {
             setActivePromptId(newPrompts.length > 0 ? newPrompts[0].id : null);
         }
     }, [deletePrompt, activePromptId]);
+
+    const toggleSettingsView = () => {
+        setView(v => v === 'settings' ? 'editor' : 'settings')
+    }
+
+    // --- Resizable Panel Logic ---
+    const handleMouseDown = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        isResizing.current = true;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+    }, []);
+
+    const handleMouseUp = useCallback(() => {
+        if (isResizing.current) {
+            isResizing.current = false;
+            document.body.style.cursor = 'default';
+            document.body.style.userSelect = 'auto';
+            storageService.save(LOCAL_STORAGE_KEYS.SIDEBAR_WIDTH, sidebarWidth);
+        }
+    }, [sidebarWidth]);
+
+    const handleMouseMove = useCallback((e: MouseEvent) => {
+        if (!isResizing.current) {
+          return;
+        }
+        const newWidth = e.clientX;
+        if (newWidth >= MIN_SIDEBAR_WIDTH && newWidth <= MAX_SIDEBAR_WIDTH) {
+          setSidebarWidth(newWidth);
+        }
+    }, []);
+    
+    useEffect(() => {
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [handleMouseMove, handleMouseUp]);
+    // --- End Resizable Panel Logic ---
+
 
     // Keyboard shortcuts
     useEffect(() => {
@@ -95,7 +159,7 @@ const App: React.FC = () => {
     const commands: Command[] = useMemo(() => [
         { id: 'new-prompt', name: 'Create New Prompt', keywords: 'add create', action: handleNewPrompt },
         { id: 'delete-prompt', name: 'Delete Current Prompt', keywords: 'remove discard', action: () => activePromptId && handleDeletePrompt(activePromptId) },
-        { id: 'open-settings', name: 'Open Settings', keywords: 'configure options', action: () => setIsSettingsOpen(true) },
+        { id: 'toggle-settings', name: 'Toggle Settings View', keywords: 'configure options', action: toggleSettingsView },
         { id: 'toggle-info', name: 'Toggle Info View', keywords: 'help docs readme', action: () => setView(v => v === 'info' ? 'editor' : 'info') },
         { id: 'toggle-logs', name: 'Toggle Logs Panel', keywords: 'debug console', action: () => setIsLoggerVisible(v => !v) },
     ], [activePromptId, handleNewPrompt, handleDeletePrompt]);
@@ -109,21 +173,30 @@ const App: React.FC = () => {
             <div className="flex flex-col h-screen font-sans bg-background text-text-main antialiased">
                 <Header 
                     onNewPrompt={handleNewPrompt}
-                    onOpenSettings={() => setIsSettingsOpen(true)}
+                    onToggleSettingsView={toggleSettingsView}
+                    isSettingsViewActive={view === 'settings'}
                     onToggleInfoView={() => setView(v => v === 'info' ? 'editor' : 'info')}
                     isInfoViewActive={view === 'info'}
                     onToggleLogger={() => setIsLoggerVisible(v => !v)}
                     onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
                 />
                 <main className="flex-1 flex overflow-hidden">
-                    <aside className="w-72 bg-secondary border-r border-border-color overflow-y-auto flex-shrink-0">
+                    <aside 
+                        style={{ width: `${sidebarWidth}px` }} 
+                        className="bg-secondary border-r border-border-color overflow-y-auto flex-shrink-0"
+                    >
                         <PromptList 
                             prompts={prompts}
                             activePromptId={activePromptId}
                             onSelectPrompt={handleSelectPrompt}
                             onDeletePrompt={handleDeletePrompt}
+                            onRenamePrompt={handleRenamePrompt}
                         />
                     </aside>
+                    <div 
+                        onMouseDown={handleMouseDown}
+                        className="w-1.5 cursor-col-resize flex-shrink-0 bg-border-color/50 hover:bg-primary transition-colors duration-200"
+                    />
                     <section className="flex-1 flex flex-col overflow-y-auto">
                         {view === 'editor' && (
                             activePrompt ? (
@@ -139,6 +212,7 @@ const App: React.FC = () => {
                             )
                         )}
                         {view === 'info' && <InfoView />}
+                        {view === 'settings' && <SettingsView settings={settings} onSave={saveSettings} />}
                     </section>
                 </main>
                 <StatusBar 
@@ -148,13 +222,7 @@ const App: React.FC = () => {
                     lastSaved={activePrompt?.updatedAt}
                 />
             </div>
-            {isSettingsOpen && (
-                <SettingsModal 
-                    settings={settings}
-                    onSave={saveSettings}
-                    onClose={() => setIsSettingsOpen(false)}
-                />
-            )}
+            
             <LoggerPanel isVisible={isLoggerVisible} onToggleVisibility={() => setIsLoggerVisible(v => !v)} />
             <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} commands={commands} />
         </IconProvider>

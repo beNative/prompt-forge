@@ -7,16 +7,17 @@ import ThemeToggleButton from './ThemeToggleButton';
 
 interface HeaderProps {
   onNewPrompt: () => void;
-  onOpenSettings: () => void;
+  onToggleSettingsView: () => void;
   onToggleInfoView: () => void;
   onToggleLogger: () => void;
   onOpenCommandPalette: () => void;
   isInfoViewActive: boolean;
+  isSettingsViewActive: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ onNewPrompt, onOpenSettings, onToggleInfoView, onToggleLogger, onOpenCommandPalette, isInfoViewActive }) => {
+const Header: React.FC<HeaderProps> = ({ onNewPrompt, onToggleSettingsView, onToggleInfoView, onToggleLogger, onOpenCommandPalette, isInfoViewActive, isSettingsViewActive }) => {
   return (
-    <header className="flex items-center justify-between px-3 h-14 flex-shrink-0 bg-secondary border-b border-border-color">
+    <header className="flex items-center justify-between px-3 h-14 flex-shrink-0 bg-secondary border-b border-border-color z-30">
       <div className="flex items-center gap-3">
         <FileIcon className="w-6 h-6 text-primary"/>
         <h1 className="text-lg font-semibold text-text-main tracking-wide">PromptForge</h1>
@@ -35,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({ onNewPrompt, onOpenSettings, onToggleIn
           <FileCodeIcon />
         </IconButton>
         <ThemeToggleButton />
-        <IconButton onClick={onOpenSettings} tooltip="Settings">
+        <IconButton onClick={onToggleSettingsView} tooltip="Settings" className={isSettingsViewActive ? 'bg-primary/10 text-primary' : ''}>
           <GearIcon />
         </IconButton>
       </div>
