@@ -35,7 +35,7 @@ const IconButton: React.FC<IconButtonProps> = ({ children, tooltip, className, v
       {...props}
     >
       {children}
-      <span className={`absolute z-50 w-max px-2 py-1 text-xs font-semibold text-tooltip-text bg-tooltip-bg rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none ${tooltipPositionClasses[tooltipPosition]}`}>
+      <span className={`absolute z-50 w-max px-2 py-1 text-xs font-semibold text-tooltip-text bg-tooltip-bg rounded-md opacity-0 group-hover:opacity-100 transition-opacity delay-500 pointer-events-none ${tooltipPositionClasses[tooltipPosition]}`}>
         {tooltip}
       </span>
     </button>

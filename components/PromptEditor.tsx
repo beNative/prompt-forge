@@ -181,7 +181,12 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
             />
             {isAutoNaming && <Spinner />}
             {isDirty && !isAutoNaming && (
-                <div className="w-2 h-2 bg-primary rounded-full animate-pulse flex-shrink-0" title="Unsaved changes"></div>
+                <div className="relative group flex-shrink-0">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                    <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 w-max px-2 py-1 text-xs font-semibold text-tooltip-text bg-tooltip-bg rounded-md opacity-0 group-hover:opacity-100 transition-opacity delay-500 pointer-events-none">
+                        Unsaved changes
+                    </span>
+                </div>
             )}
         </div>
         <Button variant="destructive" onClick={() => onDelete(prompt.id)}>

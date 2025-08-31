@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import type { PromptOrFolder } from '../types';
 import IconButton from './IconButton';
@@ -123,7 +124,6 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
           <button
             onClick={() => onSelectNode(node.id)}
             onDoubleClick={handleRenameStart}
-            title={node.title}
             className={`w-full text-left p-1.5 rounded-md group flex justify-between items-center transition-colors duration-150 text-sm ${
               activeNodeId === node.id
                 ? 'bg-background text-text-main'
@@ -139,7 +139,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
                <span className="flex-shrink-0">{renderIcon()}</span>
               <span className="truncate flex-1 px-1">{node.title}</span>
             </div>
-            <div className={`opacity-0 ${activeNodeId !== node.id ? 'group-hover:opacity-100' : ''} transition-opacity pr-1`}>
+            <div className={`transition-opacity pr-1 ${activeNodeId === node.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
               <IconButton onClick={handleDelete} tooltip="Delete" size="sm" variant="destructive">
                 <TrashIcon className="w-4 h-4" />
               </IconButton>
