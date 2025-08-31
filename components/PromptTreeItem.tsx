@@ -63,7 +63,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('text/plain', node.id);
     e.dataTransfer.effectAllowed = 'move';
-    // FIX: Delay state update to prevent flickering by allowing the browser
+    // Delay state update to prevent flickering by allowing the browser
     // to capture a snapshot of the node before it becomes transparent.
     setTimeout(() => {
         setIsBeingDragged(true);
@@ -80,13 +80,18 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
     const y = e.clientY - rect.top;
     const height = rect.height;
 
+    let newDropPosition: DropPosition;
     if (y < height * 0.25) {
-      setDropPosition('before');
+      newDropPosition = 'before';
     } else if (y > height * 0.75) {
-      setDropPosition('after');
+      newDropPosition = 'after';
     } else {
       // Only allow dropping 'inside' if the target is a folder
-      setDropPosition(isFolder ? 'inside' : 'after');
+      newDropPosition = isFolder ? 'inside' : 'after';
+    }
+    
+    if (newDropPosition !== dropPosition) {
+        setDropPosition(newDropPosition);
     }
   };
 
@@ -102,9 +107,9 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
   
   const renderDropIndicator = () => {
     switch (dropPosition) {
-        case 'before': return <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary z-10" />;
-        case 'after': return <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary z-10" />;
-        case 'inside': return isFolder ? <div className="absolute inset-0 rounded-md ring-2 ring-primary ring-inset z-10" /> : null;
+        case 'before': return <div className="absolute top-0 left-0 right-0 h-0.5 bg-text-secondary z-10" />;
+        case 'after': return <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-text-secondary z-10" />;
+        case 'inside': return isFolder ? <div className="absolute inset-0 rounded-md ring-2 ring-text-secondary ring-inset z-10" /> : null;
         default: return null;
     }
   };
@@ -148,8 +153,8 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
             title={node.title}
             className={`w-full text-left p-1.5 rounded-md group flex justify-between items-center transition-colors duration-150 text-sm ${
               activeNodeId === node.id
-                ? 'bg-background text-text-main font-semibold'
-                : 'hover:bg-background text-text-secondary hover:text-text-main'
+                ? 'bg-border-color/50 text-text-main font-semibold'
+                : 'hover:bg-border-color/30 text-text-secondary hover:text-text-main'
             }`}
           >
             <div className="flex items-center gap-1 flex-1 truncate">

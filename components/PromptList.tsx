@@ -81,19 +81,6 @@ const PromptList: React.FC<PromptListProps> = ({
       return newSet;
     });
   };
-  
-  const handleRootDrop = (e: React.DragEvent) => {
-      e.preventDefault();
-      const draggedId = e.dataTransfer.getData('text/plain');
-      if (draggedId) {
-          onMoveNode(draggedId, null, 'after');
-      }
-  };
-
-  const handleRootDragOver = (e: React.DragEvent) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-  };
 
 
   return (
@@ -111,8 +98,6 @@ const PromptList: React.FC<PromptListProps> = ({
       </header>
       <div 
           className="flex-1 p-2 relative overflow-y-auto"
-          onDrop={handleRootDrop}
-          onDragOver={handleRootDragOver}
       >
         <ul className="space-y-0.5">
           {tree.map((node) => (
