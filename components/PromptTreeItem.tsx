@@ -24,7 +24,6 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [dropPosition, setDropPosition] = useState<DropPosition>(null);
-  const [isBeingDragged, setIsBeingDragged] = useState(false);
   const renameInputRef = useRef<HTMLInputElement>(null);
 
   const isExpanded = expandedIds.has(node.id);
@@ -63,16 +62,9 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('text/plain', node.id);
     e.dataTransfer.effectAllowed = 'move';
-    // Delay state update to prevent flickering by allowing the browser
-    // to capture a snapshot of the node before it becomes transparent.
-    setTimeout(() => {
-        setIsBeingDragged(true);
-    }, 0);
+    // By not changing the component's state here, we prevent the UI flicker.
+    // The browser will create a "ghost" image of the node as it currently appears.
   };
-
-  const handleDragEnd = () => {
-     setIsBeingDragged(false);
-  }
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -107,9 +99,9 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
   
   const renderDropIndicator = () => {
     switch (dropPosition) {
-        case 'before': return <div className="absolute top-0 left-0 right-0 h-0.5 bg-text-secondary z-10" />;
-        case 'after': return <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-text-secondary z-10" />;
-        case 'inside': return isFolder ? <div className="absolute inset-0 rounded-md ring-2 ring-text-secondary ring-inset z-10" /> : null;
+        case 'before': return <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary z-10" />;
+        case 'after': return <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary z-10" />;
+        case 'inside': return isFolder ? <div className="absolute inset-0 rounded-md bg-primary/20" /> : null;
         default: return null;
     }
   };
@@ -127,12 +119,11 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
         onDragLeave={() => setDropPosition(null)}
         onDrop={handleDrop}
         onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
         draggable={renamingId !== node.id}
-        className={`relative transition-opacity ${isBeingDragged ? 'opacity-40' : ''}`}
+        className="relative"
     >
       {renderDropIndicator()}
-      <div style={{ paddingLeft: `${level * 1.25}rem` }} className="py-0.5">
+      <div style={{ paddingLeft: `${level * 1.25}rem` }} className="py-0.5 relative z-0">
         {renamingId === node.id ? (
           <div className="p-1 flex items-center gap-1">
             <span onClick={(e) => { e.stopPropagation(); (hasChildren || isFolder) && onToggleExpand(node.id); }} className="p-1">
