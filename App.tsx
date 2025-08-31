@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 // Hooks
 import { usePrompts } from './hooks/usePrompts';
@@ -22,9 +23,14 @@ import { IconProvider } from './contexts/IconContext';
 import { storageService } from './services/storageService';
 import { LOCAL_STORAGE_KEYS } from './constants';
 
-const DEFAULT_SIDEBAR_WIDTH = 288; // Corresponds to w-72
+const DEFAULT_SIDEBAR_WIDTH = 288;
 const MIN_SIDEBAR_WIDTH = 200;
 const MAX_SIDEBAR_WIDTH = 500;
+
+const DEFAULT_LOGGER_HEIGHT = 288;
+const MIN_LOGGER_HEIGHT = 100;
+const MAX_LOGGER_HEIGHT = 600;
+
 
 const App: React.FC = () => {
     // State Hooks
@@ -37,16 +43,20 @@ const App: React.FC = () => {
     const [isLoggerVisible, setIsLoggerVisible] = useState(false);
     const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
     const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
-    const isResizing = useRef(false);
+    const [loggerPanelHeight, setLoggerPanelHeight] = useState(DEFAULT_LOGGER_HEIGHT);
+    
+    const isSidebarResizing = useRef(false);
+    const isLoggerResizing = useRef(false);
 
     const llmStatus = useLLMStatus(settings.llmProviderUrl);
 
-    // Load sidebar width from storage on initial render
+    // Load panel sizes from storage on initial render
     useEffect(() => {
         storageService.load(LOCAL_STORAGE_KEYS.SIDEBAR_WIDTH, DEFAULT_SIDEBAR_WIDTH).then(width => {
-            if (typeof width === 'number') {
-                setSidebarWidth(width);
-            }
+            if (typeof width === 'number') setSidebarWidth(width);
+        });
+        storageService.load(LOCAL_STORAGE_KEYS.LOGGER_PANEL_HEIGHT, DEFAULT_LOGGER_HEIGHT).then(height => {
+            if (typeof height === 'number') setLoggerPanelHeight(height);
         });
     }, []);
 
@@ -113,42 +123,61 @@ const App: React.FC = () => {
         setView(v => v === 'settings' ? 'editor' : 'settings')
     }
 
-    // --- Resizable Panel Logic ---
-    const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    // --- Resizable Panels Logic ---
+    const handleSidebarMouseDown = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
-        isResizing.current = true;
+        isSidebarResizing.current = true;
         document.body.style.cursor = 'col-resize';
         document.body.style.userSelect = 'none';
     }, []);
 
-    const handleMouseUp = useCallback(() => {
-        if (isResizing.current) {
-            isResizing.current = false;
-            document.body.style.cursor = 'default';
-            document.body.style.userSelect = 'auto';
-            storageService.save(LOCAL_STORAGE_KEYS.SIDEBAR_WIDTH, sidebarWidth);
-        }
-    }, [sidebarWidth]);
-
-    const handleMouseMove = useCallback((e: MouseEvent) => {
-        if (!isResizing.current) {
-          return;
-        }
-        const newWidth = e.clientX;
-        if (newWidth >= MIN_SIDEBAR_WIDTH && newWidth <= MAX_SIDEBAR_WIDTH) {
-          setSidebarWidth(newWidth);
-        }
+    const handleLoggerMouseDown = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        isLoggerResizing.current = true;
+        document.body.style.cursor = 'row-resize';
+        document.body.style.userSelect = 'none';
     }, []);
     
+    const handleGlobalMouseMove = useCallback((e: MouseEvent) => {
+        if (isSidebarResizing.current) {
+          const newWidth = e.clientX;
+          if (newWidth >= MIN_SIDEBAR_WIDTH && newWidth <= MAX_SIDEBAR_WIDTH) {
+            setSidebarWidth(newWidth);
+          }
+        }
+        if (isLoggerResizing.current) {
+          const newHeight = window.innerHeight - e.clientY;
+          if (newHeight >= MIN_LOGGER_HEIGHT && newHeight <= MAX_LOGGER_HEIGHT) {
+            setLoggerPanelHeight(newHeight);
+          }
+        }
+    }, []);
+
+    const handleGlobalMouseUp = useCallback(() => {
+        if (isSidebarResizing.current) {
+            isSidebarResizing.current = false;
+            storageService.save(LOCAL_STORAGE_KEYS.SIDEBAR_WIDTH, sidebarWidth);
+        }
+        if (isLoggerResizing.current) {
+            isLoggerResizing.current = false;
+            storageService.save(LOCAL_STORAGE_KEYS.LOGGER_PANEL_HEIGHT, loggerPanelHeight);
+        }
+        
+        if (document.body.style.cursor !== 'default') {
+            document.body.style.cursor = 'default';
+            document.body.style.userSelect = 'auto';
+        }
+    }, [sidebarWidth, loggerPanelHeight]);
+    
     useEffect(() => {
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('mousemove', handleGlobalMouseMove);
+        window.addEventListener('mouseup', handleGlobalMouseUp);
         return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('mousemove', handleGlobalMouseMove);
+            window.removeEventListener('mouseup', handleGlobalMouseUp);
         };
-    }, [handleMouseMove, handleMouseUp]);
-    // --- End Resizable Panel Logic ---
+    }, [handleGlobalMouseMove, handleGlobalMouseUp]);
+    // --- End Resizable Panels Logic ---
 
 
     // Keyboard shortcuts
@@ -202,23 +231,27 @@ const App: React.FC = () => {
                     onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
                 />
                 <main className="flex-1 flex overflow-hidden">
-                    <aside 
-                        style={{ width: `${sidebarWidth}px` }} 
-                        className="bg-secondary border-r border-border-color overflow-y-auto flex-shrink-0"
-                    >
-                        <PromptList 
-                            prompts={prompts}
-                            activePromptId={activePromptId}
-                            onSelectPrompt={handleSelectPrompt}
-                            onDeletePrompt={handleDeletePrompt}
-                            onRenamePrompt={handleRenamePrompt}
-                            onMovePrompt={movePrompt}
-                        />
-                    </aside>
-                    <div 
-                        onMouseDown={handleMouseDown}
-                        className="w-1.5 cursor-col-resize flex-shrink-0 bg-border-color/50 hover:bg-primary transition-colors duration-200"
-                    />
+                    {view === 'editor' && (
+                        <>
+                             <aside 
+                                style={{ width: `${sidebarWidth}px` }} 
+                                className="bg-secondary border-r border-border-color overflow-y-auto flex-shrink-0"
+                            >
+                                <PromptList 
+                                    prompts={prompts}
+                                    activePromptId={activePromptId}
+                                    onSelectPrompt={handleSelectPrompt}
+                                    onDeletePrompt={handleDeletePrompt}
+                                    onRenamePrompt={handleRenamePrompt}
+                                    onMovePrompt={movePrompt}
+                                />
+                            </aside>
+                            <div 
+                                onMouseDown={handleSidebarMouseDown}
+                                className="w-1.5 cursor-col-resize flex-shrink-0 bg-border-color/50 hover:bg-primary transition-colors duration-200"
+                            />
+                        </>
+                    )}
                     <section className="flex-1 flex flex-col overflow-y-auto">
                         {view === 'editor' && (
                             activePrompt ? (
@@ -245,7 +278,12 @@ const App: React.FC = () => {
                 />
             </div>
             
-            <LoggerPanel isVisible={isLoggerVisible} onToggleVisibility={() => setIsLoggerVisible(v => !v)} />
+            <LoggerPanel 
+                isVisible={isLoggerVisible} 
+                onToggleVisibility={() => setIsLoggerVisible(v => !v)}
+                height={loggerPanelHeight}
+                onResizeStart={handleLoggerMouseDown}
+            />
             <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} commands={commands} />
         </IconProvider>
     );

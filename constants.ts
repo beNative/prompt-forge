@@ -6,6 +6,7 @@ export const LOCAL_STORAGE_KEYS = {
   PROMPTS: 'promptforge_prompts',
   SETTINGS: 'promptforge_settings',
   SIDEBAR_WIDTH: 'promptforge_sidebar_width',
+  LOGGER_PANEL_HEIGHT: 'promptforge_logger_panel_height',
 };
 
 export const DEFAULT_SETTINGS: Settings = {

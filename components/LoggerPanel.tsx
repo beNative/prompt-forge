@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useLogger } from '../hooks/useLogger';
@@ -10,6 +11,8 @@ import IconButton from './IconButton';
 interface LoggerPanelProps {
   isVisible: boolean;
   onToggleVisibility: () => void;
+  height: number;
+  onResizeStart: (e: React.MouseEvent) => void;
 }
 
 const logLevelClasses: Record<LogLevel, { text: string; bg: string; border: string }> = {
@@ -21,7 +24,7 @@ const logLevelClasses: Record<LogLevel, { text: string; bg: string; border: stri
 
 const logLevels: LogLevel[] = ['DEBUG', 'INFO', 'WARNING', 'ERROR'];
 
-const LoggerPanel: React.FC<LoggerPanelProps> = ({ isVisible, onToggleVisibility }) => {
+const LoggerPanel: React.FC<LoggerPanelProps> = ({ isVisible, onToggleVisibility, height, onResizeStart }) => {
   const { logs, clearLogs } = useLogger();
   const [filter, setFilter] = useState<LogLevel | 'ALL'>('ALL');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -51,12 +54,19 @@ const LoggerPanel: React.FC<LoggerPanelProps> = ({ isVisible, onToggleVisibility
 
   const panelContent = (
     <div
-      className={`fixed bottom-0 left-0 right-0 z-20 flex h-72 flex-col overflow-hidden border-t border-border-color bg-secondary shadow-lg transition-transform duration-300 ease-in-out ${
+      style={{ height: `${height}px` }}
+      className={`fixed bottom-0 left-0 right-0 z-20 flex flex-col overflow-hidden bg-secondary shadow-lg transition-transform duration-300 ease-in-out ${
         isVisible ? 'translate-y-0' : 'translate-y-full'
       }`}
       aria-hidden={!isVisible}
     >
-      <header className="flex items-center justify-between p-2 border-b border-border-color flex-shrink-0">
+      <div
+        onMouseDown={onResizeStart}
+        className="w-full h-2 cursor-row-resize flex-shrink-0 group absolute top-0"
+      >
+        <div className="h-px w-8 bg-border-color rounded-full mx-auto mt-1 group-hover:bg-primary transition-colors"></div>
+      </div>
+      <header className="flex items-center justify-between p-2 pt-3 border-b border-border-color flex-shrink-0">
         <h3 className="font-semibold text-text-main px-2">Application Logs</h3>
         <div className="flex items-center gap-1">
           <span className="text-xs text-text-secondary mr-2">Filter:</span>
