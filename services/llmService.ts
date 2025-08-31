@@ -1,5 +1,4 @@
-
-import type { Settings } from '../types';
+import type { Settings, LogLevel } from '../types';
 
 interface OllamaResponse {
   model: string;
@@ -16,16 +15,77 @@ interface OpenAIResponse {
   }[];
 }
 
-export const llmService = {
-  refinePrompt: async (prompt: string, settings: Settings, addLog: (level: 'INFO' | 'ERROR', message: string) => void): Promise<string> => {
-    const { llmProviderUrl, llmModelName, apiType } = settings;
+const createBody = (apiType: 'ollama' | 'openai' | 'unknown', model: string, content: string) => {
+    if (apiType === 'ollama') {
+        return JSON.stringify({
+            model: model,
+            prompt: content,
+            stream: false,
+        });
+    }
+    // openai compatible
+    return JSON.stringify({
+        model: model,
+        messages: [{ role: 'user', content }],
+        stream: false,
+    });
+};
 
-    if (!llmProviderUrl || !llmModelName || apiType === 'unknown') {
-      const errorMsg = 'LLM provider is not configured. Please check your settings.';
+const makeLLMRequest = async (
+  metaPrompt: string,
+  settings: Settings,
+  addLog: (level: LogLevel, message: string) => void
+): Promise<string> => {
+  const { llmProviderUrl, llmModelName, apiType } = settings;
+
+  if (!llmProviderUrl || !llmModelName || apiType === 'unknown') {
+    const errorMsg = 'LLM provider is not configured. Please check your settings.';
+    addLog('ERROR', errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  try {
+    const body = createBody(apiType, llmModelName, metaPrompt);
+    addLog('INFO', `Sending request to ${llmProviderUrl} with model ${llmModelName} (API: ${apiType}).`);
+
+    const response = await fetch(llmProviderUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      const errorMsg = `LLM provider responded with status ${response.status}: ${errorText}`;
       addLog('ERROR', errorMsg);
       throw new Error(errorMsg);
     }
 
+    const data = await response.json();
+
+    if (apiType === 'ollama') {
+      return (data as OllamaResponse).response.trim();
+    } else { // openai compatible
+      return (data as OpenAIResponse).choices[0].message.content.trim();
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+    const connectionError = `Failed to connect to LLM provider at ${llmProviderUrl}. Please check your settings and ensure the provider is running. Details: ${errorMessage}`;
+
+    console.error('Failed to connect to LLM provider:', error);
+    addLog('ERROR', connectionError);
+
+    if (error instanceof Error) {
+      throw new Error(connectionError);
+    }
+    throw new Error('An unknown error occurred while contacting the LLM provider.');
+  }
+};
+
+export const llmService = {
+  refinePrompt: async (prompt: string, settings: Settings, addLog: (level: LogLevel, message: string) => void): Promise<string> => {
     const metaPrompt = `You are a world-class prompt engineering assistant. Your task is to refine the following user-provided prompt to make it more effective, clear, and comprehensive for a large language model. Do not answer the prompt, but improve it. Return only the improved prompt text.
 
 Original Prompt:
@@ -34,59 +94,24 @@ ${prompt}
 ---
 Refined Prompt:`;
 
-    try {
-      addLog('INFO', `Sending refine request to ${llmProviderUrl} with model ${llmModelName} (API: ${apiType}).`);
-      
-      let body;
-      if (apiType === 'ollama') {
-        body = JSON.stringify({
-          model: llmModelName,
-          prompt: metaPrompt,
-          stream: false,
-        });
-      } else { // openai compatible
-        body = JSON.stringify({
-          model: llmModelName,
-          messages: [{ role: 'user', content: metaPrompt }],
-          stream: false,
-        });
-      }
+    const result = await makeLLMRequest(metaPrompt, settings, addLog);
+    addLog('INFO', 'Successfully received refined prompt from LLM provider.');
+    return result;
+  },
 
-      const response = await fetch(llmProviderUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body,
-      });
+  generateTitle: async (promptContent: string, settings: Settings, addLog: (level: LogLevel, message: string) => void): Promise<string> => {
+    const metaPrompt = `Generate a concise, descriptive title for the following prompt. The title should be 5 words or less. Return ONLY the title text, without any quotation marks or labels like "Title:".
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        const errorMsg = `LLM provider responded with status ${response.status}: ${errorText}`;
-        addLog('ERROR', errorMsg);
-        throw new Error(errorMsg);
-      }
+Prompt:
+---
+${promptContent}
+---
+Title:`;
 
-      const data = await response.json();
-      addLog('INFO', 'Successfully received refined prompt from LLM provider.');
-
-      if (apiType === 'ollama') {
-        return (data as OllamaResponse).response.trim();
-      } else { // openai compatible
-        return (data as OpenAIResponse).choices[0].message.content.trim();
-      }
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-      const connectionError = `Failed to connect to LLM provider at ${llmProviderUrl}. Please check your settings and ensure the provider is running. Details: ${errorMessage}`;
-      
-      console.error('Failed to connect to LLM provider:', error);
-      addLog('ERROR', connectionError);
-      
-      if (error instanceof Error) {
-        throw new Error(connectionError);
-      }
-      throw new Error('An unknown error occurred while contacting the LLM provider.');
-    }
+    const result = await makeLLMRequest(metaPrompt, settings, addLog);
+    // Clean up the title - remove quotes and any leading/trailing weirdness.
+    const cleanedTitle = result.replace(/["'“”]/g, '').trim();
+    addLog('INFO', `Successfully generated and cleaned title: "${cleanedTitle}"`);
+    return cleanedTitle;
   },
 };

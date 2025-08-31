@@ -28,10 +28,12 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
   const [error, setError] = useState<string | null>(null);
   const [refinedContent, setRefinedContent] = useState<string | null>(null);
   const [isDirty, setIsDirty] = useState(false);
+  const [isAutoNaming, setIsAutoNaming] = useState(false);
   const { addLog } = useLogger();
 
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const preRef = useRef<HTMLPreElement>(null);
+  const autoNameTimeoutRef = useRef<number | null>(null);
   
   // Effect to detect unsaved changes
   useEffect(() => {
@@ -51,6 +53,50 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
 
     return () => clearTimeout(handler);
   }, [title, content, isDirty, onSave, prompt]);
+
+  // Effect for auto-naming untitled prompts
+  useEffect(() => {
+    const isUntitled = prompt.title === 'Untitled Prompt';
+    const hasEnoughContent = content.trim().length >= 50;
+
+    if (!isUntitled || !hasEnoughContent || isAutoNaming) {
+      return;
+    }
+
+    if (autoNameTimeoutRef.current) {
+      clearTimeout(autoNameTimeoutRef.current);
+    }
+
+    autoNameTimeoutRef.current = window.setTimeout(async () => {
+      if (!settings.llmProviderUrl || !settings.llmModelName) {
+        addLog('DEBUG', 'Skipping auto-name because LLM is not configured.');
+        return;
+      }
+      
+      setIsAutoNaming(true);
+      addLog('INFO', 'Attempting to auto-name prompt based on content.');
+      try {
+        const newTitle = await llmService.generateTitle(content, settings, addLog);
+        if (newTitle) {
+          setTitle(newTitle);
+          addLog('INFO', `Successfully auto-named prompt to: "${newTitle}"`);
+        } else {
+          addLog('WARNING', 'Auto-name returned an empty title.');
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        addLog('WARNING', `Could not auto-name prompt: ${message}`);
+      } finally {
+        setIsAutoNaming(false);
+      }
+    }, 1500);
+
+    return () => {
+      if (autoNameTimeoutRef.current) {
+        clearTimeout(autoNameTimeoutRef.current);
+      }
+    };
+  }, [content, prompt.title, settings, addLog, isAutoNaming]);
   
   const highlightedContent = useMemo(() => {
     if (typeof Prism === 'undefined' || !Prism.languages.markdown) {
@@ -126,10 +172,12 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Prompt Title"
-              className="bg-transparent text-2xl font-semibold text-text-main focus:outline-none w-full truncate placeholder:text-text-secondary"
+              placeholder={isAutoNaming ? "Generating title..." : "Prompt Title"}
+              disabled={isAutoNaming}
+              className="bg-transparent text-2xl font-semibold text-text-main focus:outline-none w-full truncate placeholder:text-text-secondary disabled:opacity-70"
             />
-            {isDirty && (
+            {isAutoNaming && <Spinner />}
+            {isDirty && !isAutoNaming && (
                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse flex-shrink-0" title="Unsaved changes"></div>
             )}
         </div>
