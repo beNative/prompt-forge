@@ -101,3 +101,13 @@ export const KeyboardIcon: React.FC<IconProps> = (props) => {
     const { iconSet } = useIconSet();
     return iconSet === 'lucide' ? <LucideIcons.KeyboardIcon {...props} /> : <HeroIcons.KeyboardIcon {...props} />;
 };
+
+export const CopyIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    return iconSet === 'lucide' ? <LucideIcons.CopyIcon {...props} /> : <HeroIcons.CopyIcon {...props} />;
+};
+
+export const CheckIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    return iconSet === 'lucide' ? <LucideIcons.CheckIcon {...props} /> : <HeroIcons.CheckIcon {...props} />;
+};

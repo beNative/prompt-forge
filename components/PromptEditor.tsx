@@ -1,9 +1,10 @@
 
 
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { PromptOrFolder, Settings } from '../types';
 import { llmService } from '../services/llmService';
-import { SparklesIcon, TrashIcon, UndoIcon, RedoIcon } from './Icons';
+import { SparklesIcon, TrashIcon, UndoIcon, RedoIcon, CopyIcon, CheckIcon } from './Icons';
 import Spinner from './Spinner';
 import Modal from './Modal';
 import { useLogger } from '../hooks/useLogger';
@@ -30,6 +31,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
   const [refinedContent, setRefinedContent] = useState<string | null>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [isAutoNaming, setIsAutoNaming] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const { addLog } = useLogger();
 
   const editorRef = useRef<HTMLTextAreaElement>(null);
@@ -166,6 +168,18 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
     }
   };
 
+  const handleCopy = async () => {
+    if (!content.trim()) return;
+    try {
+        await navigator.clipboard.writeText(content);
+        setIsCopied(true);
+        addLog('INFO', `Prompt content copied to clipboard.`);
+        setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+        addLog('ERROR', `Failed to copy to clipboard: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+  };
+
 
   return (
     <div className="flex-1 flex flex-col p-6 bg-background overflow-y-auto">
@@ -189,10 +203,19 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
                 </div>
             )}
         </div>
-        <Button variant="destructive" onClick={() => onDelete(prompt.id)}>
-          <TrashIcon className="w-4 h-4 mr-2" />
-          Delete
-        </Button>
+        <div className="flex items-center gap-2">
+            <IconButton
+              onClick={handleCopy}
+              disabled={!content.trim()}
+              tooltip={isCopied ? 'Copied!' : 'Copy Prompt'}
+            >
+              {isCopied ? <CheckIcon className="w-5 h-5 text-success" /> : <CopyIcon className="w-5 h-5" />}
+            </IconButton>
+            <Button variant="destructive" onClick={() => onDelete(prompt.id)}>
+              <TrashIcon className="w-4 h-4 mr-2" />
+              Delete
+            </Button>
+        </div>
       </div>
 
       <div 
