@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import type { PromptOrFolder } from '../types';
 import PromptTreeItem, { PromptNode } from './PromptTreeItem';
@@ -81,6 +82,27 @@ const PromptList: React.FC<PromptListProps> = ({
       return newSet;
     });
   };
+  
+  const handleRootDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const draggedId = e.dataTransfer.getData('text/plain');
+    const targetItem = e.target as HTMLElement;
+
+    // Prevent drop if it's on a child item, which will handle its own drop
+    if (targetItem.closest('li[draggable="true"]')) {
+        return;
+    }
+
+    if (draggedId) {
+        onMoveNode(draggedId, null, 'inside'); // 'inside' with null target means root
+    }
+  };
+
+  const handleRootDragOver = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+  };
 
 
   return (
@@ -88,16 +110,18 @@ const PromptList: React.FC<PromptListProps> = ({
       <header className="flex items-center justify-between p-2 flex-shrink-0">
         <h2 className="text-sm font-semibold text-text-secondary px-2 tracking-wider uppercase">Prompts</h2>
         <div className="flex items-center gap-1">
-          <IconButton onClick={onNewFolder} tooltip="New Folder" size="sm">
+          <IconButton onClick={onNewFolder} tooltip="New Root Folder" size="sm" tooltipPosition="bottom">
             <FolderPlusIcon />
           </IconButton>
-          <IconButton onClick={onNewPrompt} tooltip="New Prompt (Ctrl+N)" size="sm">
+          <IconButton onClick={onNewPrompt} tooltip="New Prompt (Ctrl+N)" size="sm" tooltipPosition="bottom">
             <PlusIcon />
           </IconButton>
         </div>
       </header>
       <div 
           className="flex-1 p-2 relative overflow-y-auto"
+          onDrop={handleRootDrop}
+          onDragOver={handleRootDragOver}
       >
         <ul className="space-y-0.5">
           {tree.map((node) => (

@@ -18,7 +18,7 @@ import CommandPalette from './components/CommandPalette';
 import InfoView from './components/InfoView';
 import { PlusIcon, FolderPlusIcon, TrashIcon, GearIcon, InfoIcon, FileCodeIcon } from './components/Icons';
 // Types
-import type { PromptOrFolder, Command, LogMessage, DiscoveredLLMModel } from './types';
+import type { PromptOrFolder, Command, LogMessage, DiscoveredLLMModel, DiscoveredLLMService } from './types';
 // Context
 import { IconProvider } from './contexts/IconContext';
 // Services & Constants
@@ -48,12 +48,14 @@ const App: React.FC = () => {
     const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
     const [loggerPanelHeight, setLoggerPanelHeight] = useState(DEFAULT_LOGGER_HEIGHT);
     const [availableModels, setAvailableModels] = useState<DiscoveredLLMModel[]>([]);
+    const [discoveredServices, setDiscoveredServices] = useState<DiscoveredLLMService[]>([]);
+    const [isDetecting, setIsDetecting] = useState(false);
     
     const isSidebarResizing = useRef(false);
     const isLoggerResizing = useRef(false);
 
     const llmStatus = useLLMStatus(settings.llmProviderUrl);
-    const { logs } = useLogger();
+    const { logs, addLog } = useLogger();
     const lastLogRef = useRef<LogMessage | null>(null);
 
     // Derived State
@@ -84,6 +86,25 @@ const App: React.FC = () => {
         }
     }, [items, activeNodeId]);
 
+    // Service Discovery logic
+    const handleDetectServices = useCallback(async () => {
+        setIsDetecting(true);
+        try {
+            const services = await llmDiscoveryService.discoverServices();
+            setDiscoveredServices(services);
+        } catch (error) {
+            addLog('ERROR', `Failed to discover services: ${error instanceof Error ? error.message : String(error)}`);
+            setDiscoveredServices([]);
+        } finally {
+            setIsDetecting(false);
+        }
+    }, [addLog]);
+
+    useEffect(() => {
+        handleDetectServices();
+    }, [handleDetectServices]);
+
+
     // Fetch available models for the status bar dropdown
     useEffect(() => {
         const fetchModels = async () => {
@@ -101,7 +122,7 @@ const App: React.FC = () => {
                     const models = await llmDiscoveryService.fetchModels(service);
                     setAvailableModels(models);
                 } catch (error) {
-                    console.error("Failed to fetch models for status bar:", error);
+                    addLog('ERROR', `Failed to fetch models for status bar: ${error instanceof Error ? error.message : String(error)}`);
                     setAvailableModels([]);
                 }
             } else {
@@ -111,7 +132,7 @@ const App: React.FC = () => {
         if (settingsLoaded) {
             fetchModels();
         }
-    }, [settings.llmProviderUrl, settings.apiType, settingsLoaded]);
+    }, [settings.llmProviderUrl, settings.apiType, settingsLoaded, addLog]);
 
     // Effect for auto-saving logs
     useEffect(() => {
@@ -141,11 +162,10 @@ const App: React.FC = () => {
     }, [addPrompt, getParentIdForNewItem]);
     
     const handleNewFolder = useCallback(() => {
-        const parentId = getParentIdForNewItem();
-        const newFolder = addFolder(parentId);
+        const newFolder = addFolder(null); // Always create at root
         setActiveNodeId(newFolder.id);
         setView('editor');
-    }, [addFolder, getParentIdForNewItem]);
+    }, [addFolder]);
 
     const handleSelectNode = (id: string) => {
         setActiveNodeId(id);
@@ -165,6 +185,28 @@ const App: React.FC = () => {
     const handleModelChange = (modelId: string) => {
         saveSettings({ ...settings, llmModelName: modelId });
     };
+    
+    const handleProviderChange = useCallback(async (serviceId: string) => {
+        const selectedService = discoveredServices.find(s => s.id === serviceId);
+        if (!selectedService) return;
+
+        try {
+            const models = await llmDiscoveryService.fetchModels(selectedService);
+            const newModelName = models.length > 0 ? models[0].id : '';
+            
+            saveSettings({
+                ...settings,
+                llmProviderUrl: selectedService.generateUrl,
+                llmProviderName: selectedService.name,
+                apiType: selectedService.apiType,
+                llmModelName: newModelName,
+            });
+            addLog('INFO', `Switched LLM provider to ${selectedService.name}.`);
+        } catch (e) {
+            const message = e instanceof Error ? e.message : String(e);
+            addLog('ERROR', `Failed to switch provider: ${message}`);
+        }
+    }, [discoveredServices, settings, saveSettings, addLog]);
 
     const handleDeleteNode = useCallback((id: string) => {
         const itemToDelete = items.find(p => p.id === id);
@@ -354,17 +396,20 @@ const App: React.FC = () => {
                             )
                         )}
                         {view === 'info' && <InfoView />}
-                        {view === 'settings' && <SettingsView settings={settings} onSave={saveSettings} />}
+                        {view === 'settings' && <SettingsView settings={settings} onSave={saveSettings} discoveredServices={discoveredServices} onDetectServices={handleDetectServices} isDetecting={isDetecting} />}
                     </section>
                 </main>
                 <StatusBar 
                     status={llmStatus}
                     modelName={settings.llmModelName}
                     llmProviderName={settings.llmProviderName}
+                    llmProviderUrl={settings.llmProviderUrl}
                     promptCount={items.filter(i => i.type === 'prompt').length}
                     lastSaved={activePrompt?.updatedAt}
                     availableModels={availableModels}
                     onModelChange={handleModelChange}
+                    discoveredServices={discoveredServices}
+                    onProviderChange={handleProviderChange}
                 />
             </div>
             

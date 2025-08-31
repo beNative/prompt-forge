@@ -90,13 +90,13 @@ const LoggerPanel: React.FC<LoggerPanelProps> = ({ isVisible, onToggleVisibility
             <button key={level} onClick={() => setFilter(level)} className={`px-2 py-1 text-xs rounded-md font-semibold transition-colors ${filter === level ? activeFilterClasses[level] : inactiveFilterClasses[level]}`}>{level}</button>
           ))}
           <div className="h-4 w-px bg-border-color mx-2"></div>
-          <IconButton onClick={handleSaveLog} tooltip="Save Log" variant="ghost" size="sm">
+          <IconButton onClick={handleSaveLog} tooltip="Save Log" variant="ghost" size="sm" tooltipPosition="bottom">
             <SaveIcon className="w-5 h-5" />
           </IconButton>
-          <IconButton onClick={clearLogs} tooltip="Clear Logs" variant="destructive" size="sm">
+          <IconButton onClick={clearLogs} tooltip="Clear Logs" variant="destructive" size="sm" tooltipPosition="bottom">
             <TrashIcon className="w-5 h-5" />
           </IconButton>
-          <IconButton onClick={onToggleVisibility} tooltip="Close Panel" variant="ghost" size="sm">
+          <IconButton onClick={onToggleVisibility} tooltip="Close Panel" variant="ghost" size="sm" tooltipPosition="bottom">
             <ChevronDownIcon className="w-5 h-5" />
           </IconButton>
         </div>

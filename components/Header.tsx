@@ -22,17 +22,17 @@ const Header: React.FC<HeaderProps> = ({ onToggleSettingsView, onToggleInfoView,
         <h1 className="text-lg font-semibold text-text-main tracking-wide">PromptForge</h1>
       </div>
       <div className="flex items-center gap-1">
-        <IconButton onClick={onOpenCommandPalette} tooltip="Command Palette (Ctrl+Shift+P)">
+        <IconButton onClick={onOpenCommandPalette} tooltip="Command Palette (Ctrl+Shift+P)" tooltipPosition="bottom">
           <CommandIcon />
         </IconButton>
-        <IconButton onClick={onToggleInfoView} tooltip="Info" className={isInfoViewActive ? 'bg-primary/10 text-primary' : ''}>
+        <IconButton onClick={onToggleInfoView} tooltip="Info" className={isInfoViewActive ? 'bg-primary/10 text-primary' : ''} tooltipPosition="bottom">
           <InfoIcon />
         </IconButton>
-        <IconButton onClick={onToggleLogger} tooltip="Logs">
+        <IconButton onClick={onToggleLogger} tooltip="Logs" tooltipPosition="bottom">
           <FileCodeIcon />
         </IconButton>
         <ThemeToggleButton />
-        <IconButton onClick={onToggleSettingsView} tooltip="Settings" className={isSettingsViewActive ? 'bg-primary/10 text-primary' : ''}>
+        <IconButton onClick={onToggleSettingsView} tooltip="Settings" className={isSettingsViewActive ? 'bg-primary/10 text-primary' : ''} tooltipPosition="bottom">
           <GearIcon />
         </IconButton>
       </div>

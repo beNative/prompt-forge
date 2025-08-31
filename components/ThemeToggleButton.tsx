@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useTheme } from '../hooks/useTheme';
 import IconButton from './IconButton';
@@ -7,7 +8,7 @@ const ThemeToggleButton: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <IconButton onClick={toggleTheme} tooltip={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
+    <IconButton onClick={toggleTheme} tooltip={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`} tooltipPosition="bottom">
       {theme === 'light' ? <MoonIcon /> : <SunIcon />}
     </IconButton>
   );

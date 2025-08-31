@@ -10,15 +10,15 @@ import Button from './Button';
 interface SettingsViewProps {
   settings: Settings;
   onSave: (settings: Settings) => void;
+  discoveredServices: DiscoveredLLMService[];
+  onDetectServices: () => void;
+  isDetecting: boolean;
 }
 
-const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave }) => {
+const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discoveredServices, onDetectServices, isDetecting }) => {
   const [currentSettings, setCurrentSettings] = useState<Settings>(settings);
   const [isDirty, setIsDirty] = useState(false);
-
-  const [discoveredServices, setDiscoveredServices] = useState<DiscoveredLLMService[]>([]);
   const [availableModels, setAvailableModels] = useState<DiscoveredLLMModel[]>([]);
-  const [isDetecting, setIsDetecting] = useState(false);
   const [isFetchingModels, setIsFetchingModels] = useState(false);
   const [detectionError, setDetectionError] = useState<string | null>(null);
 
@@ -26,35 +26,41 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave }) => {
     setIsDirty(JSON.stringify(settings) !== JSON.stringify(currentSettings));
   }, [settings, currentSettings]);
 
-  const handleDetectServices = useCallback(async () => {
-    setIsDetecting(true);
-    setDetectionError(null);
-    setDiscoveredServices([]);
-    setAvailableModels([]);
-    try {
-      const services = await llmDiscoveryService.discoverServices();
-      if (services.length === 0) {
-        setDetectionError('No local LLM services found. Ensure Ollama or a compatible service is running.');
-      } else {
-        setDiscoveredServices(services);
-        // If there's a previously saved URL, try to pre-select the service
-        const savedService = services.find(s => s.generateUrl === settings.llmProviderUrl);
-        if (savedService) {
-          handleServiceChange(savedService.id);
-        }
-      }
-    } catch (error) {
-      setDetectionError('An error occurred during detection.');
-      console.error(error);
-    } finally {
-      setIsDetecting(false);
-    }
-  }, [settings.llmProviderUrl]);
-
-  // Automatically detect services when the view is opened
+  // Re-scan for services when the settings view is opened for fresh data.
   useEffect(() => {
-    handleDetectServices();
-  }, [handleDetectServices]);
+    onDetectServices();
+  }, [onDetectServices]);
+  
+  // Effect to manage detection error message based on props
+  useEffect(() => {
+    if (!isDetecting && discoveredServices.length === 0) {
+       setDetectionError('No local LLM services found. Ensure Ollama or a compatible service is running.');
+    } else {
+       setDetectionError(null);
+    }
+  }, [isDetecting, discoveredServices]);
+
+  // Effect to pre-populate models if a service is already selected
+  useEffect(() => {
+    const preSelectService = async () => {
+        const savedService = discoveredServices.find(s => s.generateUrl === currentSettings.llmProviderUrl);
+        if (savedService && availableModels.length === 0) {
+            setIsFetchingModels(true);
+            try {
+                const models = await llmDiscoveryService.fetchModels(savedService);
+                setAvailableModels(models);
+            } catch (error) {
+                console.error("Failed to pre-fetch models:", error);
+            } finally {
+                setIsFetchingModels(false);
+            }
+        }
+    }
+    if (discoveredServices.length > 0) {
+        preSelectService();
+    }
+  }, [discoveredServices, currentSettings.llmProviderUrl, availableModels.length]);
+
 
   const handleServiceChange = async (serviceId: string) => {
     const selectedService = discoveredServices.find(s => s.id === serviceId);
@@ -145,7 +151,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave }) => {
           <div className="p-6 bg-secondary rounded-lg border border-border-color space-y-4">
             <div className="flex justify-center my-4">
                 <Button
-                    onClick={handleDetectServices}
+                    onClick={onDetectServices}
                     disabled={isDetecting}
                     variant="secondary"
                     isLoading={isDetecting}

@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 
 interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -6,9 +7,10 @@ interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
   tooltip: string;
   variant?: 'primary' | 'ghost' | 'destructive';
   size?: 'sm' | 'md';
+  tooltipPosition?: 'top' | 'bottom';
 }
 
-const IconButton: React.FC<IconButtonProps> = ({ children, tooltip, className, variant = 'primary', size='md', ...props }) => {
+const IconButton: React.FC<IconButtonProps> = ({ children, tooltip, className, variant = 'primary', size='md', tooltipPosition = 'top', ...props }) => {
   const baseClasses = "relative group flex items-center justify-center rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-primary transition-colors";
   
   const variantClasses = {
@@ -21,6 +23,11 @@ const IconButton: React.FC<IconButtonProps> = ({ children, tooltip, className, v
       sm: 'w-8 h-8',
       md: 'w-10 h-10'
   };
+
+  const tooltipPositionClasses = {
+    top: 'bottom-full mb-2 left-1/2 -translate-x-1/2',
+    bottom: 'top-full mt-2 left-1/2 -translate-x-1/2',
+  };
   
   return (
     <button
@@ -28,7 +35,7 @@ const IconButton: React.FC<IconButtonProps> = ({ children, tooltip, className, v
       {...props}
     >
       {children}
-      <span className="absolute bottom-full z-50 mb-2 w-max px-2 py-1 text-xs font-semibold text-tooltip-text bg-tooltip-bg rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+      <span className={`absolute z-50 w-max px-2 py-1 text-xs font-semibold text-tooltip-text bg-tooltip-bg rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none ${tooltipPositionClasses[tooltipPosition]}`}>
         {tooltip}
       </span>
     </button>
