@@ -1,6 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { PromptOrFolder } from '../types';
 import PromptTreeItem, { PromptNode } from './PromptTreeItem';
+import { storageService } from '../services/storageService';
+import { LOCAL_STORAGE_KEYS } from '../constants';
 
 interface PromptListProps {
   items: PromptOrFolder[];
@@ -13,7 +15,23 @@ interface PromptListProps {
 
 const PromptList: React.FC<PromptListProps> = ({ items, activeNodeId, onSelectNode, onDeleteNode, onRenameNode, onMoveNode }) => {
   const [expandedIds, setExpandedIds] = useState(new Set<string>());
+  const [isStateLoaded, setIsStateLoaded] = useState(false);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+
+  // Load expanded IDs from storage on mount
+  useEffect(() => {
+    storageService.load<string[]>(LOCAL_STORAGE_KEYS.EXPANDED_FOLDERS, []).then(ids => {
+      setExpandedIds(new Set(ids));
+      setIsStateLoaded(true);
+    });
+  }, []);
+
+  // Save expanded IDs to storage whenever they change
+  useEffect(() => {
+    if (isStateLoaded) {
+      storageService.save(LOCAL_STORAGE_KEYS.EXPANDED_FOLDERS, Array.from(expandedIds));
+    }
+  }, [expandedIds, isStateLoaded]);
 
   const tree = useMemo(() => {
     const itemsById = new Map<string, PromptNode>(
