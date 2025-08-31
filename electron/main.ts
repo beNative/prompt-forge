@@ -1,3 +1,4 @@
+
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs/promises';
@@ -107,6 +108,23 @@ app.whenReady().then(() => {
     } catch (error) {
        console.error(`Failed to read doc file ${filename}:`, error);
        return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // IPC Handler for appending to a log file
+  ipcMain.handle('storage:appendLog', async (_, content: string) => {
+    try {
+      const date = new Date().toISOString().split('T')[0];
+      const filename = `promptforge-${date}.log`;
+      const filePath = getDataPath(filename);
+      // Ensure directory exists
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
+      // Append content to the file, creating it if it doesn't exist
+      await fs.appendFile(filePath, content, 'utf-8');
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to append to log file:', error);
+      return { success: false, error: (error as Error).message };
     }
   });
 

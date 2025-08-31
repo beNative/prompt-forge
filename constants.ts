@@ -13,6 +13,8 @@ export const LOCAL_STORAGE_KEYS = {
 export const DEFAULT_SETTINGS: Settings = {
   llmProviderUrl: '',
   llmModelName: '',
+  llmProviderName: '',
   apiType: 'unknown',
   iconSet: 'heroicons',
+  autoSaveLogs: false,
 };

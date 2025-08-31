@@ -5,6 +5,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { usePrompts } from './hooks/usePrompts';
 import { useSettings } from './hooks/useSettings';
 import { useLLMStatus } from './hooks/useLLMStatus';
+import { useLogger } from './hooks/useLogger';
 // Components
 import Header from './components/Header';
 import PromptList from './components/PromptList';
@@ -17,11 +18,12 @@ import CommandPalette from './components/CommandPalette';
 import InfoView from './components/InfoView';
 import { PlusIcon, FolderPlusIcon, TrashIcon, GearIcon, InfoIcon, FileCodeIcon } from './components/Icons';
 // Types
-import type { PromptOrFolder, Command } from './types';
+import type { PromptOrFolder, Command, LogMessage, DiscoveredLLMModel } from './types';
 // Context
 import { IconProvider } from './contexts/IconContext';
 // Services & Constants
 import { storageService } from './services/storageService';
+import { llmDiscoveryService } from './services/llmDiscoveryService';
 import { LOCAL_STORAGE_KEYS } from './constants';
 
 const DEFAULT_SIDEBAR_WIDTH = 288;
@@ -45,11 +47,14 @@ const App: React.FC = () => {
     const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
     const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
     const [loggerPanelHeight, setLoggerPanelHeight] = useState(DEFAULT_LOGGER_HEIGHT);
+    const [availableModels, setAvailableModels] = useState<DiscoveredLLMModel[]>([]);
     
     const isSidebarResizing = useRef(false);
     const isLoggerResizing = useRef(false);
 
     const llmStatus = useLLMStatus(settings.llmProviderUrl);
+    const { logs } = useLogger();
+    const lastLogRef = useRef<LogMessage | null>(null);
 
     // Derived State
     const activeNode = useMemo(() => {
@@ -78,6 +83,49 @@ const App: React.FC = () => {
             setActiveNodeId(null);
         }
     }, [items, activeNodeId]);
+
+    // Fetch available models for the status bar dropdown
+    useEffect(() => {
+        const fetchModels = async () => {
+            if (settings.apiType !== 'unknown' && settings.llmProviderUrl) {
+                try {
+                    // Reconstruct a minimal service object to fetch models
+                    const service = {
+                        id: '', name: '', // Not needed for fetching
+                        apiType: settings.apiType,
+                        modelsUrl: settings.apiType === 'ollama' 
+                            ? new URL('/api/tags', settings.llmProviderUrl).href 
+                            : new URL('/v1/models', settings.llmProviderUrl).href,
+                        generateUrl: settings.llmProviderUrl
+                    };
+                    const models = await llmDiscoveryService.fetchModels(service);
+                    setAvailableModels(models);
+                } catch (error) {
+                    console.error("Failed to fetch models for status bar:", error);
+                    setAvailableModels([]);
+                }
+            } else {
+                setAvailableModels([]);
+            }
+        };
+        if (settingsLoaded) {
+            fetchModels();
+        }
+    }, [settings.llmProviderUrl, settings.apiType, settingsLoaded]);
+
+    // Effect for auto-saving logs
+    useEffect(() => {
+        if (settings.autoSaveLogs && logs.length > 0) {
+            const latestLog = logs[logs.length - 1];
+            // Only save if it's a new log entry
+            if (latestLog !== lastLogRef.current) {
+                lastLogRef.current = latestLog;
+                const logContent = `[${latestLog.timestamp}] [${latestLog.level}] ${latestLog.message}\n`;
+                storageService.appendLogToFile(logContent);
+            }
+        }
+    }, [logs, settings.autoSaveLogs]);
+
 
     // Handlers
     const getParentIdForNewItem = useCallback(() => {
@@ -112,6 +160,10 @@ const App: React.FC = () => {
     
     const handleRenameNode = (id: string, title: string) => {
         updateItem(id, { title });
+    };
+
+    const handleModelChange = (modelId: string) => {
+        saveSettings({ ...settings, llmModelName: modelId });
     };
 
     const handleDeleteNode = useCallback((id: string) => {
@@ -308,8 +360,11 @@ const App: React.FC = () => {
                 <StatusBar 
                     status={llmStatus}
                     modelName={settings.llmModelName}
+                    llmProviderName={settings.llmProviderName}
                     promptCount={items.filter(i => i.type === 'prompt').length}
                     lastSaved={activePrompt?.updatedAt}
+                    availableModels={availableModels}
+                    onModelChange={handleModelChange}
                 />
             </div>
             

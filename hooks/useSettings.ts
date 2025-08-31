@@ -22,6 +22,15 @@ export const useSettings = () => {
         if (!loadedSettings.iconSet) {
           loadedSettings.iconSet = 'heroicons';
         }
+        // Migration for llmProviderName
+        if (loadedSettings.llmProviderName === undefined) {
+          loadedSettings.llmProviderName = '';
+        }
+        // Migration for autoSaveLogs
+        if (loadedSettings.autoSaveLogs === undefined) {
+          loadedSettings.autoSaveLogs = false;
+        }
+
         setSettings(loadedSettings);
         setLoaded(true);
         addLog('DEBUG', 'Settings loaded from storage.');

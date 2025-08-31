@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Settings, DiscoveredLLMService, DiscoveredLLMModel } from '../types';
 import { llmDiscoveryService } from '../services/llmDiscoveryService';
@@ -59,7 +60,13 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave }) => {
     const selectedService = discoveredServices.find(s => s.id === serviceId);
     if (!selectedService) return;
 
-    setCurrentSettings(prev => ({ ...prev, llmProviderUrl: selectedService.generateUrl, apiType: selectedService.apiType, llmModelName: '' }));
+    setCurrentSettings(prev => ({ 
+        ...prev, 
+        llmProviderUrl: selectedService.generateUrl, 
+        llmProviderName: selectedService.name,
+        apiType: selectedService.apiType, 
+        llmModelName: '' 
+    }));
     setAvailableModels([]);
     setIsFetchingModels(true);
     try {
@@ -185,6 +192,27 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave }) => {
               </div>
             </div>
           </div>
+        </section>
+
+         <section>
+            <SectionTitle>Logging</SectionTitle>
+            <div className="p-6 bg-secondary rounded-lg border border-border-color">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <label htmlFor="autoSaveLogs" className="font-medium text-text-main">Auto-save Logs</label>
+                        <p className="text-sm text-text-secondary">Automatically save all log messages to a file. (Desktop app only)</p>
+                    </div>
+                    <button
+                        id="autoSaveLogs"
+                        role="switch"
+                        aria-checked={currentSettings.autoSaveLogs}
+                        onClick={() => setCurrentSettings(prev => ({ ...prev, autoSaveLogs: !prev.autoSaveLogs }))}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${currentSettings.autoSaveLogs ? 'bg-primary' : 'bg-border-color'}`}
+                    >
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${currentSettings.autoSaveLogs ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
+                </div>
+            </div>
         </section>
       </div>
     </div>

@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import type { PromptOrFolder } from '../types';
 import IconButton from './IconButton';
@@ -24,8 +25,8 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [dropPosition, setDropPosition] = useState<DropPosition>(null);
+  const [isBeingDragged, setIsBeingDragged] = useState(false);
   const renameInputRef = useRef<HTMLInputElement>(null);
-  const itemRef = useRef<HTMLLIElement>(null);
 
   const isExpanded = expandedIds.has(node.id);
   const hasChildren = node.children.length > 0;
@@ -63,13 +64,11 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('text/plain', node.id);
     e.dataTransfer.effectAllowed = 'move';
-    setTimeout(() => {
-        if (itemRef.current) itemRef.current.classList.add('opacity-50');
-    }, 0);
+    setIsBeingDragged(true);
   };
 
   const handleDragEnd = () => {
-     if (itemRef.current) itemRef.current.classList.remove('opacity-50');
+     setIsBeingDragged(false);
   }
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -116,14 +115,13 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
 
   return (
     <li 
-        ref={itemRef}
         onDragOver={handleDragOver}
         onDragLeave={() => setDropPosition(null)}
         onDrop={handleDrop}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         draggable={renamingId !== node.id}
-        className="relative"
+        className={`relative ${isBeingDragged ? 'opacity-40' : ''}`}
     >
       {renderDropIndicator()}
       <div style={{ paddingLeft: `${level * 1.25}rem` }} className="py-0.5">
@@ -147,7 +145,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
             title={node.title}
             className={`w-full text-left p-1.5 rounded-md group flex justify-between items-center transition-colors duration-150 text-sm ${
               activeNodeId === node.id
-                ? 'bg-primary/10 text-primary font-semibold'
+                ? 'bg-border-color/50 text-text-main font-semibold'
                 : 'hover:bg-background text-text-secondary hover:text-text-main'
             }`}
           >

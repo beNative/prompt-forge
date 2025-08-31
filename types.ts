@@ -14,8 +14,10 @@ export interface PromptOrFolder {
 export interface Settings {
   llmProviderUrl: string;
   llmModelName: string;
+  llmProviderName: string;
   apiType: 'ollama' | 'openai' | 'unknown';
   iconSet: 'heroicons' | 'lucide';
+  autoSaveLogs: boolean;
 }
 
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR';

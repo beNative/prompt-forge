@@ -7,6 +7,7 @@ declare global {
       load: (key: string) => Promise<{ success: boolean; data: string | null; error?: string }>;
       saveLog: (filename: string, content: string) => Promise<{ success: boolean; error?: string }>;
       readDoc: (filename: string) => Promise<{ success: boolean; content?: string; error?: string }>;
+      appendLog: (content: string) => Promise<{ success: boolean; error?: string }>;
     };
   }
 }
@@ -86,5 +87,15 @@ export const storageService = {
         alert('Failed to download log file.');
       }
     }
+  },
+
+  appendLogToFile: async (content: string): Promise<void> => {
+    if (isElectron) {
+      const result = await window.electronAPI!.appendLog(content);
+      if (!result.success) {
+        console.error('Electron: Failed to append to log file:', result.error);
+      }
+    }
+    // This feature is not supported in the web version, so we can silently ignore it or log a warning.
   },
 };
