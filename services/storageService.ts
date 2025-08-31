@@ -7,6 +7,7 @@ declare global {
       load: (key: string) => Promise<{ success: boolean; data: string | null; error?: string }>;
       saveLog: (filename: string, content: string) => Promise<{ success: boolean; error?: string }>;
       readDoc: (filename: string) => Promise<{ success: boolean; content?: string; error?: string }>;
+      getApiKey: () => Promise<{ success: boolean; apiKey?: string; error?: string }>;
     };
   }
 }

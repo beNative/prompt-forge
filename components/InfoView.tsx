@@ -83,14 +83,14 @@ const InfoView: React.FC = () => {
   }, [documents, activeTab]);
 
   return (
-    <div className="flex-1 flex flex-col p-4 md:p-6 bg-background overflow-hidden">
-      <h1 className="text-2xl font-bold text-text-main mb-4">Application Information</h1>
+    <div className="flex-1 flex flex-col p-6 bg-background overflow-hidden h-full">
+      <h1 className="text-2xl font-semibold text-text-main mb-4">Application Information</h1>
       <div className="flex border-b border-border-color mb-4">
         {(Object.keys(docFiles) as DocTab[]).map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
               activeTab === tab
                 ? 'border-primary text-primary'
                 : 'border-transparent text-text-secondary hover:text-text-main'
@@ -101,7 +101,7 @@ const InfoView: React.FC = () => {
         ))}
       </div>
       {error && <div className="mb-4 text-destructive-text p-3 bg-destructive-bg rounded-md">{error}</div>}
-      <div className="flex-1 bg-secondary p-4 rounded-md overflow-y-auto markdown-content text-text-secondary">
+      <div className="flex-1 bg-secondary p-6 rounded-md overflow-y-auto markdown-content text-text-secondary">
         <div dangerouslySetInnerHTML={{ __html: renderedHtml }} />
       </div>
 
@@ -116,7 +116,7 @@ const InfoView: React.FC = () => {
             font-size: 1.875rem; /* text-3xl */
             border-bottom: 1px solid rgb(var(--color-border));
             padding-bottom: 0.4em;
-            color: rgb(var(--color-primary));
+            color: rgb(var(--color-text-main));
         }
         .markdown-content h2 {
             font-size: 1.5rem; /* text-2xl */
@@ -129,15 +129,8 @@ const InfoView: React.FC = () => {
             line-height: 1.65;
         }
         .markdown-content ul, .markdown-content ol {
-            list-style-position: inside;
             padding-left: 1.5em;
             margin-bottom: 1em;
-        }
-        .markdown-content ul {
-            list-style-type: disc;
-        }
-        .markdown-content ol {
-            list-style-type: decimal;
         }
         .markdown-content li {
             margin-bottom: 0.5em;
@@ -155,7 +148,7 @@ const InfoView: React.FC = () => {
             margin: 0;
             font-size: 85%;
             border-radius: 6px;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-family: 'JetBrains Mono', monospace;
             color: rgb(var(--color-accent));
             border: 1px solid rgb(var(--color-border));
         }

@@ -8,6 +8,7 @@ import Modal from './Modal';
 import { useLogger } from '../hooks/useLogger';
 import { useHistoryState } from '../hooks/useHistoryState';
 import IconButton from './IconButton';
+import Button from './Button';
 
 // Let TypeScript know Prism is available on the window
 declare const Prism: any;
@@ -118,7 +119,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
 
 
   return (
-    <div className="flex-1 flex flex-col p-4 md:p-6 bg-background overflow-y-auto">
+    <div className="flex-1 flex flex-col p-6 bg-background overflow-y-auto">
       <div className="flex justify-between items-center mb-6 gap-4">
         <div className="flex items-center gap-3 flex-1 min-w-0">
             <input
@@ -126,19 +127,16 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Prompt Title"
-              className="bg-transparent text-3xl font-semibold text-accent focus:outline-none w-full truncate placeholder:text-text-secondary"
+              className="bg-transparent text-2xl font-semibold text-text-main focus:outline-none w-full truncate placeholder:text-text-secondary"
             />
             {isDirty && (
-                <div className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse flex-shrink-0" title="Unsaved changes"></div>
+                <div className="w-2 h-2 bg-primary rounded-full animate-pulse flex-shrink-0" title="Unsaved changes"></div>
             )}
         </div>
-        <button
-            onClick={() => onDelete(prompt.id)}
-            className="flex items-center gap-2 px-4 py-2 rounded-md bg-transparent border border-destructive-border text-destructive-text hover:bg-destructive-bg-hover transition-colors duration-200 disabled:opacity-50"
-          >
-            <TrashIcon className="w-5 h-5" />
-            Delete
-          </button>
+        <Button variant="destructive" onClick={() => onDelete(prompt.id)}>
+          <TrashIcon className="w-4 h-4 mr-2" />
+          Delete
+        </Button>
       </div>
 
       <div 
@@ -163,7 +161,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         </pre>
       </div>
       
-      {error && <div className="mt-4 text-destructive-text p-3 bg-destructive-bg rounded-md">{error}</div>}
+      {error && <div className="mt-4 text-destructive-text p-3 bg-destructive-bg rounded-md text-sm">{error}</div>}
 
       <div className="mt-4 flex justify-between items-center">
         <div className="flex items-center gap-1">
@@ -174,30 +172,31 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
                 <RedoIcon className={!canRedo ? 'text-text-secondary/50' : ''} />
             </IconButton>
         </div>
-        <button
+        <Button
           onClick={handleRefine}
-          disabled={isRefining || !content.trim()}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-md bg-primary hover:bg-primary-hover text-primary-text font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-glow-primary"
+          disabled={!content.trim()}
+          isLoading={isRefining}
+          className="min-w-[150px]"
         >
-          {isRefining ? <Spinner /> : <SparklesIcon className="w-5 h-5" />}
+          {!isRefining && <SparklesIcon className="w-5 h-5 mr-2" />}
           {isRefining ? 'Refining...' : 'Refine with AI'}
-        </button>
+        </Button>
       </div>
       
       {refinedContent && (
         <Modal onClose={discardRefinement} title="AI Refinement Suggestion">
-            <div className="p-4 bg-background text-text-main">
-                <p className="text-text-secondary mb-2">The AI suggests the following refinement. You can accept this change or discard it.</p>
-                <div className="p-3 my-4 bg-secondary border border-border-color rounded-md whitespace-pre-wrap font-mono text-sm max-h-96 overflow-y-auto">
+            <div className="p-6 text-text-main">
+                <p className="text-text-secondary mb-4 text-sm">The AI suggests the following refinement. You can accept this change or discard it.</p>
+                <div className="p-3 my-4 bg-background border border-border-color rounded-md whitespace-pre-wrap font-mono text-sm max-h-96 overflow-y-auto">
                     {refinedContent}
                 </div>
-                <div className="flex justify-end gap-3 mt-4">
-                    <button onClick={discardRefinement} className="px-4 py-2 rounded-md bg-secondary hover:bg-border-color text-text-main font-semibold">
+                <div className="flex justify-end gap-3 mt-6">
+                    <Button onClick={discardRefinement} variant="secondary">
                         Discard
-                    </button>
-                    <button onClick={acceptRefinement} className="px-4 py-2 rounded-md bg-primary hover:bg-primary-hover text-primary-text font-semibold">
+                    </Button>
+                    <Button onClick={acceptRefinement} variant="primary">
                         Accept
-                    </button>
+                    </Button>
                 </div>
             </div>
         </Modal>

@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.5.0] - 2024-08-04
+
+### Added
+- **Google Gemini Support**: Integrated the Google Gemini API as a new LLM provider option.
+- To enable, set the `API_KEY` environment variable with your Google Gemini API key before launching the application.
+- The Gemini provider will be automatically detected in the Settings if the API key is present.
+
+---
+
 ## [1.4.0] - 2024-08-03
 
 ### Added

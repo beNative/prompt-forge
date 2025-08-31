@@ -1,7 +1,8 @@
 
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import type { Command } from '../types';
+import { CommandIcon } from './Icons';
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -28,16 +29,14 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
 
   useEffect(() => {
     if (isOpen) {
-      // Reset state when opening
       setSearchTerm('');
       setSelectedIndex(0);
-      // Focus input
-      setTimeout(() => inputRef.current?.focus(), 100);
+      // Timeout needed to allow the element to render before focusing
+      setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [isOpen]);
 
   useEffect(() => {
-    // Reset selection when search term changes
     setSelectedIndex(0);
   }, [searchTerm]);
 
@@ -68,24 +67,34 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, filteredCommands, selectedIndex, onClose]);
 
-  if (!isOpen) {
+  const overlayRoot = document.getElementById('overlay-root');
+  if (!isOpen || !overlayRoot) {
     return null;
   }
 
-  return (
-    <div className="fixed inset-0 bg-modal-backdrop z-60 flex justify-center pt-20" onClick={onClose}>
-      <div className="w-full max-w-lg bg-secondary rounded-lg shadow-2xl border border-border-color flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
-        <div className="p-3 border-b border-border-color">
+  const paletteContent = (
+    <div 
+        className="fixed inset-0 bg-modal-backdrop z-50 flex justify-center pt-20" 
+        onClick={onClose}
+        role="dialog"
+        aria-modal="true"
+    >
+      <div 
+        className="relative w-full max-w-lg bg-secondary rounded-lg shadow-2xl border border-border-color flex flex-col overflow-hidden" 
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-3 p-3 border-b border-border-color">
+          <CommandIcon className="w-5 h-5 text-text-secondary flex-shrink-0" />
           <input
             ref={inputRef}
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Type a command..."
-            className="w-full bg-secondary-light text-text-main placeholder:text-text-secondary focus:outline-none p-2 rounded-md border border-border-color focus:border-primary focus:ring-1 focus:ring-primary"
+            placeholder="Type a command or search..."
+            className="w-full bg-transparent text-text-main placeholder:text-text-secondary focus:outline-none"
           />
         </div>
-        <ul className="flex-1 overflow-y-auto max-h-80 p-2">
+        <ul className="flex-1 overflow-y-auto max-h-[22rem] p-2">
           {filteredCommands.length > 0 ? (
             filteredCommands.map((command, index) => (
               <li
@@ -94,20 +103,22 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
                   command.action();
                   onClose();
                 }}
-                className={`p-2 rounded-md cursor-pointer ${
-                  selectedIndex === index ? 'bg-primary text-primary-text' : 'text-text-main hover:bg-secondary-light'
+                className={`p-2 rounded-md cursor-pointer text-sm ${
+                  selectedIndex === index ? 'bg-primary text-primary-text' : 'text-text-main hover:bg-background'
                 }`}
               >
                 {command.name}
               </li>
             ))
           ) : (
-            <li className="p-2 text-center text-text-secondary">No matching commands found.</li>
+            <li className="p-4 text-center text-sm text-text-secondary">No matching commands found.</li>
           )}
         </ul>
       </div>
     </div>
   );
+
+  return ReactDOM.createPortal(paletteContent, overlayRoot);
 };
 
 export default CommandPalette;

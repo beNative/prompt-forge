@@ -1,8 +1,8 @@
 
-
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { useLogger } from '../hooks/useLogger';
-import { LogLevel, LogMessage } from '../types';
+import { LogLevel } from '../types';
 import { SaveIcon, TrashIcon, ChevronDownIcon } from './Icons';
 import { storageService } from '../services/storageService';
 import IconButton from './IconButton';
@@ -12,11 +12,11 @@ interface LoggerPanelProps {
   onToggleVisibility: () => void;
 }
 
-const logLevelColors: Record<LogLevel, string> = {
-  DEBUG: 'bg-debug',
-  INFO: 'bg-info',
-  WARNING: 'bg-warning',
-  ERROR: 'bg-error',
+const logLevelClasses: Record<LogLevel, { text: string; bg: string; border: string }> = {
+  DEBUG: { text: 'text-debug', bg: 'bg-teal-500/10', border: 'border-debug' },
+  INFO: { text: 'text-info', bg: 'bg-blue-500/10', border: 'border-info' },
+  WARNING: { text: 'text-warning', bg: 'bg-yellow-500/10', border: 'border-warning' },
+  ERROR: { text: 'text-error', bg: 'bg-red-500/10', border: 'border-error' },
 };
 
 const logLevels: LogLevel[] = ['DEBUG', 'INFO', 'WARNING', 'ERROR'];
@@ -32,10 +32,10 @@ const LoggerPanel: React.FC<LoggerPanelProps> = ({ isVisible, onToggleVisibility
   }, [logs, filter]);
 
   useEffect(() => {
-    if (scrollRef.current) {
+    if (isVisible && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [filteredLogs]);
+  }, [filteredLogs, isVisible]);
 
   const handleSaveLog = async () => {
     const logContent = logs.map(log => `[${log.timestamp}] [${log.level}] ${log.message}`).join('\n');
@@ -45,42 +45,55 @@ const LoggerPanel: React.FC<LoggerPanelProps> = ({ isVisible, onToggleVisibility
       console.error(e)
     }
   };
+  
+  const overlayRoot = document.getElementById('overlay-root');
+  if (!overlayRoot) return null;
 
-  if (!isVisible) return null;
-
-  return (
-    <div className="h-64 flex flex-col bg-secondary border-t-2 border-border-color shadow-lg">
+  const panelContent = (
+    <div
+      className={`fixed bottom-0 left-0 right-0 z-20 flex h-72 flex-col overflow-hidden border-t border-border-color bg-secondary shadow-lg transition-transform duration-300 ease-in-out ${
+        isVisible ? 'translate-y-0' : 'translate-y-full'
+      }`}
+      aria-hidden={!isVisible}
+    >
       <header className="flex items-center justify-between p-2 border-b border-border-color flex-shrink-0">
-        <h3 className="font-semibold text-text-main">Application Logs</h3>
-        <div className="flex items-center gap-2">
+        <h3 className="font-semibold text-text-main px-2">Application Logs</h3>
+        <div className="flex items-center gap-1">
           <span className="text-xs text-text-secondary mr-2">Filter:</span>
-          <button onClick={() => setFilter('ALL')} className={`px-2 py-1 text-xs rounded font-semibold ${filter === 'ALL' ? 'bg-primary text-primary-text' : 'bg-secondary-light hover:bg-border-color text-text-main'}`}>ALL</button>
+          <button onClick={() => setFilter('ALL')} className={`px-2 py-1 text-xs rounded-md font-semibold transition-colors ${filter === 'ALL' ? 'bg-primary text-primary-text' : 'bg-background hover:bg-border-color text-text-main'}`}>ALL</button>
           {logLevels.map(level => (
-            <button key={level} onClick={() => setFilter(level)} className={`px-2 py-1 text-xs rounded font-semibold ${filter === level ? 'bg-primary text-primary-text' : 'bg-secondary-light hover:bg-border-color text-text-main'}`}>{level}</button>
+            <button key={level} onClick={() => setFilter(level)} className={`px-2 py-1 text-xs rounded-md font-semibold transition-colors ${filter === level ? 'bg-primary text-primary-text' : 'bg-background hover:bg-border-color text-text-main'}`}>{level}</button>
           ))}
-          <div className="h-4 w-px bg-border-color mx-1"></div>
+          <div className="h-4 w-px bg-border-color mx-2"></div>
           <IconButton onClick={handleSaveLog} tooltip="Save Log" variant="ghost" size="sm">
-            <SaveIcon className="w-4 h-4" />
+            <SaveIcon className="w-5 h-5" />
           </IconButton>
           <IconButton onClick={clearLogs} tooltip="Clear Logs" variant="destructive" size="sm">
-            <TrashIcon className="w-4 h-4" />
+            <TrashIcon className="w-5 h-5" />
           </IconButton>
           <IconButton onClick={onToggleVisibility} tooltip="Close Panel" variant="ghost" size="sm">
-            <ChevronDownIcon className="w-4 h-4" />
+            <ChevronDownIcon className="w-5 h-5" />
           </IconButton>
         </div>
       </header>
-      <div ref={scrollRef} className="flex-1 p-2 overflow-y-auto font-mono text-xs">
+      <div ref={scrollRef} className="flex-1 p-3 overflow-y-auto font-mono text-xs space-y-2">
         {filteredLogs.map(log => (
-          <div key={log.id} className="flex items-center gap-2">
-            <span className="text-text-secondary">{log.timestamp}</span>
-            <span className={`w-2 h-2 rounded-full ${logLevelColors[log.level]}`}></span>
-            <span className="flex-1 text-text-secondary">{log.message}</span>
+          <div key={log.id} className="flex items-start gap-3">
+            <span className="text-text-secondary/80">{log.timestamp}</span>
+            <span className={`px-1.5 py-0.5 rounded-full text-xs font-semibold border ${logLevelClasses[log.level].bg} ${logLevelClasses[log.level].border} ${logLevelClasses[log.level].text}`}>{log.level}</span>
+            <span className="flex-1 text-text-secondary whitespace-pre-wrap break-all">{log.message}</span>
           </div>
         ))}
+         {filteredLogs.length === 0 && (
+            <div className="flex items-center justify-center h-full text-text-secondary">
+                No logs to display.
+            </div>
+         )}
       </div>
     </div>
   );
+
+  return ReactDOM.createPortal(panelContent, overlayRoot);
 };
 
 export default LoggerPanel;

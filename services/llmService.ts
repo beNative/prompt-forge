@@ -1,5 +1,6 @@
 
 import type { Settings } from '../types';
+import { GoogleGenAI } from '@google/genai';
 
 interface OllamaResponse {
   model: string;
@@ -33,6 +34,39 @@ Original Prompt:
 ${prompt}
 ---
 Refined Prompt:`;
+
+    if (apiType === 'gemini') {
+        if (!window.electronAPI) {
+            const errorMsg = 'Gemini API is only available in the desktop application.';
+            addLog('ERROR', errorMsg);
+            throw new Error(errorMsg);
+        }
+        
+        const keyResult = await window.electronAPI.getApiKey();
+        if (!keyResult.success || !keyResult.apiKey) {
+            const errorMsg = 'Gemini API key not found. Please set the API_KEY environment variable.';
+            addLog('ERROR', errorMsg);
+            throw new Error(errorMsg);
+        }
+
+        try {
+            const ai = new GoogleGenAI({ apiKey: keyResult.apiKey });
+            addLog('INFO', `Sending refine request to Google Gemini with model ${llmModelName}.`);
+            const response = await ai.models.generateContent({
+                model: llmModelName,
+                contents: metaPrompt,
+            });
+            const refinedText = response.text;
+            addLog('INFO', 'Successfully received refined prompt from Gemini.');
+            return refinedText.trim();
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+            const geminiError = `Failed to get response from Gemini. Details: ${errorMessage}`;
+            console.error('Gemini API Error:', error);
+            addLog('ERROR', geminiError);
+            throw new Error(geminiError);
+        }
+    }
 
     try {
       addLog('INFO', `Sending refine request to ${llmProviderUrl} with model ${llmModelName} (API: ${apiType}).`);

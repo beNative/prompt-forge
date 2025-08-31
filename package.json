@@ -1,6 +1,6 @@
 {
   "name": "promptforge",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "An application to manage and refine LLM prompts.",
   "main": "dist/main.js",
   "scripts": {
@@ -10,6 +10,7 @@
     "package": "npm run build && electron-builder"
   },
   "dependencies": {
+    "@google/genai": "^0.2.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "electron-squirrel-startup": "^1.0.1"

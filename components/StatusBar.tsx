@@ -40,10 +40,10 @@ const StatusBar: React.FC<StatusBarProps> = ({ status, modelName, promptCount, l
   };
 
   return (
-    <footer className="flex items-center justify-between px-4 py-1 bg-secondary border-t border-border-color text-xs text-text-secondary flex-shrink-0">
+    <footer className="flex items-center justify-between px-4 h-8 bg-secondary border-t border-border-color text-xs text-text-secondary flex-shrink-0">
       <div className="flex items-center gap-4">
         <div className="relative group flex items-center gap-2 cursor-default">
-          <div className={`w-2.5 h-2.5 rounded-full ${color}`}></div>
+          <div className={`w-2 h-2 rounded-full ${color}`}></div>
           <span className="font-medium">{text}</span>
           <span className="absolute bottom-full mb-2 w-max px-2 py-1 text-xs text-tooltip-text bg-tooltip-bg rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
             {tooltip}

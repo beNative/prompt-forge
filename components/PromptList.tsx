@@ -19,17 +19,17 @@ const PromptList: React.FC<PromptListProps> = ({ prompts, activePromptId, onSele
   };
 
   return (
-    <div className="h-full p-4">
-        <h2 className="text-lg font-semibold text-text-main mb-2">Prompts</h2>
+    <div className="h-full p-2">
+        <h2 className="text-sm font-semibold text-text-secondary mb-2 px-2 tracking-wider uppercase">Prompts</h2>
       <ul className="space-y-1">
         {prompts.map((prompt) => (
           <li key={prompt.id}>
             <button
               onClick={() => onSelectPrompt(prompt.id)}
-              className={`w-full text-left p-2 rounded-md group flex justify-between items-center transition-colors duration-150 ${
+              className={`w-full text-left p-2 rounded-md group flex justify-between items-center transition-colors duration-150 text-sm ${
                 activePromptId === prompt.id
-                  ? 'bg-primary text-primary-text font-semibold'
-                  : 'hover:bg-accent/10 text-text-secondary hover:text-text-main'
+                  ? 'bg-primary/10 text-primary font-semibold'
+                  : 'hover:bg-background text-text-secondary hover:text-text-main'
               }`}
             >
               <span className="truncate flex-1 pr-2">{prompt.title}</span>
@@ -43,7 +43,7 @@ const PromptList: React.FC<PromptListProps> = ({ prompts, activePromptId, onSele
         ))}
          {prompts.length === 0 && (
             <li className="text-center text-text-secondary p-4 text-sm">
-                No prompts yet. Create one!
+                No prompts yet.
             </li>
          )}
       </ul>

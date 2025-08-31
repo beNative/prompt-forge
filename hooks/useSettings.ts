@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect, useCallback } from 'react';
 import type { Settings } from '../types';
 import { LOCAL_STORAGE_KEYS, DEFAULT_SETTINGS } from '../constants';
@@ -16,6 +17,10 @@ export const useSettings = () => {
         if (!loadedSettings.apiType) {
           // If a URL exists, assume it was for the old Ollama default.
           loadedSettings.apiType = loadedSettings.llmProviderUrl ? 'ollama' : 'unknown';
+        }
+        // Migration for iconSet
+        if (!loadedSettings.iconSet) {
+          loadedSettings.iconSet = 'heroicons';
         }
         setSettings(loadedSettings);
         setLoaded(true);

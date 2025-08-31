@@ -1,161 +1,164 @@
-
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+// Hooks
+import { usePrompts } from './hooks/usePrompts';
+import { useSettings } from './hooks/useSettings';
+import { useLLMStatus } from './hooks/useLLMStatus';
+// Components
 import Header from './components/Header';
 import PromptList from './components/PromptList';
 import PromptEditor from './components/PromptEditor';
-import SettingsModal from './components/SettingsModal';
-import { usePrompts } from './hooks/usePrompts';
-import type { Command, Prompt } from './types';
 import { WelcomeScreen } from './components/WelcomeScreen';
-import InfoView from './components/InfoView';
-import LoggerPanel from './components/LoggerPanel';
+import SettingsModal from './components/SettingsModal';
 import StatusBar from './components/StatusBar';
-import { useSettings } from './hooks/useSettings';
-import { useLLMStatus } from './hooks/useLLMStatus';
+import LoggerPanel from './components/LoggerPanel';
 import CommandPalette from './components/CommandPalette';
-import { useLogger } from './hooks/useLogger';
+import InfoView from './components/InfoView';
+// Types
+import type { Prompt, Command } from './types';
+// Context
+import { IconProvider } from './contexts/IconContext';
 
-type View = 'editor' | 'info';
+const App: React.FC = () => {
+    // State Hooks
+    const { settings, saveSettings, loaded: settingsLoaded } = useSettings();
+    const { prompts, addPrompt, updatePrompt, deletePrompt } = usePrompts();
+    const [activePromptId, setActivePromptId] = useState<string | null>(null);
 
-export default function App() {
-  const { prompts, addPrompt, updatePrompt, deletePrompt } = usePrompts();
-  const { settings, loaded: settingsLoaded } = useSettings();
-  const llmStatus = useLLMStatus(settings.llmProviderUrl);
-  const [activePromptId, setActivePromptId] = useState<string | null>(null);
-  const [isSettingsOpen, setSettingsOpen] = useState(false);
-  const [view, setView] = useState<View>('editor');
-  const [isLoggerVisible, setLoggerVisible] = useState(false);
-  const [isCommandPaletteOpen, setCommandPaletteOpen] = useState(false);
-  const { addLog } = useLogger();
+    // UI State
+    const [view, setView] = useState<'editor' | 'info'>('editor');
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isLoggerVisible, setIsLoggerVisible] = useState(false);
+    const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
-  useEffect(() => {
-    if (prompts.length > 0 && activePromptId === null) {
-      setActivePromptId(prompts[0].id);
-    }
-    if (prompts.length === 0) {
-      setActivePromptId(null);
-    }
-  }, [prompts, activePromptId]);
+    const llmStatus = useLLMStatus(settings.llmProviderUrl);
 
-  // On first launch, if no provider is configured, open settings.
-  useEffect(() => {
-    if (settingsLoaded && !settings.llmProviderUrl) {
-      setSettingsOpen(true);
-    }
-  }, [settingsLoaded, settings.llmProviderUrl]);
+    // Select the first prompt on load or when prompts change
+    useEffect(() => {
+        if (prompts.length > 0 && activePromptId === null) {
+            setActivePromptId(prompts[0].id);
+        } else if (prompts.length === 0) {
+            setActivePromptId(null);
+        }
+    }, [prompts, activePromptId]);
 
-  // Command Palette global shortcut
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'P') {
-        e.preventDefault();
-        setCommandPaletteOpen(v => !v);
-      }
+    // Handlers
+    const handleNewPrompt = useCallback(() => {
+        const newPrompt = addPrompt();
+        setActivePromptId(newPrompt.id);
+        setView('editor');
+    }, [addPrompt]);
+
+    const handleSelectPrompt = (id: string) => {
+        setActivePromptId(id);
+        setView('editor');
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
 
-  const handleNewPrompt = useCallback(() => {
-    const newPrompt = addPrompt();
-    setActivePromptId(newPrompt.id);
-    setView('editor');
-  }, [addPrompt]);
+    const handleSavePrompt = (updatedPrompt: Partial<Omit<Prompt, 'id'>>) => {
+        if (activePromptId) {
+            updatePrompt(activePromptId, updatedPrompt);
+        }
+    };
 
-  const activePrompt = useMemo(() => {
-    return prompts.find(p => p.id === activePromptId) || null;
-  }, [prompts, activePromptId]);
-
-  const handleSavePrompt = (promptToSave: Prompt) => {
-    updatePrompt(promptToSave.id, promptToSave);
-  };
-  
-  const handleDeletePrompt = useCallback((id: string) => {
-    const promptToDelete = prompts.find(p => p.id === id);
-    if (promptToDelete && window.confirm(`Are you sure you want to delete "${promptToDelete.title}"?`)) {
+    const handleDeletePrompt = useCallback((id: string) => {
         const newPrompts = deletePrompt(id);
         if (activePromptId === id) {
             setActivePromptId(newPrompts.length > 0 ? newPrompts[0].id : null);
         }
+    }, [deletePrompt, activePromptId]);
+
+    // Keyboard shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+            const isCtrl = isMac ? e.metaKey : e.ctrlKey;
+
+            if (isCtrl && e.key === 'n') {
+                e.preventDefault();
+                handleNewPrompt();
+            }
+            if (isCtrl && e.shiftKey && e.key === 'P') {
+                e.preventDefault();
+                setIsCommandPaletteOpen(p => !p);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [handleNewPrompt]);
+
+    // Derived State
+    const activePrompt = useMemo(() => {
+        return prompts.find(p => p.id === activePromptId) || null;
+    }, [prompts, activePromptId]);
+    
+    // Command Palette Commands
+    const commands: Command[] = useMemo(() => [
+        { id: 'new-prompt', name: 'Create New Prompt', keywords: 'add create', action: handleNewPrompt },
+        { id: 'delete-prompt', name: 'Delete Current Prompt', keywords: 'remove discard', action: () => activePromptId && handleDeletePrompt(activePromptId) },
+        { id: 'open-settings', name: 'Open Settings', keywords: 'configure options', action: () => setIsSettingsOpen(true) },
+        { id: 'toggle-info', name: 'Toggle Info View', keywords: 'help docs readme', action: () => setView(v => v === 'info' ? 'editor' : 'info') },
+        { id: 'toggle-logs', name: 'Toggle Logs Panel', keywords: 'debug console', action: () => setIsLoggerVisible(v => !v) },
+    ], [activePromptId, handleNewPrompt, handleDeletePrompt]);
+
+    if (!settingsLoaded) {
+        return <div className="w-screen h-screen flex items-center justify-center bg-background"><p className="text-text-main">Loading application...</p></div>;
     }
-  }, [prompts, deletePrompt, activePromptId]);
 
-  const handleToggleInfoView = () => {
-    setView(currentView => currentView === 'editor' ? 'info' : 'editor');
-  };
-
-  const commands: Command[] = useMemo(() => {
-    const commandList: Command[] = [
-      { id: 'new-prompt', name: 'Create New Prompt', action: () => { handleNewPrompt(); addLog('INFO', 'Command: Created new prompt.'); } },
-      { id: 'open-settings', name: 'Open Settings', action: () => { setSettingsOpen(true); addLog('INFO', 'Command: Opened settings.'); } },
-      { id: 'toggle-info', name: 'Toggle Info View', action: () => { handleToggleInfoView(); addLog('INFO', 'Command: Toggled info view.'); } },
-      { id: 'toggle-logger', name: 'Toggle Logger Panel', action: () => { setLoggerVisible(v => !v); addLog('INFO', 'Command: Toggled logger panel.'); } },
-    ];
-
-    if (activePrompt) {
-      commandList.push({
-        id: 'delete-prompt',
-        name: 'Delete Current Prompt',
-        keywords: 'remove',
-        action: () => { handleDeletePrompt(activePrompt.id); addLog('INFO', `Command: Deleted prompt "${activePrompt.title}".`); },
-      });
-    }
-
-    return commandList;
-  }, [activePrompt, handleNewPrompt, handleDeletePrompt, addLog]);
-
-  return (
-    <div className="flex flex-col h-screen bg-background text-text-main font-sans">
-      <Header 
-        onNewPrompt={handleNewPrompt} 
-        onOpenSettings={() => setSettingsOpen(true)}
-        onToggleInfoView={handleToggleInfoView}
-        onToggleLogger={() => setLoggerVisible(v => !v)}
-        onOpenCommandPalette={() => setCommandPaletteOpen(true)}
-        isInfoViewActive={view === 'info'}
-      />
-      <main className="flex flex-1 overflow-hidden">
-        {view === 'editor' ? (
-          <>
-            <div className="w-72 flex-shrink-0 border-r border-border-color overflow-y-auto bg-secondary">
-              <PromptList
-                prompts={prompts}
-                activePromptId={activePromptId}
-                onSelectPrompt={setActivePromptId}
-                onDeletePrompt={handleDeletePrompt}
-              />
-            </div>
-            <div className="flex-1 flex flex-col bg-background">
-              {activePrompt ? (
-                <PromptEditor
-                  key={activePrompt.id}
-                  prompt={activePrompt}
-                  onSave={handleSavePrompt}
-                  onDelete={() => handleDeletePrompt(activePrompt.id)}
-                  settings={settings}
+    return (
+        <IconProvider value={{ iconSet: settings.iconSet }}>
+            <div className="flex flex-col h-screen font-sans bg-background text-text-main antialiased">
+                <Header 
+                    onNewPrompt={handleNewPrompt}
+                    onOpenSettings={() => setIsSettingsOpen(true)}
+                    onToggleInfoView={() => setView(v => v === 'info' ? 'editor' : 'info')}
+                    isInfoViewActive={view === 'info'}
+                    onToggleLogger={() => setIsLoggerVisible(v => !v)}
+                    onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
                 />
-              ) : (
-                <WelcomeScreen onNewPrompt={handleNewPrompt} />
-              )}
+                <main className="flex-1 flex overflow-hidden">
+                    <aside className="w-72 bg-secondary border-r border-border-color overflow-y-auto flex-shrink-0">
+                        <PromptList 
+                            prompts={prompts}
+                            activePromptId={activePromptId}
+                            onSelectPrompt={handleSelectPrompt}
+                            onDeletePrompt={handleDeletePrompt}
+                        />
+                    </aside>
+                    <section className="flex-1 flex flex-col overflow-y-auto">
+                        {view === 'editor' && (
+                            activePrompt ? (
+                                <PromptEditor 
+                                    key={activePrompt.id}
+                                    prompt={activePrompt}
+                                    onSave={(p) => handleSavePrompt(p)}
+                                    onDelete={handleDeletePrompt}
+                                    settings={settings}
+                                />
+                            ) : (
+                                <WelcomeScreen onNewPrompt={handleNewPrompt} />
+                            )
+                        )}
+                        {view === 'info' && <InfoView />}
+                    </section>
+                </main>
+                <StatusBar 
+                    status={llmStatus}
+                    modelName={settings.llmModelName}
+                    promptCount={prompts.length}
+                    lastSaved={activePrompt?.updatedAt}
+                />
             </div>
-          </>
-        ) : (
-          <InfoView />
-        )}
-      </main>
-      <LoggerPanel isVisible={isLoggerVisible} onToggleVisibility={() => setLoggerVisible(false)} />
-      <StatusBar
-        status={llmStatus}
-        modelName={settings.llmModelName}
-        promptCount={prompts.length}
-        lastSaved={activePrompt?.updatedAt}
-      />
-      {isSettingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
-      <CommandPalette
-        isOpen={isCommandPaletteOpen}
-        onClose={() => setCommandPaletteOpen(false)}
-        commands={commands}
-      />
-    </div>
-  );
-}
+            {isSettingsOpen && (
+                <SettingsModal 
+                    settings={settings}
+                    onSave={saveSettings}
+                    onClose={() => setIsSettingsOpen(false)}
+                />
+            )}
+            <LoggerPanel isVisible={isLoggerVisible} onToggleVisibility={() => setIsLoggerVisible(v => !v)} />
+            <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} commands={commands} />
+        </IconProvider>
+    );
+};
+
+export default App;

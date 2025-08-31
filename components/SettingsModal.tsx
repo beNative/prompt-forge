@@ -1,18 +1,19 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSettings } from '../hooks/useSettings';
 import Modal from './Modal';
 import type { Settings, DiscoveredLLMService, DiscoveredLLMModel } from '../types';
 import { llmDiscoveryService } from '../services/llmDiscoveryService';
 import { SparklesIcon } from './Icons';
 import Spinner from './Spinner';
+import Button from './Button';
 
 interface SettingsModalProps {
   onClose: () => void;
+  settings: Settings;
+  onSave: (settings: Settings) => void;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
-  const { settings, saveSettings } = useSettings();
+const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, settings, onSave }) => {
   const [currentSettings, setCurrentSettings] = useState<Settings>(settings);
 
   const [discoveredServices, setDiscoveredServices] = useState<DiscoveredLLMService[]>([]);
@@ -75,83 +76,113 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const handleModelChange = (modelId: string) => {
     setCurrentSettings(prev => ({ ...prev, llmModelName: modelId }));
   };
+  
+  const handleIconSetChange = (iconSet: 'heroicons' | 'lucide') => {
+    setCurrentSettings(prev => ({ ...prev, iconSet }));
+  };
 
   const handleSave = () => {
-    saveSettings(currentSettings);
+    onSave(currentSettings);
     onClose();
   };
 
   const selectedService = discoveredServices.find(s => s.generateUrl === currentSettings.llmProviderUrl);
 
+  const SectionTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <h3 className="text-lg font-semibold text-text-main mb-3">{children}</h3>
+  );
+
+  const Label: React.FC<{ htmlFor: string; children: React.ReactNode }> = ({ htmlFor, children }) => (
+    <label htmlFor={htmlFor} className="block text-sm font-medium text-text-secondary mb-1">
+      {children}
+    </label>
+  );
+
+  const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>> = (props) => (
+     <select {...props} className={`w-full p-2 rounded-md bg-background text-text-main border border-border-color focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 ${props.className}`} />
+  );
+
   return (
     <Modal onClose={onClose} title="Settings">
       <div className="p-6 space-y-6">
-        <div className="flex justify-center">
-            <button
-                onClick={handleDetectServices}
-                disabled={isDetecting}
-                className="flex items-center gap-2 px-4 py-2 rounded-md border border-accent text-accent hover:bg-accent hover:text-white dark:hover:text-black font-semibold disabled:opacity-50 transition-colors"
+        <div>
+            <SectionTitle>Appearance</SectionTitle>
+            <Label htmlFor="iconSet">Icon Set</Label>
+            <Select
+                id="iconSet"
+                value={currentSettings.iconSet}
+                onChange={(e) => handleIconSetChange(e.target.value as 'heroicons' | 'lucide')}
             >
-                {isDetecting ? <Spinner /> : <SparklesIcon className="w-5 h-5" />}
-                {isDetecting ? 'Detecting Services...' : 'Re-Detect Services'}
-            </button>
+                <option value="heroicons">Heroicons (Classic)</option>
+                <option value="lucide">Lucide (Modern)</option>
+            </Select>
         </div>
 
-        {detectionError && <p className="text-center text-sm text-destructive-text">{detectionError}</p>}
-        
-        <div>
-          <label htmlFor="llmService" className="block text-sm font-medium text-text-secondary mb-1">
-            Detected Service
-          </label>
-          <select
-            id="llmService"
-            value={selectedService?.id || ''}
-            onChange={(e) => handleServiceChange(e.target.value)}
-            disabled={discoveredServices.length === 0}
-            className="w-full p-2 rounded-md bg-secondary text-text-main border border-border-color focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50"
-          >
-            <option value="" disabled>{discoveredServices.length > 0 ? 'Select a service' : 'No services detected'}</option>
-            {discoveredServices.map(service => (
-              <option key={service.id} value={service.id}>{service.name}</option>
-            ))}
-          </select>
-        </div>
+        <div className="border-t border-border-color"></div>
 
         <div>
-          <label htmlFor="llmModelName" className="block text-sm font-medium text-text-secondary mb-1">
-            Model Name
-          </label>
-          <div className="relative">
-            <select
-              id="llmModelName"
-              value={currentSettings.llmModelName}
-              onChange={(e) => handleModelChange(e.target.value)}
-              disabled={!selectedService || availableModels.length === 0}
-              className="w-full p-2 rounded-md bg-secondary text-text-main border border-border-color focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 appearance-none pr-8"
-            >
-              <option value="" disabled>{!selectedService ? 'Select a service first' : 'Select a model'}</option>
-              {availableModels.map(model => (
-                <option key={model.id} value={model.id}>{model.name}</option>
-              ))}
-            </select>
-            {isFetchingModels && <div className="absolute right-2 top-1/2 -translate-y-1/2"><Spinner /></div>}
+          <SectionTitle>LLM Provider</SectionTitle>
+          <div className="flex justify-center my-4">
+              <Button
+                  onClick={handleDetectServices}
+                  disabled={isDetecting}
+                  variant="secondary"
+                  isLoading={isDetecting}
+              >
+                  {!isDetecting && <SparklesIcon className="w-5 h-5 mr-2" />}
+                  {isDetecting ? 'Detecting...' : 'Re-Detect Services'}
+              </Button>
+          </div>
+
+          {detectionError && <p className="text-center text-sm text-destructive-text mt-2">{detectionError}</p>}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="llmService">Detected Service</Label>
+              <Select
+                id="llmService"
+                value={selectedService?.id || ''}
+                onChange={(e) => handleServiceChange(e.target.value)}
+                disabled={discoveredServices.length === 0}
+              >
+                <option value="" disabled>{discoveredServices.length > 0 ? 'Select a service' : 'No services detected'}</option>
+                {discoveredServices.map(service => (
+                  <option key={service.id} value={service.id}>{service.name}</option>
+                ))}
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="llmModelName">Model Name</Label>
+              <div className="relative">
+                <Select
+                  id="llmModelName"
+                  value={currentSettings.llmModelName}
+                  onChange={(e) => handleModelChange(e.target.value)}
+                  disabled={!selectedService || availableModels.length === 0}
+                  className="appearance-none pr-8"
+                >
+                  <option value="" disabled>{!selectedService ? 'Select a service first' : 'Select a model'}</option>
+                  {availableModels.map(model => (
+                    <option key={model.id} value={model.id}>{model.name}</option>
+                  ))}
+                </Select>
+                {isFetchingModels && <div className="absolute right-3 top-1/2 -translate-y-1/2"><Spinner /></div>}
+              </div>
+            </div>
           </div>
         </div>
         
-        <div className="pt-4 flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-md bg-secondary hover:bg-border-color text-text-main font-semibold"
-          >
+        <div className="pt-6 flex justify-end gap-3 border-t border-border-color">
+          <Button onClick={onClose} variant="secondary">
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSave}
             disabled={!currentSettings.llmProviderUrl || !currentSettings.llmModelName}
-            className="px-4 py-2 rounded-md bg-primary hover:bg-primary-hover text-primary-text font-semibold disabled:opacity-50"
+            variant="primary"
           >
             Save
-          </button>
+          </Button>
         </div>
       </div>
     </Modal>

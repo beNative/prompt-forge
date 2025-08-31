@@ -1,4 +1,5 @@
 
+
 export interface Prompt {
   id: string;
   title: string;
@@ -10,7 +11,8 @@ export interface Prompt {
 export interface Settings {
   llmProviderUrl: string;
   llmModelName: string;
-  apiType: 'ollama' | 'openai' | 'unknown';
+  apiType: 'ollama' | 'openai' | 'gemini' | 'unknown';
+  iconSet: 'heroicons' | 'lucide';
 }
 
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR';
@@ -25,7 +27,7 @@ export interface LogMessage {
 export type LLMStatus = 'checking' | 'connected' | 'error';
 
 export interface Command {
-  id: string;
+  id:string;
   name: string;
   keywords?: string;
   action: () => void;
@@ -36,7 +38,7 @@ export interface DiscoveredLLMService {
   name: string; // e.g., 'Ollama (localhost:11434)'
   modelsUrl: string; // Full URL to fetch models
   generateUrl: string; // Full URL to generate content
-  apiType: 'ollama' | 'openai';
+  apiType: 'ollama' | 'openai' | 'gemini';
 }
 
 export interface DiscoveredLLMModel {

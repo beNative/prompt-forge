@@ -70,11 +70,15 @@ This is one of PromptForge's key features. You can ask your connected local LLM 
 - Or, open the **Command Palette** and select "Open Settings".
 - Upon opening, the application will automatically scan your local machine for common LLM providers like Ollama or LM Studio.
 
-### Configuration Steps:
+### 6.1. Configuration Steps:
 
 1.  **Select a Service**: Choose one of the automatically detected services from the "Detected Service" dropdown. If no services are found, ensure your local LLM provider is running and click "Re-Detect Services".
 2.  **Select a Model**: Once a service is selected, the application will fetch its available models. Choose the model you wish to use for refinement from the "Model Name" dropdown.
 3.  **Save**: Click **"Save"** to apply your changes. The application is now configured to use your selected local LLM.
+
+### 6.2. Using Google Gemini
+
+If you have a Google Gemini API key, you can set it as an environment variable named `API_KEY` on your system. When you start PromptForge with this variable set, "Google Gemini" will appear as a detected service in the settings, allowing you to use Gemini models for refinement. Your API key is never stored in the application's configuration files.
 
 ## 7. Info & Documentation
 

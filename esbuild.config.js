@@ -42,7 +42,7 @@ const buildOrWatch = async (name, config) => {
         entryPoints: ['index.tsx'],
         outfile: 'dist/renderer.js',
         format: 'esm',
-        external: ['react', 'react-dom'], // From import maps
+        external: ['react', 'react-dom/client'], // From import maps
       }),
     ]);
   } catch (error) {
