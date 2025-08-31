@@ -150,12 +150,12 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
           onKeyDown={handleContentKeyDown}
           onScroll={syncScroll}
           spellCheck="false"
-          className="absolute inset-0 p-4 w-full h-full bg-transparent text-transparent caret-primary resize-none font-mono text-base focus:outline-none z-10"
+          className="absolute inset-0 p-4 w-full h-full bg-transparent text-transparent caret-primary resize-none font-mono text-base focus:outline-none z-10 whitespace-pre-wrap break-words"
         />
         <pre 
             ref={preRef}
             aria-hidden="true" 
-            className="absolute inset-0 p-4 w-full h-full overflow-auto pointer-events-none font-mono text-base"
+            className="absolute inset-0 p-4 w-full h-full overflow-auto pointer-events-none font-mono text-base whitespace-pre-wrap break-words"
         >
           <code className="language-markdown" dangerouslySetInnerHTML={{ __html: highlightedContent }} />
         </pre>
