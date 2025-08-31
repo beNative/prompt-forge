@@ -153,7 +153,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
             title={node.title}
             className={`w-full text-left p-1.5 rounded-md group flex justify-between items-center transition-colors duration-150 text-sm ${
               activeNodeId === node.id
-                ? 'bg-border-color/50 text-text-main font-semibold'
+                ? 'bg-background text-text-main'
                 : 'hover:bg-border-color/30 text-text-secondary hover:text-text-main'
             }`}
           >

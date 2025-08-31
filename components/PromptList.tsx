@@ -22,7 +22,6 @@ const PromptList: React.FC<PromptListProps> = ({
 }) => {
   const [expandedIds, setExpandedIds] = useState(new Set<string>());
   const [isStateLoaded, setIsStateLoaded] = useState(false);
-  const [isRootDragOver, setIsRootDragOver] = useState(false);
 
   // Load expanded IDs from storage on mount
   useEffect(() => {
@@ -98,31 +97,7 @@ const PromptList: React.FC<PromptListProps> = ({
         </div>
       </header>
       <div 
-          className={`flex-1 p-2 relative overflow-y-auto transition-shadow ${isRootDragOver ? 'ring-2 ring-inset ring-text-secondary' : ''}`}
-          onDragOver={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              // Only show the root drop indicator when dragging over the container itself, not its children.
-              if (e.target === e.currentTarget) {
-                  setIsRootDragOver(true);
-              }
-          }}
-          onDragLeave={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setIsRootDragOver(false);
-          }}
-          onDrop={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setIsRootDragOver(false);
-              const draggedId = e.dataTransfer.getData('text/plain');
-              const draggedItem = items.find(i => i.id === draggedId);
-              // Handle drop only if it's on the container, not a child, and the item isn't already at the root.
-              if (draggedId && e.target === e.currentTarget && draggedItem?.parentId !== null) {
-                  onMoveNode(draggedId, null, 'inside');
-              }
-          }}
+          className="flex-1 p-2 relative overflow-y-auto"
       >
         <ul className="space-y-0.5">
           {tree.map((node) => (
@@ -139,7 +114,7 @@ const PromptList: React.FC<PromptListProps> = ({
               onToggleExpand={handleToggleExpand}
             />
           ))}
-          {items.length === 0 && !isRootDragOver && (
+          {items.length === 0 && (
               <li className="text-center text-text-secondary p-4 text-sm">
                   No prompts or folders yet.
               </li>
