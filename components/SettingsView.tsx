@@ -1,10 +1,10 @@
 
-
-
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Settings, DiscoveredLLMService, DiscoveredLLMModel } from '../types';
 import { llmDiscoveryService } from '../services/llmDiscoveryService';
 import { SparklesIcon } from './Icons';
+import * as HeroIcons from './iconsets/Heroicons';
+import * as LucideIcons from './iconsets/Lucide';
 import Spinner from './Spinner';
 import Button from './Button';
 
@@ -108,7 +108,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
     <h3 className="text-xl font-semibold text-text-main mb-4">{children}</h3>
   );
 
-  const Label: React.FC<{ htmlFor: string; children: React.ReactNode }> = ({ htmlFor, children }) => (
+  const Label: React.FC<{ htmlFor?: string; children: React.ReactNode }> = ({ htmlFor, children }) => (
     <label htmlFor={htmlFor} className="block text-sm font-medium text-text-secondary mb-1">
       {children}
     </label>
@@ -116,6 +116,23 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
 
   const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>> = (props) => (
      <select {...props} className={`w-full p-2 rounded-md bg-background text-text-main border border-border-color focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 ${props.className}`} />
+  );
+  
+  const IconSetCard: React.FC<{name: string, description: string, value: 'heroicons' | 'lucide', children: React.ReactNode}> = ({ name, description, value, children }) => (
+    <button
+      onClick={() => handleIconSetChange(value)}
+      className={`p-4 rounded-lg border-2 text-left transition-all w-full ${
+        currentSettings.iconSet === value
+          ? 'border-primary bg-primary/5'
+          : 'border-border-color bg-secondary hover:border-border-color-hover hover:bg-border-color/20'
+      }`}
+    >
+      <h4 className="font-semibold text-text-main">{name}</h4>
+      <p className="text-xs text-text-secondary mb-3">{description}</p>
+      <div className="flex items-center justify-around text-text-secondary">
+        {children}
+      </div>
+    </button>
   );
 
   return (
@@ -194,16 +211,20 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
         <div className="lg:col-span-1 space-y-8">
            <section>
               <SectionTitle>Appearance</SectionTitle>
-              <div className="p-6 bg-secondary rounded-lg border border-border-color">
-                  <Label htmlFor="iconSet">Icon Set</Label>
-                  <Select
-                      id="iconSet"
-                      value={currentSettings.iconSet}
-                      onChange={(e) => handleIconSetChange(e.target.value as 'heroicons' | 'lucide')}
-                  >
-                      <option value="heroicons">Heroicons (Classic)</option>
-                      <option value="lucide">Lucide (Modern)</option>
-                  </Select>
+              <div className="p-6 bg-secondary rounded-lg border border-border-color space-y-4">
+                  <Label>Icon Set</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+                    <IconSetCard name="Heroicons" description="A classic, solid set." value="heroicons">
+                        <HeroIcons.PlusIcon className="w-5 h-5" />
+                        <HeroIcons.SparklesIcon className="w-5 h-5" />
+                        <HeroIcons.FolderIcon className="w-5 h-5" />
+                    </IconSetCard>
+                    <IconSetCard name="Lucide" description="A modern, clean set." value="lucide">
+                        <LucideIcons.PlusIcon className="w-5 h-5" />
+                        <LucideIcons.SparklesIcon className="w-5 h-5" />
+                        <LucideIcons.FolderIcon className="w-5 h-5" />
+                    </IconSetCard>
+                  </div>
               </div>
           </section>
           
@@ -213,7 +234,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
                   <div className="flex items-center justify-between">
                       <div>
                           <label htmlFor="autoSaveLogs" className="font-medium text-text-main">Auto-save Logs</label>
-                          <p className="text-sm text-text-secondary">Automatically save all log messages to a file. (Desktop app only)</p>
+                          <p className="text-sm text-text-secondary">Automatically save logs to a file. (Desktop app only)</p>
                       </div>
                       <button
                           id="autoSaveLogs"
