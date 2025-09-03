@@ -16,12 +16,14 @@ const isDev = !app.isPackaged;
 
 // The directory for storing user data.
 const getDataPath = (filename: string) => {
-  if (isDev) {
-    // In development, store data in the project root for easy access.
-    return path.join(app.getAppPath(), filename);
-  }
-  // For the packaged app, use the standard user data directory to avoid permission issues.
-  return path.join(app.getPath('userData'), filename);
+  // To make the app portable, we store data in a 'data' subfolder.
+  // In development, this folder is in the project root.
+  // In a packaged app, it's next to the executable.
+  const dataDirectory = isDev
+    ? path.join(app.getAppPath(), 'data')
+    : path.join(path.dirname(app.getPath('exe')), 'data');
+
+  return path.join(dataDirectory, filename);
 };
 
 
