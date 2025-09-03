@@ -4,13 +4,14 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 
 ## Key Features
 
-- **Prompt Management**: Organize your prompts in a clean, intuitive interface. Create, edit, and delete prompts with ease.
+- **Prompt Management**: Organize your prompts in a clean, intuitive, hierarchical folder structure.
 - **AI-Powered Refinement**: Connect to a local LLM provider to get AI-driven suggestions for improving your prompts.
 - **Automatic Service Discovery**: Automatically detects running local LLM services like Ollama and LM Studio, simplifying setup.
+- **UI Customization**: Choose between multiple icon sets (Heroicons, Lucide) to personalize the application's appearance.
 - **Light/Dark Mode**: A beautiful, consistent experience in both light and dark themes, with a manual toggle and respect for system preferences.
 - **Undo/Redo History**: A full history system in the editor allows you to undo and redo changes to your prompt content.
 - **Command Palette**: A quick-access command palette (Ctrl+Shift+P) for power users to perform actions like creating, deleting, and navigating.
-- **Local First**: Your data is saved locally. For the desktop version, it saves to JSON files in the application's directory. For the web version, it uses `localStorage`.
+- **Truly Portable**: In the desktop version, all data is stored alongside the executable, making it easy to run from a USB drive without leaving files behind.
 - **Built-in Documentation**: Access functional and technical manuals directly within the app.
 - **Live Logging**: Monitor application activity with a built-in, filterable logging panel.
 
@@ -41,7 +42,7 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 4.  **Configuration**:
     -   Open the application and click the settings (gear) icon.
     -   The app will automatically detect running services.
-    -   Simply select your desired service and model from the dropdown menus and click "Save".
+    -   Simply select your desired service and model from the dropdown menus, configure UI options, and click "Save Changes".
 
 ## Building for Production
 

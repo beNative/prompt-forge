@@ -11,7 +11,7 @@ PromptForge is a tool designed to help you create, manage, and improve your prom
 The application window is divided into three main sections:
 
 - **Header**: Contains global actions like creating a new prompt, opening settings, toggling themes, viewing documentation, and toggling logs.
-- **Prompt List (Left Sidebar)**: Displays all your saved prompts.
+- **Prompt List (Left Sidebar)**: Displays all your saved prompts and folders in a tree structure.
 - **Editor (Main Area)**: The primary workspace where you write and refine the selected prompt.
 
 ## 3. The Command Palette
@@ -25,18 +25,20 @@ For quick, keyboard-driven access to common actions, use the Command Palette.
     - Press `Enter` to execute the selected command.
     - Press `Esc` to close the palette.
 
-## 4. Managing Prompts
+## 4. Managing Prompts & Folders
 
-### 4.1. Creating a New Prompt
+### 4.1. Creating a New Prompt or Folder
 
-- Click the **Plus (+) icon** in the header.
-- Or, open the **Command Palette** and select "Create New Prompt".
-- A new "Untitled Prompt" will be created and appear at the top of the Prompt List. It will automatically become the active prompt in the editor.
+- To create a new prompt at the root level, click the **Plus (+) icon** in the sidebar header.
+- To create a new folder at the root level, click the **Folder Plus icon** in the sidebar header.
+- Or, open the **Command Palette** and select "Create New Prompt" or "Create New Folder".
+- A new item will be created and appear in the list. It will automatically become the active item.
 
-### 4.2. Selecting a Prompt
+### 4.2. Selecting an Item
 
-- Click on any prompt title in the Prompt List on the left to open it in the editor.
-- The currently active prompt is highlighted.
+- Click on any prompt or folder title in the list on the left to select it.
+- If a prompt is selected, it will open in the editor. If a folder is selected, a welcome screen will be shown.
+- The currently active item is highlighted.
 
 ### 4.3. Editing a Prompt
 
@@ -47,12 +49,12 @@ For quick, keyboard-driven access to common actions, use the Command Palette.
     - Keyboard shortcuts: `Ctrl+Z` (Undo) and `Ctrl+Y` (Redo). On macOS, use `Cmd+Z` and `Cmd+Shift+Z`.
     - UI Buttons: Click the **Undo** and **Redo** arrow buttons at the bottom-left of the editor.
 
-### 4.4. Deleting a Prompt
+### 4.4. Deleting an Item
 
-- **From the Editor**: Click the "Delete" button in the top right of the editor.
-- **From the List**: Hover over a prompt in the list (that is not active) and click the small trash can icon that appears.
-- **From the Command Palette**: Open the palette and select "Delete Current Prompt".
-- A confirmation dialog will appear before the prompt is permanently deleted.
+- **From the Editor**: Click the "Delete" button in the top right of the editor (only for the active prompt).
+- **From the List**: Hover over an item in the list and click the small trash can icon that appears.
+- **From the Command Palette**: Open the palette and select "Delete Current Item".
+- A confirmation dialog will appear before the item is permanently deleted. If you delete a folder, all its contents will also be deleted.
 
 ## 5. AI-Powered Refinement
 
@@ -66,15 +68,31 @@ This is one of PromptForge's key features. You can ask your connected local LLM 
 
 ## 6. Application Settings
 
-- Click the **Gear (⚙️) icon** in the header to open the Settings modal.
-- Or, open the **Command Palette** and select "Open Settings".
-- Upon opening, the application will automatically scan your local machine for common LLM providers like Ollama or LM Studio.
+- Click the **Gear (⚙️) icon** in the header to open the Settings view.
+- Or, open the **Command Palette** and select "Toggle Settings View".
+- The Settings view is a full-page interface divided into sections for **LLM Provider**, **Appearance**, and **Logging**.
 
-### 6.1. Configuration Steps:
+### 6.1. LLM Provider Configuration
 
-1.  **Select a Service**: Choose one of the automatically detected services from the "Detected Service" dropdown. If no services are found, ensure your local LLM provider is running and click "Re-Detect Services".
-2.  **Select a Model**: Once a service is selected, the application will fetch its available models. Choose the model you wish to use for refinement from the "Model Name" dropdown.
-3.  **Save**: Click **"Save"** to apply your changes. The application is now configured to use your selected local LLM.
+Upon opening, the application automatically scans for common local LLM providers.
+
+1.  **Detect Service**: If your service isn't listed, ensure it's running and click the **"Re-Detect Services"** button.
+2.  **Select a Service**: Choose one of the automatically detected services from the "Detected Service" dropdown.
+3.  **Select a Model**: Once a service is selected, the application will fetch its available models. Choose the model you wish to use from the "Model Name" dropdown.
+
+### 6.2. Appearance Settings
+
+Here you can customize the look of the application.
+
+- **Icon Set**: Select your preferred icon set from the available options (e.g., Heroicons, Lucide). Your selection is shown in a preview and applied after saving.
+
+### 6.3. Logging Settings
+
+- **Auto-save Logs**: Toggle this option to automatically append all log messages to a daily log file in the application's `data` directory. This is useful for debugging and is only available in the desktop version.
+
+### 6.4. Saving Changes
+
+Changes are not applied immediately. You must click the **"Save Changes"** button at the top-right of the screen to apply your new settings. The button will be disabled if there are no changes to save.
 
 ## 7. Info & Documentation
 

@@ -40,31 +40,33 @@ The project follows a standard feature-oriented structure:
 
 - This is the application's entry point. It creates the `BrowserWindow` that renders the React UI.
 - It is responsible for all Node.js and OS-level integrations.
-- **IPC (Inter-Process Communication)**: It listens for events from the renderer process to perform actions that the browser cannot, such as accessing the file system. It exposes handlers for saving and loading data.
+- **IPC (Inter-Process Communication)**: It listens for events from the renderer process to perform actions that the browser cannot, such as accessing the file system.
+- **Portable Data Path**: The `getDataPath` function ensures the application is portable. In a packaged app, it creates and uses a `data` subfolder in the same directory as the executable. In development, it uses a `data` folder in the project root. This avoids writing to system locations like `AppData`.
 
 ### 3.2. State Management & Hooks
 
-- **`usePrompts` & `useSettings` Hooks**: These hooks initialize with an empty/default state and then use a `useEffect` to asynchronously call the `storageService` to load data. All data mutations (add, update, delete) now call an `async` function to persist the changes back to the file system.
+- **`usePrompts` & `useSettings` Hooks**: These hooks initialize with a default state and then asynchronously call the `storageService` to load data. All data mutations call an `async` function to persist changes.
 - **`useHistoryState` Hook**: A specialized state hook that maintains a history of state changes for the editor's undo/redo feature.
-- **`LoggerContext`**: A global context that provides logging functionality to any component in the application.
-- **`ThemeContext`**: A global context (`useTheme` hook) that manages the application's light/dark mode. It persists the user's choice to `localStorage` and detects the system's preferred theme on first load.
+- **`LoggerContext`**: A global context providing logging functionality to any component.
+- **`ThemeContext`**: A global context (`useTheme` hook) that manages the application's light/dark mode.
+- **`IconContext`**: A global context (`useIconSet` hook) that provides the currently selected icon set ('heroicons' or 'lucide') to all components, allowing for dynamic icon rendering throughout the app.
 
 ### 3.3. Services
 
 - **`storageService.ts`**: Handles data persistence with a dual-mode strategy.
-  - **Electron Version**: It checks for the presence of the `window.electronAPI` (exposed by `preload.ts`). If found, it makes `async` IPC calls to the main process to read/write JSON files.
-  - **Web Fallback**: If `window.electronAPI` is not present, it falls back to using the browser's `localStorage` for synchronous storage.
+  - **Electron Version**: It checks for `window.electronAPI` and makes `async` IPC calls to the main process to read/write JSON files to the portable `data` directory.
+  - **Web Fallback**: If `window.electronAPI` is not present, it falls back to using `localStorage`.
 
-- **`llmService.ts`**: Manages all communication with external LLM providers. It supports multiple API types (Ollama, OpenAI-compatible).
+- **`llmService.ts`**: Manages all communication with external LLM providers, supporting multiple API types (Ollama, OpenAI-compatible).
 
-- **`llmDiscoveryService.ts`**: This service is responsible for discovering available LLM providers.
-  - It probes predefined local endpoints (e.g., `localhost:11434` for Ollama) to discover active local services.
-  - It then fetches the list of available models from the discovered service, supporting different API structures.
+- **`llmDiscoveryService.ts`**: Probes predefined local endpoints (e.g., `localhost:11434`) to discover active local services and fetches their available models.
 
 ### 3.4. Build Process
 
-- **`esbuild.config.js`**: This script configures ESBuild to bundle three separate entry points:
-    1.  `electron/main.ts` -> `dist/main.js` (Node environment)
-    2.  `electron/preload.ts` -> `dist/preload.js` (Node environment with Electron APIs)
-    3.  `index.tsx` -> `dist/renderer.js` (Browser environment)
-- **`electron-builder`**: This tool, configured in `package.json`, takes the output from `esbuild` and packages it into a distributable Windows installer (`.exe`), handling code signing, icons, and installer options.
+- **`esbuild.config.js`**: Configures ESBuild to bundle three separate entry points: `electron/main.ts`, `electron/preload.ts`, and `index.tsx` for the main, preload, and renderer processes, respectively.
+- **`electron-builder`**: This tool, configured in `package.json`, packages the bundled output into a distributable Windows installer.
+
+### 3.5. Key UI Components
+
+- **`SettingsView.tsx`**: A full-page settings component with a responsive two-column layout. It handles its own dirty state to enable/disable the save button, providing a better user experience than the previous modal.
+- **`IconButton.tsx`**: This component features a robust, custom tooltip implementation. Tooltips are rendered into a React Portal (`#overlay-root`) and use `useLayoutEffect` and JavaScript to dynamically calculate their position, ensuring they always stay within the viewport and are never clipped by parent containers. The position is recalculated on scroll and resize events.

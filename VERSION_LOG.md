@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.6.0] - 2024-08-04
+
+### Added
+- **Selectable Icon Sets**: Users can now choose between Heroicons (classic) and Lucide (modern) icon sets from the settings panel.
+- **Auto-Save Logs**: Added a new option in settings to automatically save application logs to a file (desktop version only).
+
+### Changed
+- **Truly Portable (Desktop)**: The application now saves all data (prompts, settings, logs) to a `data` subfolder located in the same directory as the executable, preventing it from writing to `AppData`.
+- **Redesigned Settings View**: Replaced the settings modal with a full-page, two-column layout for a more modern and space-efficient user experience.
+- **Improved Tooltips**: Re-engineered all tooltips to be viewport-aware and rendered in a portal, ensuring they are always fully visible and never clipped by parent containers.
+
+---
+
 ## [1.4.0] - 2024-08-03
 
 ### Added
