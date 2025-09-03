@@ -1,4 +1,5 @@
 
+
 // For type hints
 declare global {
   interface Window {

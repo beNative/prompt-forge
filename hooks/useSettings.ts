@@ -1,6 +1,7 @@
 
 
 
+
 import { useState, useEffect, useCallback } from 'react';
 import type { Settings } from '../types';
 import { LOCAL_STORAGE_KEYS, DEFAULT_SETTINGS } from '../constants';

@@ -1,5 +1,6 @@
 
 
+
 import type { Settings } from './types';
 
 export const LOCAL_STORAGE_KEYS = {
