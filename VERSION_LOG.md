@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.1.4] - 2025-09-06
+
+### Added
+- **Automatic Updates**: The application now automatically checks for updates on startup using `electron-updater`. When an update is downloaded, the user is notified and it will be installed on the next restart.
+- **GitHub Publishing**: Added an `npm run publish` script and the necessary `electron-builder` configuration to build and release new versions to GitHub.
+
+---
+
 ## [0.1.3]
 
 ### Added

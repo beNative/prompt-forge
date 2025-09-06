@@ -117,3 +117,11 @@ Changes are not applied immediately. You must click the **"Save Changes"** butto
 - This panel shows real-time activity within the app, such as API calls and errors.
 - You can filter messages by type (Debug, Info, Warning, Error).
 - You can save the current log to a file by clicking the **"Save Log"** button.
+
+## 9. Automatic Updates
+
+PromptForge is designed to keep itself up-to-date.
+
+- When you start the application, it will quietly check for a new version in the background.
+- If an update is found, it will be downloaded automatically.
+- Once the download is complete, you will receive a system notification. The update will be installed the next time you close and reopen PromptForge.

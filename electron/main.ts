@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs/promises';
+import { autoUpdater } from 'electron-updater';
 
 // FIX: Declare Node.js globals to resolve TypeScript errors for `require` and `__dirname`.
 declare const require: (module: string) => any;
@@ -44,6 +45,19 @@ const createWindow = () => {
     mainWindow.webContents.openDevTools();
   }
 };
+
+// Configure auto-updater logging
+autoUpdater.logger = console;
+autoUpdater.on('update-available', () => {
+  console.log('Update available.');
+});
+autoUpdater.on('update-downloaded', () => {
+  console.log('Update downloaded; will install on quit');
+});
+autoUpdater.on('error', (err) => {
+  console.error('Error in auto-updater. ' + err);
+});
+
 
 app.whenReady().then(() => {
   // --- IPC Handlers for Storage ---
@@ -131,6 +145,11 @@ app.whenReady().then(() => {
 
 
   createWindow();
+
+  // Check for updates after the window has been created
+  if (!isDev) {
+    autoUpdater.checkForUpdatesAndNotify();
+  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

@@ -8,6 +8,7 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 - **Drag & Drop Organization**: Intuitively reorder prompts and create nested folders with a smooth drag-and-drop interface.
 - **AI-Powered Refinement**: Connect to a local LLM provider to get AI-driven suggestions for improving your prompts.
 - **Automatic Service Discovery**: Automatically detects running local LLM services like Ollama and LM Studio, simplifying setup.
+- **Automatic Updates**: Stay up-to-date with the latest features and fixes. The app automatically checks for updates and notifies you when one is available.
 - **Quick-Switch Status Bar**: Change your active LLM provider and model directly from the status bar for a faster workflow.
 - **UI Customization**: Choose between multiple icon sets (Heroicons, Lucide) to personalize the application's appearance.
 - **Light/Dark Mode**: A beautiful, consistent experience in both light and dark themes, with a manual toggle and respect for system preferences.
@@ -23,6 +24,7 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 - **Frontend**: React with TypeScript
 - **Styling**: Tailwind CSS
 - **Bundler**: ESBuild
+- **Auto-Update**: Electron Updater
 
 ## Getting Started (Development)
 
@@ -55,3 +57,16 @@ npm run package
 ```
 
 The installer will be located in the `release/` directory.
+
+## Publishing a Release
+
+To create and publish a new release to GitHub:
+
+1.  Ensure the `repository` field in `package.json` points to your GitHub repository.
+2.  Set up a personal access token with `repo` scope on GitHub.
+3.  Make this token available as an environment variable named `GH_TOKEN`.
+4.  Run the publish command:
+    ```bash
+    npm run publish
+    ```
+This will build the application, create a release on GitHub, and upload the installer assets.

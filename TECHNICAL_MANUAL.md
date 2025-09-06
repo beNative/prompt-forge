@@ -73,3 +73,15 @@ The project follows a standard feature-oriented structure:
 - **`StatusBar.tsx`**: Displays connection status and other metadata. It now contains interactive `<select>` elements that allow the user to quickly change the active LLM provider and model without navigating to the full settings page.
 - **`SettingsView.tsx`**: A full-page settings component with a responsive two-column layout. It handles its own dirty state to enable/disable the save button, providing a better user experience than the previous modal.
 - **`IconButton.tsx`**: This component features a robust, custom tooltip implementation. Tooltips are rendered into a React Portal (`#overlay-root`) and use `useLayoutEffect` and JavaScript to dynamically calculate their position, ensuring they always stay within the viewport and are never clipped by parent containers. The position is recalculated on scroll and resize events.
+
+### 3.6. Automatic Update Mechanism
+
+The application uses the **`electron-updater`** library to handle automatic updates.
+
+-   **Process**:
+    -   On application startup in a packaged environment, after the main window is created, `autoUpdater.checkForUpdatesAndNotify()` is called in `electron/main.ts`.
+    -   This function communicates with the release provider (configured as GitHub in `package.json`) to check for a new version.
+    -   If a newer version is found on the GitHub release page, it is downloaded in the background without interrupting the user.
+    -   Upon successful download, `electron-updater` triggers a native system notification to inform the user that an update is ready.
+    -   The update is automatically applied the next time the application is quit and restarted.
+-   **Configuration**: The update provider is configured in the `build.publish` section of `package.json`. Releases must be created on GitHub for the updater to find them. The `publish` script (`npm run publish`) is configured to handle this process.
