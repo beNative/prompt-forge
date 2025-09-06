@@ -27,11 +27,13 @@
   "build": {
     "appId": "com.timsinaeve.promptforge",
     "productName": "PromptForge",
+    "icon": "assets/icon.svg",
     "files": [
       "dist/",
       "index.html",
       "package.json",
-      "node_modules/"
+      "node_modules/",
+      "assets/"
     ],
     "directories": {
       "output": "release"
@@ -48,7 +50,8 @@
         "./README.md",
         "./FUNCTIONAL_MANUAL.md",
         "./TECHNICAL_MANUAL.md",
-        "./VERSION_LOG.md"
+        "./VERSION_LOG.md",
+        "./assets/"
     ]
   }
 }

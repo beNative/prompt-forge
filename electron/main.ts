@@ -1,5 +1,6 @@
 
 
+
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs/promises';
@@ -33,6 +34,7 @@ const createWindow = () => {
     width: 1200,
     height: 800,
     autoHideMenuBar: true,
+    icon: path.join(isDev ? app.getAppPath() : (process as any).resourcesPath, 'assets/icon.svg'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
