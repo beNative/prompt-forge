@@ -8,11 +8,12 @@ PromptForge is a tool designed to help you create, manage, and improve your prom
 
 ## 2. Main Interface
 
-The application window is divided into three main sections:
+The application window is divided into four main sections:
 
 - **Header**: Contains global actions like creating a new prompt, opening settings, toggling themes, viewing documentation, and toggling logs.
 - **Prompt List (Left Sidebar)**: Displays all your saved prompts and folders in a tree structure.
 - **Editor (Main Area)**: The primary workspace where you write and refine the selected prompt.
+- **Status Bar (Footer)**: Shows the connection status of your LLM provider and provides quick-actions to change the active provider and model.
 
 ## 3. The Command Palette
 
@@ -56,6 +57,14 @@ For quick, keyboard-driven access to common actions, use the Command Palette.
 - **From the Command Palette**: Open the palette and select "Delete Current Item".
 - A confirmation dialog will appear before the item is permanently deleted. If you delete a folder, all its contents will also be deleted.
 
+### 4.5. Organizing with Drag & Drop
+
+You can organize your prompts and folders by dragging and dropping them in the sidebar.
+
+- **Reordering**: Click and drag an item to a new position relative to another item. A visual indicator will show where it will be placed (above or below).
+- **Nesting (Creating Sub-folders)**: Drag a prompt or another folder and drop it directly onto a folder to move it inside. This allows you to create a nested, hierarchical structure.
+- **Moving to Root**: Drag an item to an empty area at the bottom of the list to move it to the root level.
+
 ## 5. AI-Powered Refinement
 
 This is one of PromptForge's key features. You can ask your connected local LLM to improve your prompt.
@@ -74,11 +83,13 @@ This is one of PromptForge's key features. You can ask your connected local LLM 
 
 ### 6.1. LLM Provider Configuration
 
-Upon opening, the application automatically scans for common local LLM providers.
+The application provides two ways to configure your LLM provider:
 
-1.  **Detect Service**: If your service isn't listed, ensure it's running and click the **"Re-Detect Services"** button.
-2.  **Select a Service**: Choose one of the automatically detected services from the "Detected Service" dropdown.
-3.  **Select a Model**: Once a service is selected, the application will fetch its available models. Choose the model you wish to use from the "Model Name" dropdown.
+- **Quick-Switch (Status Bar)**: For fast changes, use the dropdown menus in the status bar at the bottom of the application to switch between detected providers and their available models.
+- **Full Configuration (Settings View)**:
+    1.  **Detect Service**: If your service isn't listed, ensure it's running and click the **"Re-Detect Services"** button.
+    2.  **Select a Service**: Choose one of the automatically detected services from the "Detected Service" dropdown.
+    3.  **Select a Model**: Once a service is selected, the application will fetch its available models. Choose the model you wish to use from the "Model Name" dropdown.
 
 ### 6.2. Appearance Settings
 

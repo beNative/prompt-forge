@@ -5,8 +5,10 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 ## Key Features
 
 - **Prompt Management**: Organize your prompts in a clean, intuitive, hierarchical folder structure.
+- **Drag & Drop Organization**: Intuitively reorder prompts and create nested folders with a smooth drag-and-drop interface.
 - **AI-Powered Refinement**: Connect to a local LLM provider to get AI-driven suggestions for improving your prompts.
 - **Automatic Service Discovery**: Automatically detects running local LLM services like Ollama and LM Studio, simplifying setup.
+- **Quick-Switch Status Bar**: Change your active LLM provider and model directly from the status bar for a faster workflow.
 - **UI Customization**: Choose between multiple icon sets (Heroicons, Lucide) to personalize the application's appearance.
 - **Light/Dark Mode**: A beautiful, consistent experience in both light and dark themes, with a manual toggle and respect for system preferences.
 - **Undo/Redo History**: A full history system in the editor allows you to undo and redo changes to your prompt content.

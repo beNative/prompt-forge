@@ -45,7 +45,8 @@ The project follows a standard feature-oriented structure:
 
 ### 3.2. State Management & Hooks
 
-- **`usePrompts` & `useSettings` Hooks**: These hooks initialize with a default state and then asynchronously call the `storageService` to load data. All data mutations call an `async` function to persist changes.
+- **`usePrompts` Hook**: This central hook manages all prompt and folder data. It initializes state from storage and provides CRUD functions (`addPrompt`, `updateItem`, `deleteItem`). It also contains the `moveItem` function, which handles the complex logic of reordering items and changing their `parentId` to support drag-and-drop nesting.
+- **`useSettings` Hook**: Manages application settings, loading them from storage and providing a `saveSettings` function to persist changes.
 - **`useHistoryState` Hook**: A specialized state hook that maintains a history of state changes for the editor's undo/redo feature.
 - **`LoggerContext`**: A global context providing logging functionality to any component.
 - **`ThemeContext`**: A global context (`useTheme` hook) that manages the application's light/dark mode.
@@ -68,5 +69,7 @@ The project follows a standard feature-oriented structure:
 
 ### 3.5. Key UI Components
 
+- **`PromptTreeItem.tsx`**: A recursive component that renders each item in the sidebar. It handles its own drag-and-drop events (`onDragStart`, `onDrop`, `onDragOver`) to determine the user's intent (move before, after, or inside another item) and calls the `onMoveNode` callback to update the global state.
+- **`StatusBar.tsx`**: Displays connection status and other metadata. It now contains interactive `<select>` elements that allow the user to quickly change the active LLM provider and model without navigating to the full settings page.
 - **`SettingsView.tsx`**: A full-page settings component with a responsive two-column layout. It handles its own dirty state to enable/disable the save button, providing a better user experience than the previous modal.
 - **`IconButton.tsx`**: This component features a robust, custom tooltip implementation. Tooltips are rendered into a React Portal (`#overlay-root`) and use `useLayoutEffect` and JavaScript to dynamically calculate their position, ensuring they always stay within the viewport and are never clipped by parent containers. The position is recalculated on scroll and resize events.

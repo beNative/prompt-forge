@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.7.0] - 2024-08-05
+
+### Added
+- **Drag & Drop Reordering**: Implemented full drag-and-drop support in the sidebar to reorder prompts and folders.
+- **Hierarchical Folders**: Users can now create nested folders by dragging folders or prompts inside other folders.
+- **Status Bar Quick Actions**: Added interactive dropdowns to the status bar for quickly changing the active LLM provider and model.
+- **Root Creation Buttons**: Added dedicated "New Root Folder" and "New Prompt" buttons to the sidebar header for easier top-level creation.
+
+### Changed
+- **Improved Move Logic**: The underlying logic for moving items is now more robust to support complex hierarchical changes.
+- **UI Polish**: Minor adjustments to the sidebar UI to better accommodate drag-and-drop indicators and folder expansion.
+
+---
+
 ## [1.6.0] - 2024-08-04
 
 ### Added
