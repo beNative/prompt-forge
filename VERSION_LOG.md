@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [1.7.0] - 2024-08-05
+## [0.1.3]
 
 ### Added
 - **Drag & Drop Reordering**: Implemented full drag-and-drop support in the sidebar to reorder prompts and folders.
@@ -18,7 +18,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [1.6.0] - 2024-08-04
+## [0.1.2]
 
 ### Added
 - **Selectable Icon Sets**: Users can now choose between Heroicons (classic) and Lucide (modern) icon sets from the settings panel.
@@ -31,7 +31,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [1.4.0] - 2024-08-03
+## [0.1.1] 
 
 ### Added
 - **Light/Dark Mode**: Implemented a full light and dark mode theme system. The app respects system preferences on first launch and allows manual toggling via a new header button.
@@ -43,7 +43,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [1.3.0] - 2024-08-02
+## [0.1.0] 
 
 ### Added
 
@@ -58,7 +58,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [1.2.0] - 2024-08-01
+## [0.0.3] 
 
 ### Added
 
@@ -71,7 +71,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [1.1.0] - 2024-07-31
+## [0.0.2]
 
 ### Added
 
@@ -86,7 +86,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [1.0.0] - 2024-07-30
+## [0.0.1]
 
 ### Added
 
