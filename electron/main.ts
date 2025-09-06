@@ -31,7 +31,6 @@ const createWindow = () => {
     width: 1200,
     height: 800,
     autoHideMenuBar: true,
-    icon: path.join(isDev ? app.getAppPath() : (process as any).resourcesPath, 'assets/icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

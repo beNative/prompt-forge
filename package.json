@@ -27,7 +27,6 @@
   "build": {
     "appId": "com.timsinaeve.promptforge",
     "productName": "PromptForge",
-    "icon": "assets/icon.png",
     "files": [
       "dist/",
       "index.html",
