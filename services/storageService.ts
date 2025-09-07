@@ -10,6 +10,7 @@ declare global {
       readDoc: (filename: string) => Promise<{ success: boolean; content?: string; error?: string }>;
       appendLog: (content: string) => Promise<{ success: boolean; error?: string }>;
       updaterSetAllowPrerelease?: (allow: boolean) => void;
+      setAppIcon?: (iconName: string) => void;
     };
   }
 }

@@ -1,9 +1,9 @@
 
 
 import React, { useState, useEffect } from 'react';
-import type { Settings, DiscoveredLLMService, DiscoveredLLMModel } from '../types';
+import type { Settings, DiscoveredLLMService, DiscoveredLLMModel, AppIcon } from '../types';
 import { llmDiscoveryService } from '../services/llmDiscoveryService';
-import { SparklesIcon } from './Icons';
+import { SparklesIcon, FileIcon as DefaultAppIcon, CommandIcon, GearIcon, FolderIcon } from './Icons';
 import * as HeroIcons from './iconsets/Heroicons';
 import * as LucideIcons from './iconsets/Lucide';
 import Spinner from './Spinner';
@@ -98,6 +98,10 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
   const handleIconSetChange = (iconSet: 'heroicons' | 'lucide') => {
     setCurrentSettings(prev => ({ ...prev, iconSet }));
   };
+  
+  const handleAppIconChange = (appIcon: AppIcon) => {
+    setCurrentSettings(prev => ({ ...prev, appIcon }));
+  };
 
   const handleSave = () => {
     onSave(currentSettings);
@@ -119,18 +123,22 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
      <select {...props} className={`w-full p-2 rounded-md bg-background text-text-main border border-border-color focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50 ${props.className}`} />
   );
   
-  const IconSetCard: React.FC<{name: string, description: string, value: 'heroicons' | 'lucide', children: React.ReactNode}> = ({ name, description, value, children }) => (
+  const CardButton: React.FC<{name: string, description?: string, value: any, children: React.ReactNode, onClick: (value: any) => void, isSelected: boolean, isDisabled?: boolean, isAppIcon?: boolean}> = ({ name, description, value, children, onClick, isSelected, isDisabled = false, isAppIcon = false }) => (
     <button
-      onClick={() => handleIconSetChange(value)}
+      onClick={() => !isDisabled && onClick(value)}
+      disabled={isDisabled}
       className={`p-4 rounded-lg border-2 text-left transition-all w-full ${
-        currentSettings.iconSet === value
+        isSelected
           ? 'border-primary bg-primary/5'
           : 'border-border-color bg-secondary hover:border-border-color-hover hover:bg-border-color/20'
-      }`}
+      } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
-      <h4 className="font-semibold text-text-main">{name}</h4>
-      <p className="text-xs text-text-secondary mb-3">{description}</p>
-      <div className="flex items-center justify-around text-text-secondary">
+      <div className="flex justify-between items-center">
+        <h4 className="font-semibold text-text-main">{name}</h4>
+        {isDisabled && <span className="text-xs bg-border-color text-text-secondary px-2 py-0.5 rounded-full">Coming Soon</span>}
+      </div>
+      {description && <p className="text-xs text-text-secondary mb-3">{description}</p>}
+      <div className={`flex items-center justify-around text-text-secondary ${isAppIcon ? 'py-4' : ''}`}>
         {children}
       </div>
     </button>
@@ -206,6 +214,20 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
               </div>
             </div>
           </section>
+
+          <section>
+            <SectionTitle>Application Icon</SectionTitle>
+              <div className="p-6 bg-secondary rounded-lg border border-border-color">
+                  <p className="text-sm text-text-secondary mb-4">Choose the icon for the application. Requires a restart to take full effect on shortcuts and the taskbar.</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                      <CardButton name="Default" value="default" isSelected={currentSettings.appIcon === 'default'} onClick={handleAppIconChange} isAppIcon><DefaultAppIcon className="w-8 h-8" /></CardButton>
+                      <CardButton name="Sparkles" value="sparkles" isSelected={currentSettings.appIcon === 'sparkles'} onClick={handleAppIconChange} isAppIcon><SparklesIcon className="w-8 h-8" /></CardButton>
+                      <CardButton name="Command" value="command" isSelected={currentSettings.appIcon === 'command'} onClick={handleAppIconChange} isAppIcon><CommandIcon className="w-8 h-8" /></CardButton>
+                      <CardButton name="Gear" value="gear" isSelected={currentSettings.appIcon === 'gear'} onClick={handleAppIconChange} isAppIcon><GearIcon className="w-8 h-8" /></CardButton>
+                      <CardButton name="Folder" value="folder" isSelected={currentSettings.appIcon === 'folder'} onClick={handleAppIconChange} isAppIcon><FolderIcon className="w-8 h-8" /></CardButton>
+                  </div>
+              </div>
+          </section>
         </div>
 
         {/* Sidebar */}
@@ -213,18 +235,23 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
            <section>
               <SectionTitle>Appearance</SectionTitle>
               <div className="p-6 bg-secondary rounded-lg border border-border-color space-y-4">
-                  <Label>Icon Set</Label>
+                  <Label>UI Icon Set</Label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-                    <IconSetCard name="Heroicons" description="A classic, solid set." value="heroicons">
-                        <HeroIcons.PlusIcon className="w-5 h-5" />
-                        <HeroIcons.SparklesIcon className="w-5 h-5" />
-                        <HeroIcons.FolderIcon className="w-5 h-5" />
-                    </IconSetCard>
-                    <IconSetCard name="Lucide" description="A modern, clean set." value="lucide">
-                        <LucideIcons.PlusIcon className="w-5 h-5" />
-                        <LucideIcons.SparklesIcon className="w-5 h-5" />
-                        <LucideIcons.FolderIcon className="w-5 h-5" />
-                    </IconSetCard>
+                    <CardButton name="Heroicons" description="A classic, solid set." value="heroicons" isSelected={currentSettings.iconSet === 'heroicons'} onClick={handleIconSetChange}>
+                        <HeroIcons.PlusIcon className="w-5 h-5" /> <HeroIcons.SparklesIcon className="w-5 h-5" /> <HeroIcons.FolderIcon className="w-5 h-5" />
+                    </CardButton>
+                    <CardButton name="Lucide" description="A modern, clean set." value="lucide" isSelected={currentSettings.iconSet === 'lucide'} onClick={handleIconSetChange}>
+                        <LucideIcons.PlusIcon className="w-5 h-5" /> <LucideIcons.SparklesIcon className="w-5 h-5" /> <LucideIcons.FolderIcon className="w-5 h-5" />
+                    </CardButton>
+                    <CardButton name="Feather" description="Simply beautiful icons." value="feather" isSelected={false} onClick={() => {}} isDisabled>
+                        <LucideIcons.FeatherIconPlaceholder className="w-5 h-5" />
+                    </CardButton>
+                    <CardButton name="Tabler" description="Pixel-perfect icons." value="tabler" isSelected={false} onClick={() => {}} isDisabled>
+                        <LucideIcons.TablerIconPlaceholder className="w-5 h-5" />
+                    </CardButton>
+                    <CardButton name="Material" description="Google's design icons." value="material" isSelected={false} onClick={() => {}} isDisabled>
+                        <LucideIcons.MaterialIconPlaceholder className="w-5 h-5" />
+                    </CardButton>
                   </div>
               </div>
           </section>

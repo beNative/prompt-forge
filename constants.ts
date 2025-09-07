@@ -19,4 +19,5 @@ export const DEFAULT_SETTINGS: Settings = {
   iconSet: 'heroicons',
   autoSaveLogs: false,
   allowPrerelease: false,
+  appIcon: 'default',
 };

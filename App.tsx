@@ -2,6 +2,8 @@
 
 
 
+
+
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 // Hooks
 import { usePrompts } from './hooks/usePrompts';
@@ -20,7 +22,7 @@ import CommandPalette from './components/CommandPalette';
 import InfoView from './components/InfoView';
 import { PlusIcon, FolderPlusIcon, TrashIcon, GearIcon, InfoIcon, FileCodeIcon } from './components/Icons';
 // Types
-import type { PromptOrFolder, Command, LogMessage, DiscoveredLLMModel, DiscoveredLLMService } from './types';
+import type { PromptOrFolder, Command, LogMessage, DiscoveredLLMModel, DiscoveredLLMService, Settings } from './types';
 // Context
 import { IconProvider } from './contexts/IconContext';
 // Services & Constants
@@ -356,12 +358,22 @@ const App: React.FC = () => {
         { id: 'toggle-logs', name: 'Toggle Logs Panel', action: () => setIsLoggerVisible(v => !v), category: 'View', icon: FileCodeIcon, keywords: 'debug console' },
     ], [activeNodeId, handleNewPrompt, handleNewFolder, handleDeleteNode, toggleSettingsView]);
 
+    // FIX: Ensure that only supported icon sets are passed to the IconProvider.
+    // The Settings type allows for future icon sets that are not yet implemented.
+    // This function provides a fallback to 'heroicons' for any unsupported value.
+    const getSupportedIconSet = (iconSet: Settings['iconSet']): 'heroicons' | 'lucide' => {
+        if (iconSet === 'lucide') {
+            return 'lucide';
+        }
+        return 'heroicons';
+    };
+
     if (!settingsLoaded) {
         return <div className="w-screen h-screen flex items-center justify-center bg-background"><p className="text-text-main">Loading application...</p></div>;
     }
 
     return (
-        <IconProvider value={{ iconSet: settings.iconSet }}>
+        <IconProvider value={{ iconSet: getSupportedIconSet(settings.iconSet) }}>
             <div className="flex flex-col h-screen font-sans bg-background text-text-main antialiased">
                 <Header 
                     onToggleSettingsView={toggleSettingsView}

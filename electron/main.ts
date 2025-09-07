@@ -6,6 +6,7 @@ import { autoUpdater } from 'electron-updater';
 // FIX: Declare Node.js global to resolve TypeScript error for `__dirname`.
 declare const __dirname: string;
 
+let mainWindow: BrowserWindow | null = null;
 const isDev = !app.isPackaged;
 
 // The directory for storing user data.
@@ -15,12 +16,24 @@ const getDataPath = (filename: string) => {
   return path.join(userDataPath, filename);
 };
 
+const getIconPath = (iconName?: string): string => {
+    // We assume .png files are available for runtime changes on all platforms.
+    // For the packaged app's initial icon, electron-builder uses platform-specific formats.
+    const name = iconName || 'default';
+    const filename = `icon-${name}.png`;
+    const iconPath = isDev 
+        ? path.join(app.getAppPath(), 'assets', 'icons', filename) 
+        : path.join((process as any).resourcesPath, 'assets', 'icons', filename);
+    return iconPath;
+};
 
-const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+
+const createWindow = (initialSettings: { appIcon?: string }) => {
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     autoHideMenuBar: true,
+    icon: getIconPath(initialSettings.appIcon),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -33,6 +46,10 @@ const createWindow = () => {
   if (isDev) {
     mainWindow.webContents.openDevTools();
   }
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
 };
 
 // Configure auto-updater logging
@@ -53,22 +70,34 @@ ipcMain.on('updater:set-allow-prerelease', (_, allow: boolean) => {
     autoUpdater.allowPrerelease = allow;
 });
 
+// Listener to change the app icon dynamically
+ipcMain.on('app:set-icon', (_, iconName: string) => {
+    if (mainWindow) {
+        const iconPath = getIconPath(iconName);
+        console.log(`Setting app icon to: ${iconPath}`);
+        mainWindow.setIcon(iconPath);
+    }
+});
+
 
 app.whenReady().then(async () => {
-  // Read settings on startup to configure updater
+  // Read settings on startup to configure updater and initial icon
+  let initialSettings: { allowPrerelease?: boolean; appIcon?: string } = {};
   try {
     const settingsPath = getDataPath('promptforge_settings.json');
     const settingsData = await fs.readFile(settingsPath, 'utf-8');
-    const settings = JSON.parse(settingsData);
-    if (settings && typeof settings.allowPrerelease === 'boolean') {
-      console.log(`Initial updater allowPrerelease set to: ${settings.allowPrerelease}`);
-      autoUpdater.allowPrerelease = settings.allowPrerelease;
-    }
+    initialSettings = JSON.parse(settingsData);
   } catch (error) {
-    // It's okay if the file doesn't exist on first launch, it will default to false.
-    console.log('Could not read settings for updater config, defaulting allowPrerelease to false.');
-    autoUpdater.allowPrerelease = false;
+    console.log('Could not read settings for initial config, using defaults.');
   }
+
+  if (typeof initialSettings.allowPrerelease === 'boolean') {
+      console.log(`Initial updater allowPrerelease set to: ${initialSettings.allowPrerelease}`);
+      autoUpdater.allowPrerelease = initialSettings.allowPrerelease;
+  } else {
+      autoUpdater.allowPrerelease = false;
+  }
+  
 
   // --- IPC Handlers for Storage ---
   ipcMain.handle('storage:save', async (_, key: string, value: string) => {
@@ -154,7 +183,7 @@ app.whenReady().then(async () => {
   });
 
 
-  createWindow();
+  createWindow(initialSettings);
 
   // Check for updates after the window has been created
   if (!isDev) {
@@ -163,7 +192,7 @@ app.whenReady().then(async () => {
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+      createWindow(initialSettings);
     }
   });
 });

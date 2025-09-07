@@ -1,7 +1,6 @@
 
 
 
-
 import { useState, useEffect, useCallback } from 'react';
 import type { Settings } from '../types';
 import { LOCAL_STORAGE_KEYS, DEFAULT_SETTINGS } from '../constants';
@@ -40,6 +39,11 @@ export const useSettings = () => {
         if (loadedSettings.allowPrerelease === undefined) {
           loadedSettings.allowPrerelease = false;
         }
+        // Migration for appIcon
+        if (loadedSettings.appIcon === undefined) {
+          loadedSettings.appIcon = 'default';
+        }
+
 
         // If provider name is missing but URL is present, try to discover it.
         // This handles older settings where only the URL was stored.
@@ -81,10 +85,17 @@ export const useSettings = () => {
 
 
   const saveSettings = useCallback(async (newSettings: Settings) => {
+    const oldSettings = settings;
     setSettings(newSettings);
     await storageService.save(LOCAL_STORAGE_KEYS.SETTINGS, newSettings);
     addLog('INFO', 'Application settings updated and saved.');
-  }, [addLog]);
+
+    // Notify main process if app icon has changed
+    if (isElectron && window.electronAPI?.setAppIcon && oldSettings.appIcon !== newSettings.appIcon) {
+        addLog('DEBUG', `Notifying main process: appIcon changed to ${newSettings.appIcon}`);
+        window.electronAPI.setAppIcon(newSettings.appIcon);
+    }
+  }, [addLog, settings]);
 
   return { settings, saveSettings, loaded };
 };

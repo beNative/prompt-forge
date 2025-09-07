@@ -39,8 +39,8 @@ The project follows a standard feature-oriented structure:
 ### 3.1. Electron Main Process (`electron/main.ts`)
 
 - This is the application's entry point. It creates the `BrowserWindow` that renders the React UI.
-- It is responsible for all Node.js and OS-level integrations.
-- **IPC (Inter-Process Communication)**: It listens for events from the renderer process to perform actions that the browser cannot, such as accessing the file system.
+- It is responsible for all Node.js and OS-level integrations. On startup, it reads the `promptforge_settings.json` file to configure initial settings like the application icon and `autoUpdater` preferences before the main window is even created.
+- **IPC (Inter-Process Communication)**: It listens for events from the renderer process to perform actions that the browser cannot, such as accessing the file system. It also handles dynamic application changes, such as updating the `autoUpdater` configuration or changing the main window's icon at runtime via IPC listeners (`updater:set-allow-prerelease`, `app:set-icon`).
 - **User Data Path**: The `getDataPath` function uses Electron's `app.getPath('userData')` method to determine the storage location. This ensures the application follows operating system standards for storing user data (e.g., in `%APPDATA%` on Windows or `~/Library/Application Support` on macOS) rather than storing data alongside the executable.
 
 ### 3.2. State Management & Hooks

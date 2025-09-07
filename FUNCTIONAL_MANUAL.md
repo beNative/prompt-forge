@@ -105,9 +105,11 @@ The application provides two ways to configure your LLM provider:
 
 ### 6.2. Appearance Settings
 
-Here you can customize the look of the application.
+Here you can customize the look and feel of the application.
 
-- **Icon Set**: Select your preferred icon set from the available options (e.g., Heroicons, Lucide). Your selection is shown in a preview and applied after saving.
+- **Application Icon**: Choose the icon that represents PromptForge in your operating system's taskbar, dock, and application shortcuts. Select from one of the five available options. Note that a restart may be required for the change to be fully reflected everywhere (like in pinned shortcuts).
+
+- **UI Icon Set**: Select your preferred icon set for the application's user interface from the available options (e.g., Heroicons, Lucide). Your selection is shown in a preview and applied after saving. Options for other popular icon sets like Feather, Tabler, and Material are shown as "Coming Soon" and will be available in a future update.
 
 ### 6.3. Update Settings
 

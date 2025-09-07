@@ -2,6 +2,8 @@
 
 import type React from 'react';
 
+export type AppIcon = 'default' | 'sparkles' | 'command' | 'gear' | 'folder';
+
 export interface PromptOrFolder {
   id: string;
   type: 'prompt' | 'folder';
@@ -17,9 +19,10 @@ export interface Settings {
   llmModelName: string;
   llmProviderName: string;
   apiType: 'ollama' | 'openai' | 'unknown';
-  iconSet: 'heroicons' | 'lucide';
+  iconSet: 'heroicons' | 'lucide' | 'feather' | 'tabler' | 'material';
   autoSaveLogs: boolean;
   allowPrerelease: boolean;
+  appIcon: AppIcon;
 }
 
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR';
