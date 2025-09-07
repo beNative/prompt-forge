@@ -8,4 +8,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveLog: (filename: string, content: string) => ipcRenderer.invoke('storage:saveLog', filename, content),
   readDoc: (filename: string) => ipcRenderer.invoke('docs:read', filename),
   appendLog: (content: string) => ipcRenderer.invoke('storage:appendLog', content),
+  updaterSetAllowPrerelease: (allow: boolean) => ipcRenderer.send('updater:set-allow-prerelease', allow),
 });

@@ -11,6 +11,7 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 - **AI-Powered Refinement**: Connect to a local LLM provider to get AI-driven suggestions for improving your prompts.
 - **Automatic Service Discovery**: Automatically detects running local LLM services like Ollama and LM Studio, simplifying setup.
 - **Automatic Updates**: Stay up-to-date with the latest features and fixes. The app automatically checks for updates and notifies you when one is available.
+- **Pre-release Updates**: Opt-in to receive beta versions and test new features before the official release.
 - **Quick-Switch Status Bar**: Change your active LLM provider and model directly from the status bar for a faster workflow.
 - **UI Customization**: Choose between multiple icon sets (Heroicons, Lucide) to personalize the application's appearance.
 - **Light/Dark Mode**: A beautiful, consistent experience in both light and dark themes, with a manual toggle and respect for system preferences.

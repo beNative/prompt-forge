@@ -19,6 +19,7 @@ export interface Settings {
   apiType: 'ollama' | 'openai' | 'unknown';
   iconSet: 'heroicons' | 'lucide';
   autoSaveLogs: boolean;
+  allowPrerelease: boolean;
 }
 
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR';

@@ -47,8 +47,29 @@ autoUpdater.on('error', (err) => {
   console.error('Error in auto-updater. ' + err);
 });
 
+// Listener for renderer to change the setting dynamically
+ipcMain.on('updater:set-allow-prerelease', (_, allow: boolean) => {
+    console.log(`Setting allowPrerelease to: ${allow}`);
+    autoUpdater.allowPrerelease = allow;
+});
 
-app.whenReady().then(() => {
+
+app.whenReady().then(async () => {
+  // Read settings on startup to configure updater
+  try {
+    const settingsPath = getDataPath('promptforge_settings.json');
+    const settingsData = await fs.readFile(settingsPath, 'utf-8');
+    const settings = JSON.parse(settingsData);
+    if (settings && typeof settings.allowPrerelease === 'boolean') {
+      console.log(`Initial updater allowPrerelease set to: ${settings.allowPrerelease}`);
+      autoUpdater.allowPrerelease = settings.allowPrerelease;
+    }
+  } catch (error) {
+    // It's okay if the file doesn't exist on first launch, it will default to false.
+    console.log('Could not read settings for updater config, defaulting allowPrerelease to false.');
+    autoUpdater.allowPrerelease = false;
+  }
+
   // --- IPC Handlers for Storage ---
   ipcMain.handle('storage:save', async (_, key: string, value: string) => {
     try {

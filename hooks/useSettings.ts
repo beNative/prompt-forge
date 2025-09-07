@@ -9,6 +9,8 @@ import { storageService } from '../services/storageService';
 import { useLogger } from './useLogger';
 import { llmDiscoveryService } from '../services/llmDiscoveryService';
 
+const isElectron = !!window.electronAPI;
+
 export const useSettings = () => {
   const { addLog } = useLogger();
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
@@ -33,6 +35,10 @@ export const useSettings = () => {
         // Migration for autoSaveLogs
         if (loadedSettings.autoSaveLogs === undefined) {
           loadedSettings.autoSaveLogs = false;
+        }
+        // Migration for allowPrerelease
+        if (loadedSettings.allowPrerelease === undefined) {
+          loadedSettings.allowPrerelease = false;
         }
 
         // If provider name is missing but URL is present, try to discover it.
@@ -64,6 +70,15 @@ export const useSettings = () => {
     loadAndEnhanceSettings();
 
   }, [addLog]);
+
+  // Effect to notify main process of prerelease setting changes
+  useEffect(() => {
+    if (loaded && isElectron && window.electronAPI?.updaterSetAllowPrerelease) {
+      addLog('DEBUG', `Notifying main process: allowPrerelease is ${settings.allowPrerelease}`);
+      window.electronAPI.updaterSetAllowPrerelease(settings.allowPrerelease);
+    }
+  }, [settings.allowPrerelease, loaded, addLog]);
+
 
   const saveSettings = useCallback(async (newSettings: Settings) => {
     setSettings(newSettings);

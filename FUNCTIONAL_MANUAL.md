@@ -91,7 +91,7 @@ This is one of PromptForge's key features. You can ask your connected local LLM 
 
 - Click the **Gear (⚙️) icon** in the header to open the Settings view.
 - Or, open the **Command Palette** and select "Toggle Settings View".
-- The Settings view is a full-page interface divided into sections for **LLM Provider**, **Appearance**, and **Logging**.
+- The Settings view is a full-page interface divided into sections for **LLM Provider**, **Appearance**, **Updates**, and **Logging**.
 
 ### 6.1. LLM Provider Configuration
 
@@ -109,11 +109,15 @@ Here you can customize the look of the application.
 
 - **Icon Set**: Select your preferred icon set from the available options (e.g., Heroicons, Lucide). Your selection is shown in a preview and applied after saving.
 
-### 6.3. Logging Settings
+### 6.3. Update Settings
+
+- **Receive Pre-releases**: Toggle this option to be notified of new beta versions. This allows you to try out new features before they are officially released.
+
+### 6.4. Logging Settings
 
 - **Auto-save Logs**: Toggle this option to automatically append all log messages to a daily log file in the application's `data` directory. This is useful for debugging and is only available in the desktop version.
 
-### 6.4. Saving Changes
+### 6.5. Saving Changes
 
 Changes are not applied immediately. You must click the **"Save Changes"** button at the top-right of the screen to apply your new settings. The button will be disabled if there are no changes to save.
 

@@ -18,4 +18,5 @@ export const DEFAULT_SETTINGS: Settings = {
   apiType: 'unknown',
   iconSet: 'heroicons',
   autoSaveLogs: false,
+  allowPrerelease: false,
 };

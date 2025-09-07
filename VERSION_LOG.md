@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - **Search & Highlight**: Added a search bar to the sidebar to filter prompts and folders by title in real-time.
 - Matching text in the search results is now highlighted for better visibility.
+- **Pre-release Updates**: Added a setting to allow users to opt-in to receive pre-release (beta) updates from GitHub.
 
 ---
 

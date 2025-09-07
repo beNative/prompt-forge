@@ -9,6 +9,7 @@ declare global {
       saveLog: (filename: string, content: string) => Promise<{ success: boolean; error?: string }>;
       readDoc: (filename: string) => Promise<{ success: boolean; content?: string; error?: string }>;
       appendLog: (content: string) => Promise<{ success: boolean; error?: string }>;
+      updaterSetAllowPrerelease?: (allow: boolean) => void;
     };
   }
 }

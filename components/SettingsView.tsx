@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import type { Settings, DiscoveredLLMService, DiscoveredLLMModel } from '../types';
 import { llmDiscoveryService } from '../services/llmDiscoveryService';
@@ -224,6 +225,27 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
                         <LucideIcons.SparklesIcon className="w-5 h-5" />
                         <LucideIcons.FolderIcon className="w-5 h-5" />
                     </IconSetCard>
+                  </div>
+              </div>
+          </section>
+
+          <section>
+              <SectionTitle>Updates</SectionTitle>
+              <div className="p-6 bg-secondary rounded-lg border border-border-color">
+                  <div className="flex items-center justify-between">
+                      <div>
+                          <label htmlFor="allowPrerelease" className="font-medium text-text-main">Receive Pre-releases</label>
+                          <p className="text-sm text-text-secondary">Get notified about beta versions.</p>
+                      </div>
+                      <button
+                          id="allowPrerelease"
+                          role="switch"
+                          aria-checked={currentSettings.allowPrerelease}
+                          onClick={() => setCurrentSettings(prev => ({ ...prev, allowPrerelease: !prev.allowPrerelease }))}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${currentSettings.allowPrerelease ? 'bg-primary' : 'bg-border-color'}`}
+                      >
+                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${currentSettings.allowPrerelease ? 'translate-x-6' : 'translate-x-1'}`} />
+                      </button>
                   </div>
               </div>
           </section>

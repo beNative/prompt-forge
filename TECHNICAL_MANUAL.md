@@ -46,7 +46,7 @@ The project follows a standard feature-oriented structure:
 ### 3.2. State Management & Hooks
 
 - **`usePrompts` Hook**: This central hook manages all prompt and folder data. It initializes state from storage and provides CRUD functions (`addPrompt`, `updateItem`, `deleteItem`). It also contains the `moveItem` function, which handles the complex logic of reordering items and changing their `parentId` to support drag-and-drop nesting.
-- **`useSettings` Hook**: Manages application settings, loading them from storage and providing a `saveSettings` function to persist changes.
+- **`useSettings` Hook**: Manages application settings, loading them from storage and providing a `saveSettings` function to persist changes. It also contains logic to migrate settings from older versions of the application.
 - **`useHistoryState` Hook**: A specialized state hook that maintains a history of state changes for the editor's undo/redo feature.
 - **`LoggerContext`**: A global context providing logging functionality to any component.
 - **`ThemeContext`**: A global context (`useTheme` hook) that manages the application's light/dark mode.
@@ -79,7 +79,8 @@ The project follows a standard feature-oriented structure:
 The application uses the **`electron-updater`** library to handle automatic updates.
 
 -   **Process**:
-    -   On application startup in a packaged environment, after the main window is created, `autoUpdater.checkForUpdatesAndNotify()` is called in `electron/main.ts`.
+    -   On application startup in a packaged environment, `autoUpdater.checkForUpdatesAndNotify()` is called in `electron/main.ts`.
+    -   The user can control whether to receive pre-releases via a setting. This setting (`allowPrerelease`) is stored in the settings JSON file. On startup, the main process reads this file to configure `autoUpdater.allowPrerelease` before checking for updates. If the user changes this setting while the app is running, an IPC message is sent to the main process to update the `autoUpdater` configuration in real-time.
     -   This function communicates with the release provider (configured as GitHub in `package.json`) to check for a new version.
     -   If a newer version is found on the GitHub release page, it is downloaded in the background without interrupting the user.
     -   Upon successful download, `electron-updater` triggers a native system notification to inform the user that an update is ready.
