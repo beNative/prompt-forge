@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import type { LLMStatus, DiscoveredLLMModel, DiscoveredLLMService } from '../types';
 
@@ -14,6 +12,7 @@ interface StatusBarProps {
   onModelChange: (modelId: string) => void;
   discoveredServices: DiscoveredLLMService[];
   onProviderChange: (serviceId: string) => void;
+  appVersion: string;
 }
 
 const statusConfig: Record<LLMStatus, { text: string; color: string; tooltip: string }> = {
@@ -34,7 +33,7 @@ const statusConfig: Record<LLMStatus, { text: string; color: string; tooltip: st
   },
 };
 
-const StatusBar: React.FC<StatusBarProps> = ({ status, modelName, llmProviderName, llmProviderUrl, promptCount, lastSaved, availableModels, onModelChange, discoveredServices, onProviderChange }) => {
+const StatusBar: React.FC<StatusBarProps> = ({ status, modelName, llmProviderName, llmProviderUrl, promptCount, lastSaved, availableModels, onModelChange, discoveredServices, onProviderChange, appVersion }) => {
   const { text, color, tooltip } = statusConfig[status];
   const selectedService = discoveredServices.find(s => s.generateUrl === llmProviderUrl);
 
@@ -108,6 +107,8 @@ const StatusBar: React.FC<StatusBarProps> = ({ status, modelName, llmProviderNam
         <span>Prompts: <span className="font-semibold text-text-main">{promptCount}</span></span>
         <div className="h-4 w-px bg-border-color"></div>
         <span>Last Saved: <span className="font-semibold text-text-main">{formatTimestamp(lastSaved)}</span></span>
+        {appVersion && <div className="h-4 w-px bg-border-color"></div>}
+        {appVersion && <span>v{appVersion}</span>}
       </div>
     </footer>
   );

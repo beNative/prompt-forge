@@ -142,4 +142,12 @@ PromptForge is designed to keep itself up-to-date.
 
 - When you start the application, it will quietly check for a new version in the background.
 - If an update is found, it will be downloaded automatically.
-- Once the download is complete, you will receive a system notification. The update will be installed the next time you close and reopen PromptForge.
+- Once the download is complete, a notification toast will appear in the bottom-right corner of the application. You can click **"Restart & Install"** to apply the update immediately, or **"Later"** to dismiss the notification and install the update the next time you restart the app.
+
+## 10. About PromptForge
+
+To view information about the application, including the version number and credits:
+- Open the **Info (ℹ️) View** and click the **"About PromptForge"** button at the top.
+- Alternatively, open the **Command Palette** (`Ctrl+Shift+P`) and select "About PromptForge".
+
+This will open a dialog box with details about the application.

@@ -1,5 +1,3 @@
-
-
 // For type hints
 declare global {
   interface Window {
@@ -11,6 +9,9 @@ declare global {
       appendLog: (content: string) => Promise<{ success: boolean; error?: string }>;
       updaterSetAllowPrerelease?: (allow: boolean) => void;
       setAppIcon?: (iconName: string) => void;
+      getAppVersion?: () => Promise<string>;
+      onUpdateDownloaded?: (callback: (version: string) => void) => () => void;
+      quitAndInstallUpdate?: () => void;
     };
   }
 }

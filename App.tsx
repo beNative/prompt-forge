@@ -1,10 +1,5 @@
-
-
-
-
-
-
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import ReactDOM from 'react-dom';
 // Hooks
 import { usePrompts } from './hooks/usePrompts';
 import { useSettings } from './hooks/useSettings';
@@ -20,6 +15,8 @@ import StatusBar from './components/StatusBar';
 import LoggerPanel from './components/LoggerPanel';
 import CommandPalette from './components/CommandPalette';
 import InfoView from './components/InfoView';
+import UpdateNotification from './components/UpdateNotification';
+import AboutModal from './components/AboutModal';
 import { PlusIcon, FolderPlusIcon, TrashIcon, GearIcon, InfoIcon, FileCodeIcon } from './components/Icons';
 // Types
 import type { PromptOrFolder, Command, LogMessage, DiscoveredLLMModel, DiscoveredLLMService, Settings } from './types';
@@ -49,12 +46,15 @@ const App: React.FC = () => {
     const [view, setView] = useState<'editor' | 'info' | 'settings'>('editor');
     const [isLoggerVisible, setIsLoggerVisible] = useState(false);
     const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+    const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
     const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
     const [loggerPanelHeight, setLoggerPanelHeight] = useState(DEFAULT_LOGGER_HEIGHT);
     const [availableModels, setAvailableModels] = useState<DiscoveredLLMModel[]>([]);
     const [discoveredServices, setDiscoveredServices] = useState<DiscoveredLLMService[]>([]);
     const [isDetecting, setIsDetecting] = useState(false);
-    
+    const [appVersion, setAppVersion] = useState('');
+    const [updateInfo, setUpdateInfo] = useState<{ ready: boolean; version: string | null }>({ ready: false, version: null });
+
     const isSidebarResizing = useRef(false);
     const isLoggerResizing = useRef(false);
 
@@ -70,6 +70,25 @@ const App: React.FC = () => {
     const activePrompt = useMemo(() => {
         return activeNode?.type === 'prompt' ? activeNode : null;
     }, [activeNode]);
+
+    // Get app version
+    useEffect(() => {
+        if (window.electronAPI?.getAppVersion) {
+            window.electronAPI.getAppVersion().then(setAppVersion);
+        }
+    }, []);
+
+    // Listen for downloaded updates from the main process
+    useEffect(() => {
+        if (window.electronAPI?.onUpdateDownloaded) {
+            const cleanup = window.electronAPI.onUpdateDownloaded((version) => {
+                addLog('INFO', `Update version ${version} is ready to be installed.`);
+                setUpdateInfo({ ready: true, version });
+            });
+            return cleanup; // This will be called on component unmount to remove the listener
+        }
+    }, [addLog]);
+
 
     // Load panel sizes from storage on initial render
     useEffect(() => {
@@ -356,6 +375,7 @@ const App: React.FC = () => {
         { id: 'toggle-settings', name: 'Toggle Settings View', action: toggleSettingsView, category: 'View', icon: GearIcon, keywords: 'configure options' },
         { id: 'toggle-info', name: 'Toggle Info View', action: () => setView(v => v === 'info' ? 'editor' : 'info'), category: 'View', icon: InfoIcon, keywords: 'help docs readme' },
         { id: 'toggle-logs', name: 'Toggle Logs Panel', action: () => setIsLoggerVisible(v => !v), category: 'View', icon: FileCodeIcon, keywords: 'debug console' },
+        { id: 'about', name: 'About PromptForge', action: () => setIsAboutModalOpen(true), category: 'Help', icon: InfoIcon, keywords: 'version credits info' },
     ], [activeNodeId, handleNewPrompt, handleNewFolder, handleDeleteNode, toggleSettingsView]);
 
     // FIX: Ensure that only supported icon sets are passed to the IconProvider.
@@ -426,7 +446,7 @@ const App: React.FC = () => {
                                 <WelcomeScreen onNewPrompt={handleNewPrompt} />
                             )
                         )}
-                        {view === 'info' && <InfoView />}
+                        {view === 'info' && <InfoView onOpenAboutModal={() => setIsAboutModalOpen(true)} />}
                         {view === 'settings' && <SettingsView settings={settings} onSave={saveSettings} discoveredServices={discoveredServices} onDetectServices={handleDetectServices} isDetecting={isDetecting} />}
                     </section>
                 </main>
@@ -441,6 +461,7 @@ const App: React.FC = () => {
                     onModelChange={handleModelChange}
                     discoveredServices={discoveredServices}
                     onProviderChange={handleProviderChange}
+                    appVersion={appVersion}
                 />
             </div>
             
@@ -451,6 +472,19 @@ const App: React.FC = () => {
                 onResizeStart={handleLoggerMouseDown}
             />
             <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} commands={commands} />
+
+            {updateInfo.ready && window.electronAPI?.quitAndInstallUpdate && (
+                <UpdateNotification
+                    version={updateInfo.version!}
+                    onInstall={() => window.electronAPI!.quitAndInstallUpdate!()}
+                    onClose={() => setUpdateInfo({ ready: false, version: null })}
+                />
+            )}
+            <AboutModal 
+                isOpen={isAboutModalOpen} 
+                onClose={() => setIsAboutModalOpen(false)} 
+                version={appVersion}
+            />
         </IconProvider>
     );
 };

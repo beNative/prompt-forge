@@ -10,7 +10,7 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 - **Drag & Drop Organization**: Intuitively reorder prompts and create nested folders with a smooth drag-and-drop interface.
 - **AI-Powered Refinement**: Connect to a local LLM provider to get AI-driven suggestions for improving your prompts.
 - **Automatic Service Discovery**: Automatically detects running local LLM services like Ollama and LM Studio, simplifying setup.
-- **Automatic Updates**: Stay up-to-date with the latest features and fixes. The app automatically checks for updates and notifies you when one is available.
+- **Automatic Updates**: Stay up-to-date with the latest features and fixes. The app automatically checks for updates, downloads them in the background, and displays a polished in-app notification when ready to install.
 - **Pre-release Updates**: Opt-in to receive beta versions and test new features before the official release.
 - **Quick-Switch Status Bar**: Change your active LLM provider and model directly from the status bar for a faster workflow.
 - **Application Icon Customization**: Personalize the application's dock or taskbar icon by choosing from several pre-defined options.
@@ -20,6 +20,7 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 - **Command Palette**: A quick-access command palette (Ctrl+Shift+P) for power users to perform actions like creating, deleting, and navigating.
 - **Built-in Documentation**: Access functional and technical manuals directly within the app.
 - **Live Logging**: Monitor application activity with a built-in, filterable logging panel.
+- **About Dialog**: View version information and credits in a dedicated 'About' dialog.
 
 ## Tech Stack
 

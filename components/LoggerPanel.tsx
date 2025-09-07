@@ -1,10 +1,8 @@
-
-
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useLogger } from '../hooks/useLogger';
 import { LogLevel } from '../types';
-import { SaveIcon, TrashIcon, ChevronDownIcon } from './Icons';
+import { DownloadIcon, TrashIcon, ChevronDownIcon } from './Icons';
 import { storageService } from '../services/storageService';
 import IconButton from './IconButton';
 
@@ -91,7 +89,7 @@ const LoggerPanel: React.FC<LoggerPanelProps> = ({ isVisible, onToggleVisibility
           ))}
           <div className="h-4 w-px bg-border-color mx-2"></div>
           <IconButton onClick={handleSaveLog} tooltip="Save Log" variant="ghost" size="sm" tooltipPosition="bottom">
-            <SaveIcon className="w-5 h-5" />
+            <DownloadIcon className="w-5 h-5" />
           </IconButton>
           <IconButton onClick={clearLogs} tooltip="Clear Logs" variant="destructive" size="sm" tooltipPosition="bottom">
             <TrashIcon className="w-5 h-5" />

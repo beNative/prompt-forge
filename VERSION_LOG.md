@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.1.9] - 2025-09-11
+
+### Added
+- **Polished Auto-Update UI**: Added a professional, in-app notification toast when an update is downloaded and ready to install.
+- **Version in Status Bar**: The application version number is now always visible in the status bar for easy reference.
+- **About Dialog**: Added a new "About PromptForge" dialog, accessible from the Info view or Command Palette, containing version info and credits.
+
+### Changed
+- The copyright year is now updated to 2025 and the author's name is included in the new About dialog and documentation views.
+
+---
+
 ## [0.1.8] - 2025-09-10
 
 ### Added

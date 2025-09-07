@@ -57,8 +57,11 @@ autoUpdater.logger = console;
 autoUpdater.on('update-available', () => {
   console.log('Update available.');
 });
-autoUpdater.on('update-downloaded', () => {
-  console.log('Update downloaded; will install on quit');
+autoUpdater.on('update-downloaded', (info) => {
+  console.log(`Update downloaded: ${info.version}. Notifying renderer.`);
+  if (mainWindow) {
+    mainWindow.webContents.send('update:downloaded', info.version);
+  }
 });
 autoUpdater.on('error', (err) => {
   console.error('Error in auto-updater. ' + err);
@@ -77,6 +80,12 @@ ipcMain.on('app:set-icon', (_, iconName: string) => {
         console.log(`Setting app icon to: ${iconPath}`);
         mainWindow.setIcon(iconPath);
     }
+});
+
+// Listener for renderer to trigger the update installation
+ipcMain.on('updater:quit-and-install', () => {
+  console.log('Renderer requested app restart to install update.');
+  autoUpdater.quitAndInstall();
 });
 
 
@@ -98,6 +107,10 @@ app.whenReady().then(async () => {
       autoUpdater.allowPrerelease = false;
   }
   
+  // --- IPC Handler for App Version ---
+  ipcMain.handle('app:get-version', () => {
+    return app.getVersion();
+  });
 
   // --- IPC Handlers for Storage ---
   ipcMain.handle('storage:save', async (_, key: string, value: string) => {

@@ -42,9 +42,9 @@ export const FileCodeIcon: React.FC<IconProps> = (props) => {
     return iconSet === 'lucide' ? <LucideIcons.FileCodeIcon {...props} /> : <HeroIcons.FileCodeIcon {...props} />;
 };
 
-export const SaveIcon: React.FC<IconProps> = (props) => {
+export const DownloadIcon: React.FC<IconProps> = (props) => {
     const { iconSet } = useIconSet();
-    return iconSet === 'lucide' ? <LucideIcons.SaveIcon {...props} /> : <HeroIcons.SaveIcon {...props} />;
+    return iconSet === 'lucide' ? <LucideIcons.DownloadIcon {...props} /> : <HeroIcons.DownloadIcon {...props} />;
 };
 
 export const ChevronDownIcon: React.FC<IconProps> = (props) => {
@@ -115,4 +115,9 @@ export const CheckIcon: React.FC<IconProps> = (props) => {
 export const SearchIcon: React.FC<IconProps> = (props) => {
     const { iconSet } = useIconSet();
     return iconSet === 'lucide' ? <LucideIcons.SearchIcon {...props} /> : <HeroIcons.SearchIcon {...props} />;
+};
+
+export const XIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    return iconSet === 'lucide' ? <LucideIcons.XIcon {...props} /> : <HeroIcons.XIcon {...props} />;
 };
