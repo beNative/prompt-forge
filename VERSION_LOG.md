@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.1.7] - 2025-09-09
+
+### Added
+- **Search & Highlight**: Added a search bar to the sidebar to filter prompts and folders by title in real-time.
+- Matching text in the search results is now highlighted for better visibility.
+
+---
+
 ## [0.1.6] - 2025-09-08
 
 ### Added

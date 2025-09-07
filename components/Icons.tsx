@@ -111,3 +111,8 @@ export const CheckIcon: React.FC<IconProps> = (props) => {
     const { iconSet } = useIconSet();
     return iconSet === 'lucide' ? <LucideIcons.CheckIcon {...props} /> : <HeroIcons.CheckIcon {...props} />;
 };
+
+export const SearchIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    return iconSet === 'lucide' ? <LucideIcons.SearchIcon {...props} /> : <HeroIcons.SearchIcon {...props} />;
+};

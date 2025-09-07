@@ -6,6 +6,7 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 
 - **Prompt Management**: Organize your prompts in a clean, intuitive, hierarchical folder structure.
 - **Quick Copy**: Instantly copy a prompt's content to your clipboard from the sidebar list.
+- **Search & Highlight**: Instantly filter prompts and folders by title, with matching text highlighted for clarity.
 - **Drag & Drop Organization**: Intuitively reorder prompts and create nested folders with a smooth drag-and-drop interface.
 - **AI-Powered Refinement**: Connect to a local LLM provider to get AI-driven suggestions for improving your prompts.
 - **Automatic Service Discovery**: Automatically detects running local LLM services like Ollama and LM Studio, simplifying setup.

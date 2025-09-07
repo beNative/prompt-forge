@@ -5,7 +5,7 @@ import PromptTreeItem, { PromptNode } from './PromptTreeItem';
 import { storageService } from '../services/storageService';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import IconButton from './IconButton';
-import { FolderPlusIcon, PlusIcon } from './Icons';
+import { FolderPlusIcon, PlusIcon, SearchIcon } from './Icons';
 
 interface PromptListProps {
   items: PromptOrFolder[];
@@ -24,6 +24,7 @@ const PromptList: React.FC<PromptListProps> = ({
 }) => {
   const [expandedIds, setExpandedIds] = useState(new Set<string>());
   const [isStateLoaded, setIsStateLoaded] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Load expanded IDs from storage on mount
   useEffect(() => {
@@ -33,20 +34,78 @@ const PromptList: React.FC<PromptListProps> = ({
     });
   }, []);
 
-  // Save expanded IDs to storage whenever they change
+  // Save expanded IDs to storage whenever they change, but not if a search is active
   useEffect(() => {
-    if (isStateLoaded) {
+    if (isStateLoaded && !searchTerm) {
       storageService.save(LOCAL_STORAGE_KEYS.EXPANDED_FOLDERS, Array.from(expandedIds));
     }
-  }, [expandedIds, isStateLoaded]);
+  }, [expandedIds, isStateLoaded, searchTerm]);
 
-  const tree = useMemo(() => {
+  const filteredTree = useMemo(() => {
+    const sortNodes = (nodes: PromptNode[]): PromptNode[] => {
+      nodes.sort((a, b) => {
+          if (a.type === 'folder' && b.type === 'prompt') return -1;
+          if (a.type === 'prompt' && b.type === 'folder') return 1;
+          return a.title.localeCompare(b.title);
+      });
+      nodes.forEach(node => {
+          if (node.children.length) {
+              node.children = sortNodes(node.children);
+          }
+      });
+      return nodes;
+    };
+
+    let itemsToBuildFrom = items;
+
+    if (searchTerm.trim()) {
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      const visibleIds = new Set<string>();
+      const originalItemsById = new Map(items.map(i => [i.id, i]));
+
+      const getAncestors = (itemId: string) => {
+        let current = originalItemsById.get(itemId);
+        while (current && current.parentId) {
+          visibleIds.add(current.parentId);
+          current = originalItemsById.get(current.parentId);
+        }
+      };
+      
+      const getDescendantIds = (itemId: string): Set<string> => {
+        const descendantIds = new Set<string>();
+        const findChildren = (parentId: string) => {
+          items.forEach(p => {
+            if (p.parentId === parentId) {
+              descendantIds.add(p.id);
+              if (p.type === 'folder') {
+                findChildren(p.id);
+              }
+            }
+          });
+        };
+        findChildren(itemId);
+        return descendantIds;
+      };
+
+      items.forEach(item => {
+        if (item.title.toLowerCase().includes(lowerCaseSearchTerm)) {
+          visibleIds.add(item.id);
+          getAncestors(item.id);
+          if (item.type === 'folder') {
+            getDescendantIds(item.id).forEach(id => visibleIds.add(id));
+          }
+        }
+      });
+      
+      itemsToBuildFrom = items.filter(item => visibleIds.has(item.id));
+    }
+
     const itemsById = new Map<string, PromptNode>(
-      items.map(p => [p.id, { ...p, children: [] }])
+      itemsToBuildFrom.map(p => [p.id, { ...p, children: [] }])
     );
     const rootNodes: PromptNode[] = [];
-
-    for (const item of items) {
+    
+    for (const item of itemsToBuildFrom) {
       const node = itemsById.get(item.id)!;
       if (item.parentId && itemsById.has(item.parentId)) {
         itemsById.get(item.parentId)!.children.push(node);
@@ -54,23 +113,27 @@ const PromptList: React.FC<PromptListProps> = ({
         rootNodes.push(node);
       }
     }
-    // Sort so folders come before prompts
-    const sortNodes = (nodes: PromptNode[]): PromptNode[] => {
-        nodes.sort((a, b) => {
-            if (a.type === 'folder' && b.type === 'prompt') return -1;
-            if (a.type === 'prompt' && b.type === 'folder') return 1;
-            return a.title.localeCompare(b.title);
-        });
-        nodes.forEach(node => {
-            if (node.children.length) {
-                node.children = sortNodes(node.children);
-            }
-        });
-        return nodes;
-    };
     
     return sortNodes(rootNodes);
-  }, [items]);
+  }, [items, searchTerm]);
+  
+  const displayExpandedIds = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return expandedIds;
+    }
+    // If searching, auto-expand all folders present in the filtered tree
+    const newExpandedIds = new Set<string>();
+    const collectFolderIds = (nodes: PromptNode[]) => {
+      for (const node of nodes) {
+        if (node.type === 'folder' && node.children.length > 0) {
+          newExpandedIds.add(node.id);
+          collectFolderIds(node.children);
+        }
+      }
+    };
+    collectFolderIds(filteredTree);
+    return newExpandedIds;
+  }, [searchTerm, expandedIds, filteredTree]);
 
   const handleToggleExpand = (id: string) => {
     setExpandedIds(prev => {
@@ -90,13 +153,12 @@ const PromptList: React.FC<PromptListProps> = ({
     const draggedId = e.dataTransfer.getData('text/plain');
     const targetItem = e.target as HTMLElement;
 
-    // Prevent drop if it's on a child item, which will handle its own drop
     if (targetItem.closest('li[draggable="true"]')) {
         return;
     }
 
     if (draggedId) {
-        onMoveNode(draggedId, null, 'inside'); // 'inside' with null target means root
+        onMoveNode(draggedId, null, 'inside');
     }
   };
 
@@ -119,30 +181,48 @@ const PromptList: React.FC<PromptListProps> = ({
           </IconButton>
         </div>
       </header>
+      <div className="px-2 pb-2 flex-shrink-0">
+        <div className="relative">
+            <SearchIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" />
+            <input
+                type="text"
+                placeholder="Search prompts..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-background border border-border-color rounded-md pl-9 pr-3 py-1.5 text-sm text-text-main focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-text-secondary"
+            />
+        </div>
+      </div>
       <div 
-          className="flex-1 p-2 relative overflow-y-auto"
+          className="flex-1 px-2 relative overflow-y-auto"
           onDrop={handleRootDrop}
           onDragOver={handleRootDragOver}
       >
         <ul className="space-y-0.5">
-          {tree.map((node) => (
+          {filteredTree.map((node) => (
             <PromptTreeItem
               key={node.id}
               node={node}
               level={0}
               activeNodeId={activeNodeId}
-              expandedIds={expandedIds}
+              expandedIds={displayExpandedIds}
               onSelectNode={onSelectNode}
               onDeleteNode={onDeleteNode}
               onRenameNode={onRenameNode}
               onMoveNode={onMoveNode}
               onToggleExpand={handleToggleExpand}
               onCopyNodeContent={onCopyNodeContent}
+              searchTerm={searchTerm}
             />
           ))}
           {items.length === 0 && (
               <li className="text-center text-text-secondary p-4 text-sm">
                   No prompts or folders yet.
+              </li>
+          )}
+          {items.length > 0 && filteredTree.length === 0 && (
+              <li className="text-center text-text-secondary p-4 text-sm">
+                  No results found for "{searchTerm}".
               </li>
           )}
         </ul>

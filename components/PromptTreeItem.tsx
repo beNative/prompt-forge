@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useRef, useEffect } from 'react';
 import type { PromptOrFolder } from '../types';
 import IconButton from './IconButton';
@@ -8,6 +5,27 @@ import { TrashIcon, ChevronDownIcon, ChevronRightIcon, FileIcon, FolderIcon, Fol
 
 export type PromptNode = PromptOrFolder & { children: PromptNode[] };
 type DropPosition = 'before' | 'after' | 'inside' | null;
+
+const HighlightedText: React.FC<{ text: string; highlight: string }> = ({ text, highlight }) => {
+    if (!highlight.trim()) {
+        return <>{text}</>;
+    }
+    const regex = new RegExp(`(${highlight})`, 'gi');
+    const parts = text.split(regex);
+    return (
+        <>
+            {parts.map((part, i) =>
+                part.toLowerCase() === highlight.toLowerCase() ? (
+                    <span key={i} className="bg-primary/20 text-primary font-semibold rounded">
+                        {part}
+                    </span>
+                ) : (
+                    part
+                )
+            )}
+        </>
+    );
+};
 
 interface PromptTreeItemProps {
   node: PromptNode;
@@ -20,10 +38,11 @@ interface PromptTreeItemProps {
   onMoveNode: (draggedId: string, targetId: string | null, position: 'before' | 'after' | 'inside') => void;
   onToggleExpand: (id: string) => void;
   onCopyNodeContent: (id: string) => void;
+  searchTerm: string;
 }
 
 const PromptTreeItem: React.FC<PromptTreeItemProps> = ({ 
-  node, level, activeNodeId, expandedIds, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onToggleExpand, onCopyNodeContent
+  node, level, activeNodeId, expandedIds, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onToggleExpand, onCopyNodeContent, searchTerm
 }) => {
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
@@ -149,7 +168,9 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
                 ) : <span className="w-4 h-4 block" /> }
                </span>
                <span className="flex-shrink-0">{renderIcon()}</span>
-              <span className="truncate flex-1 px-1">{node.title}</span>
+              <span className="truncate flex-1 px-1">
+                <HighlightedText text={node.title} highlight={searchTerm} />
+              </span>
             </div>
             <div className={`transition-opacity pr-1 flex items-center ${activeNodeId === node.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
               {!isFolder && (
@@ -179,6 +200,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
               onMoveNode={onMoveNode}
               onToggleExpand={onToggleExpand}
               onCopyNodeContent={onCopyNodeContent}
+              searchTerm={searchTerm}
             />
           ))}
         </ul>

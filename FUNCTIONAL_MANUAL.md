@@ -61,7 +61,15 @@ For quick, keyboard-driven access to common actions, use the Command Palette.
 
 - **From the List**: Hover over any prompt in the sidebar list. A "Copy" icon will appear. Clicking it will instantly copy the entire content of that prompt to your clipboard.
 
-### 4.6. Organizing with Drag & Drop
+### 4.6. Search & Filtering
+
+At the top of the sidebar, you will find a search bar to help you quickly locate items.
+
+- **How to Use**: Simply start typing in the search bar. The list will update in real-time to show only prompts and folders whose titles match your search query.
+- **Highlighting**: The part of the title that matches your search term will be highlighted, making it easy to spot.
+- **Context Preservation**: When a nested item matches your search, all of its parent folders will remain visible (and expanded) so you can see its location in the hierarchy.
+
+### 4.7. Organizing with Drag & Drop
 
 You can organize your prompts and folders by dragging and dropping them in the sidebar.
 
