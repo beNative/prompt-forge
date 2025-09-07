@@ -29,7 +29,7 @@ const buildOrWatch = async (name, config) => {
         platform: 'node',
         entryPoints: ['electron/main.ts'],
         outfile: 'dist/main.js',
-        external: ['electron', 'electron-squirrel-startup'],
+        external: ['electron'],
       }),
       buildOrWatch('preload', {
         ...sharedConfig,

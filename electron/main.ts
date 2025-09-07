@@ -3,14 +3,8 @@ import path from 'path';
 import fs from 'fs/promises';
 import { autoUpdater } from 'electron-updater';
 
-// FIX: Declare Node.js globals to resolve TypeScript errors for `require` and `__dirname`.
-declare const require: (module: string) => any;
+// FIX: Declare Node.js global to resolve TypeScript error for `__dirname`.
 declare const __dirname: string;
-
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) {
-  app.quit();
-}
 
 const isDev = !app.isPackaged;
 
