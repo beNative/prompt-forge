@@ -1,1 +1,65 @@
-full contents of package.json
+{
+  "name": "promptforge",
+  "version": "0.1.8",
+  "description": "An application to manage and refine LLM prompts.",
+  "author": "beNative",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "node esbuild.config.js",
+    "watch": "node esbuild.config.js --watch",
+    "start": "concurrently \"npm:watch\" \"wait-on dist/main.js && electron .\"",
+    "package": "npm run build && electron-builder",
+    "publish": "npm run package -- --publish always"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/beNative/prompt-forge.git"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "electron-updater": "^6.2.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "concurrently": "^8.2.2",
+    "electron": "^31.2.1",
+    "electron-builder": "^24.13.3",
+    "esbuild": "^0.23.0",
+    "typescript": "^5.5.3",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.timsinaeve.promptforge",
+    "productName": "PromptForge",
+    "files": [
+      "dist/",
+      "index.html",
+      "package.json",
+      "node_modules/",
+      "assets/"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "publish": {
+      "provider": "github"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "extraResources": [
+        "./README.md",
+        "./FUNCTIONAL_MANUAL.md",
+        "./TECHNICAL_MANUAL.md",
+        "./VERSION_LOG.md",
+        "./assets/"
+    ]
+  }
+}

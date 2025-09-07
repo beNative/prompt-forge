@@ -1,6 +1,4 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-// FIX: Correcting module imports. These will work once `types.ts` and `Icons.tsx` are created.
 import type { PromptOrFolder } from '../types';
 import IconButton from './IconButton';
 import { TrashIcon, ChevronDownIcon, ChevronRightIcon, FileIcon, FolderIcon, FolderOpenIcon, CopyIcon, CheckIcon } from './Icons';

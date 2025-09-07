@@ -1,7 +1,5 @@
 
-
 import React, { useState, useEffect, useMemo } from 'react';
-import Button from './Button';
 
 // Let TypeScript know that 'marked' is available globally from the script tag in index.html
 declare const marked: {
@@ -17,11 +15,7 @@ const docFiles: Record<DocTab, string> = {
   'Version Log': 'VERSION_LOG.md',
 };
 
-interface InfoViewProps {
-  onOpenAboutModal: () => void;
-}
-
-const InfoView: React.FC<InfoViewProps> = ({ onOpenAboutModal }) => {
+const InfoView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<DocTab>('Readme');
   const [documents, setDocuments] = useState<Record<DocTab, string>>({
     'Readme': 'Loading...',
@@ -33,7 +27,6 @@ const InfoView: React.FC<InfoViewProps> = ({ onOpenAboutModal }) => {
 
   useEffect(() => {
     const fetchDocs = async () => {
-      // FIX: This check is correct and relies on the preload script. The TS error will be fixed by declaring `electronAPI` on the `Window` interface in `types.ts`.
       const isElectron = !!window.electronAPI;
       try {
         const docPromises = (Object.keys(docFiles) as DocTab[]).map(async (tab) => {
@@ -41,7 +34,6 @@ const InfoView: React.FC<InfoViewProps> = ({ onOpenAboutModal }) => {
           let text = '';
 
           if (isElectron) {
-            // FIX: This call is correct and relies on the preload script.
             const result = await window.electronAPI!.readDoc(filename);
             if (result.success && result.content) {
               text = result.content;
@@ -92,12 +84,7 @@ const InfoView: React.FC<InfoViewProps> = ({ onOpenAboutModal }) => {
 
   return (
     <div className="flex-1 flex flex-col p-6 bg-background overflow-hidden h-full">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-semibold text-text-main">Application Information</h1>
-        <Button onClick={onOpenAboutModal} variant="secondary">
-            About PromptForge
-        </Button>
-      </div>
+      <h1 className="text-2xl font-semibold text-text-main mb-4">Application Information</h1>
       <div className="flex border-b border-border-color mb-4">
         {(Object.keys(docFiles) as DocTab[]).map(tab => (
           <button
@@ -117,9 +104,6 @@ const InfoView: React.FC<InfoViewProps> = ({ onOpenAboutModal }) => {
       <div className="flex-1 bg-secondary p-6 rounded-md overflow-y-auto markdown-content text-text-secondary">
         <div dangerouslySetInnerHTML={{ __html: renderedHtml }} />
       </div>
-      <footer className="text-center text-xs text-text-secondary pt-4 flex-shrink-0">
-        © 2025 Tim Sinaeve
-      </footer>
 
       <style>{`
         .markdown-content h1, .markdown-content h2, .markdown-content h3 {

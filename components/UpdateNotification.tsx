@@ -1,8 +1,6 @@
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Button from './Button';
-// FIX: Correcting the module import. This will work once `Icons.tsx` is created.
 import { DownloadIcon, XIcon } from './Icons';
 import IconButton from './IconButton';
 

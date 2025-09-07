@@ -1,7 +1,5 @@
-
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-// FIX: Correctly import App as a module. This error will be resolved when App.tsx is created with a default export.
 import App from './App';
 import { LoggerProvider } from './contexts/LoggerContext';
 import { ThemeProvider } from './contexts/ThemeContext';

@@ -1,9 +1,7 @@
 
-
 import React from 'react';
 import { useTheme } from '../hooks/useTheme';
 import IconButton from './IconButton';
-// FIX: Correcting the module import. This will work once `Icons.tsx` is created.
 import { SunIcon, MoonIcon } from './Icons';
 
 const ThemeToggleButton: React.FC = () => {

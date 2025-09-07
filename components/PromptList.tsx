@@ -1,7 +1,5 @@
 
-
 import React, { useState, useMemo, useEffect } from 'react';
-// FIX: Correcting module imports. These will work once `types.ts`, `storageService.ts`, and `Icons.tsx` are created.
 import type { PromptOrFolder } from '../types';
 import PromptTreeItem, { PromptNode } from './PromptTreeItem';
 import { storageService } from '../services/storageService';
