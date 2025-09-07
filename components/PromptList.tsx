@@ -16,10 +16,11 @@ interface PromptListProps {
   onMoveNode: (draggedId: string, targetId: string | null, position: 'before' | 'after' | 'inside') => void;
   onNewPrompt: () => void;
   onNewFolder: () => void;
+  onCopyNodeContent: (id: string) => void;
 }
 
 const PromptList: React.FC<PromptListProps> = ({ 
-  items, activeNodeId, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onNewPrompt, onNewFolder 
+  items, activeNodeId, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onNewPrompt, onNewFolder, onCopyNodeContent
 }) => {
   const [expandedIds, setExpandedIds] = useState(new Set<string>());
   const [isStateLoaded, setIsStateLoaded] = useState(false);
@@ -136,6 +137,7 @@ const PromptList: React.FC<PromptListProps> = ({
               onRenameNode={onRenameNode}
               onMoveNode={onMoveNode}
               onToggleExpand={handleToggleExpand}
+              onCopyNodeContent={onCopyNodeContent}
             />
           ))}
           {items.length === 0 && (

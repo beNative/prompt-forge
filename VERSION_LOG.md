@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.1.6] - 2025-09-08
+
+### Added
+- **Quick Copy**: Added a "Copy" icon button to each prompt in the sidebar list, allowing users to copy a prompt's content to the clipboard without opening it.
+
+### Changed
+- Updated documentation and version to prepare for a new release.
+
+---
+
+## [0.1.5] - 2025-09-07
+
+### Changed
+- **Standard Data Storage**: Changed data storage location from a portable 'data' folder next to the executable to the standard user data directory (e.g., AppData on Windows) to follow standard application installation behavior.
+
+---
+
 ## [0.1.4] - 2025-09-06
 
 ### Added

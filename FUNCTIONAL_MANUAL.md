@@ -57,7 +57,11 @@ For quick, keyboard-driven access to common actions, use the Command Palette.
 - **From the Command Palette**: Open the palette and select "Delete Current Item".
 - A confirmation dialog will appear before the item is permanently deleted. If you delete a folder, all its contents will also be deleted.
 
-### 4.5. Organizing with Drag & Drop
+### 4.5. Copying a Prompt's Content
+
+- **From the List**: Hover over any prompt in the sidebar list. A "Copy" icon will appear. Clicking it will instantly copy the entire content of that prompt to your clipboard.
+
+### 4.6. Organizing with Drag & Drop
 
 You can organize your prompts and folders by dragging and dropping them in the sidebar.
 

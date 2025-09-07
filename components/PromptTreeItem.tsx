@@ -1,9 +1,10 @@
 
 
+
 import React, { useState, useRef, useEffect } from 'react';
 import type { PromptOrFolder } from '../types';
 import IconButton from './IconButton';
-import { TrashIcon, ChevronDownIcon, ChevronRightIcon, FileIcon, FolderIcon, FolderOpenIcon } from './Icons';
+import { TrashIcon, ChevronDownIcon, ChevronRightIcon, FileIcon, FolderIcon, FolderOpenIcon, CopyIcon, CheckIcon } from './Icons';
 
 export type PromptNode = PromptOrFolder & { children: PromptNode[] };
 type DropPosition = 'before' | 'after' | 'inside' | null;
@@ -18,13 +19,15 @@ interface PromptTreeItemProps {
   onRenameNode: (id: string, newTitle: string) => void;
   onMoveNode: (draggedId: string, targetId: string | null, position: 'before' | 'after' | 'inside') => void;
   onToggleExpand: (id: string) => void;
+  onCopyNodeContent: (id: string) => void;
 }
 
 const PromptTreeItem: React.FC<PromptTreeItemProps> = ({ 
-  node, level, activeNodeId, expandedIds, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onToggleExpand 
+  node, level, activeNodeId, expandedIds, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onToggleExpand, onCopyNodeContent
 }) => {
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
+  const [isCopied, setIsCopied] = useState(false);
   const renameInputRef = useRef<HTMLInputElement>(null);
 
   const isExpanded = expandedIds.has(node.id);
@@ -34,6 +37,13 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDeleteNode(node.id);
+  };
+  
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onCopyNodeContent(node.id);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
   };
 
   const handleRenameStart = () => {
@@ -141,7 +151,12 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
                <span className="flex-shrink-0">{renderIcon()}</span>
               <span className="truncate flex-1 px-1">{node.title}</span>
             </div>
-            <div className={`transition-opacity pr-1 ${activeNodeId === node.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+            <div className={`transition-opacity pr-1 flex items-center ${activeNodeId === node.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+              {!isFolder && (
+                  <IconButton onClick={handleCopy} tooltip={isCopied ? 'Copied!' : 'Copy'} size="sm" variant="ghost">
+                      {isCopied ? <CheckIcon className="w-4 h-4 text-success" /> : <CopyIcon className="w-4 h-4" />}
+                  </IconButton>
+              )}
               <IconButton onClick={handleDelete} tooltip="Delete" size="sm" variant="destructive">
                 <TrashIcon className="w-4 h-4" />
               </IconButton>
@@ -163,6 +178,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
               onRenameNode={onRenameNode}
               onMoveNode={onMoveNode}
               onToggleExpand={onToggleExpand}
+              onCopyNodeContent={onCopyNodeContent}
             />
           ))}
         </ul>

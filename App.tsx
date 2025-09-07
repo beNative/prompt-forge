@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 // Hooks
 import { usePrompts } from './hooks/usePrompts';
@@ -182,6 +183,22 @@ const App: React.FC = () => {
     const handleRenameNode = (id: string, title: string) => {
         updateItem(id, { title });
     };
+    
+    const handleCopyNodeContent = useCallback(async (nodeId: string) => {
+        const item = items.find(p => p.id === nodeId);
+        if (item && item.type === 'prompt' && item.content) {
+            try {
+                await navigator.clipboard.writeText(item.content);
+                addLog('INFO', `Content of prompt "${item.title}" copied to clipboard.`);
+            } catch (err) {
+                addLog('ERROR', `Failed to copy to clipboard: ${err instanceof Error ? err.message : 'Unknown error'}`);
+            }
+        } else if (item?.type === 'folder') {
+            addLog('WARNING', 'Cannot copy content of a folder.');
+        } else {
+            addLog('WARNING', 'Cannot copy content of an empty prompt.');
+        }
+    }, [items, addLog]);
 
     const handleModelChange = (modelId: string) => {
         saveSettings({ ...settings, llmModelName: modelId });
@@ -370,6 +387,7 @@ const App: React.FC = () => {
                                     onMoveNode={moveItem}
                                     onNewPrompt={handleNewPrompt}
                                     onNewFolder={handleNewFolder}
+                                    onCopyNodeContent={handleCopyNodeContent}
                                 />
                             </aside>
                             <div 

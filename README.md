@@ -5,6 +5,7 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 ## Key Features
 
 - **Prompt Management**: Organize your prompts in a clean, intuitive, hierarchical folder structure.
+- **Quick Copy**: Instantly copy a prompt's content to your clipboard from the sidebar list.
 - **Drag & Drop Organization**: Intuitively reorder prompts and create nested folders with a smooth drag-and-drop interface.
 - **AI-Powered Refinement**: Connect to a local LLM provider to get AI-driven suggestions for improving your prompts.
 - **Automatic Service Discovery**: Automatically detects running local LLM services like Ollama and LM Studio, simplifying setup.
@@ -14,7 +15,6 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 - **Light/Dark Mode**: A beautiful, consistent experience in both light and dark themes, with a manual toggle and respect for system preferences.
 - **Undo/Redo History**: A full history system in the editor allows you to undo and redo changes to your prompt content.
 - **Command Palette**: A quick-access command palette (Ctrl+Shift+P) for power users to perform actions like creating, deleting, and navigating.
-- **Truly Portable**: In the desktop version, all data is stored alongside the executable, making it easy to run from a USB drive without leaving files behind.
 - **Built-in Documentation**: Access functional and technical manuals directly within the app.
 - **Live Logging**: Monitor application activity with a built-in, filterable logging panel.
 
