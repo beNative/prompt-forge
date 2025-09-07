@@ -1,3 +1,5 @@
+
+// FIX: Correcting the module import. This will work once `types.ts` is created.
 import type { Settings, LogLevel } from '../types';
 
 interface OllamaResponse {

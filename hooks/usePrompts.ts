@@ -1,4 +1,6 @@
+
 import { useState, useEffect, useCallback } from 'react';
+// FIX: Correcting module imports. These will work once `types.ts` and `storageService.ts` are created.
 import type { PromptOrFolder } from '../types';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { storageService } from '../services/storageService';

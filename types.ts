@@ -1,29 +1,29 @@
 
+import React from 'react';
 
-import type React from 'react';
-
-export type AppIcon = 'default' | 'sparkles' | 'command' | 'gear' | 'folder';
-
-export interface PromptOrFolder {
-  id: string;
-  type: 'prompt' | 'folder';
-  title: string;
-  content?: string;
-  createdAt: string;
-  updatedAt: string;
-  parentId: string | null;
+// For electron API
+export interface IElectronAPI {
+    readDoc: (filename: string) => Promise<{ success: boolean; content?: string; error?: string; }>;
+    saveLogToFile: (content: string) => Promise<{ success: boolean; error?: string; }>;
+    updaterSetAllowPrerelease: (allow: boolean) => void;
+    setAppIcon: (iconName: AppIcon) => void;
+    onUpdaterUpdateAvailable: (callback: (version: string) => void) => () => void;
+    onUpdaterUpdateDownloaded: (callback: (version: string) => void) => () => void;
+    onUpdaterError: (callback: (error: string) => void) => () => void;
+    onUpdaterChecking: (callback: () => void) => () => void;
+    updaterInstallUpdate: () => void;
+    getAppVersion: () => Promise<string>;
+    openExternalLink: (url: string) => void;
 }
 
-export interface Settings {
-  llmProviderUrl: string;
-  llmModelName: string;
-  llmProviderName: string;
-  apiType: 'ollama' | 'openai' | 'unknown';
-  iconSet: 'heroicons' | 'lucide' | 'feather' | 'tabler' | 'material';
-  autoSaveLogs: boolean;
-  allowPrerelease: boolean;
-  appIcon: AppIcon;
+declare global {
+    interface Window {
+        electronAPI?: IElectronAPI;
+        Prism: any;
+        marked: any;
+    }
 }
+
 
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR';
 
@@ -34,28 +34,66 @@ export interface LogMessage {
   message: string;
 }
 
-export type LLMStatus = 'checking' | 'connected' | 'error';
+export type ItemType = 'prompt' | 'folder';
 
-export interface Command {
+export interface BaseItem {
   id: string;
-  name: string;
-  keywords?: string;
-  action: () => void;
-  category: string;
-  // FIX: Use React.FC to correctly type the icon component, matching the actual icon components.
-  icon: React.FC<{ className?: string }>;
-  shortcut?: string[];
+  type: ItemType;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  parentId: string | null;
+}
+
+export interface Prompt extends BaseItem {
+  type: 'prompt';
+  content: string;
+}
+
+export interface Folder extends BaseItem {
+  type: 'folder';
+  content?: never;
+}
+
+export type PromptOrFolder = Prompt | Folder;
+
+
+export type ApiType = 'ollama' | 'openai' | 'unknown';
+export type IconSet = 'heroicons' | 'lucide';
+export type AppIcon = 'default' | 'sparkles' | 'command' | 'gear' | 'folder';
+
+export interface Settings {
+  llmProviderUrl: string;
+  llmProviderName: string;
+  llmModelName: string;
+  apiType: ApiType;
+  iconSet: IconSet;
+  autoSaveLogs: boolean;
+  allowPrerelease: boolean;
+  appIcon: AppIcon;
 }
 
 export interface DiscoveredLLMService {
-  id: string; // e.g., 'ollama-11434'
-  name: string; // e.g., 'Ollama (localhost:11434)'
-  modelsUrl: string; // Full URL to fetch models
-  generateUrl: string; // Full URL to generate content
-  apiType: 'ollama' | 'openai';
+    id: string;
+    name: string;
+    modelsUrl: string;
+    generateUrl: string;
+    apiType: 'ollama' | 'openai';
 }
 
 export interface DiscoveredLLMModel {
-  id: string; // The model name/id from the API
-  name: string; // A user-friendly name, often the same as id
+    id: string;
+    name: string;
+}
+
+export type LLMStatus = 'connected' | 'error' | 'checking';
+
+export type UpdateStatus = 'idle' | 'checking' | 'available' | 'downloaded' | 'error';
+
+export interface Command {
+    id: string;
+    title: string;
+    action: () => void;
+    section: string;
+    icon?: React.ReactNode;
 }

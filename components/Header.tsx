@@ -1,8 +1,11 @@
 
 
 
+
+
 import React from 'react';
 import IconButton from './IconButton';
+// FIX: Correcting the module import. This will work once `Icons.tsx` is created.
 import { GearIcon, PlusIcon, FileIcon, InfoIcon, FileCodeIcon, CommandIcon, FolderPlusIcon } from './Icons';
 import ThemeToggleButton from './ThemeToggleButton';
 

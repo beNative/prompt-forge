@@ -1,490 +1,275 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import ReactDOM from 'react-dom';
-// Hooks
+
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import Split from 'react-split';
 import { usePrompts } from './hooks/usePrompts';
 import { useSettings } from './hooks/useSettings';
-import { useLLMStatus } from './hooks/useLLMStatus';
 import { useLogger } from './hooks/useLogger';
-// Components
+import { useDebounce } from './hooks/useDebounce';
 import Header from './components/Header';
 import PromptList from './components/PromptList';
 import PromptEditor from './components/PromptEditor';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import SettingsView from './components/SettingsView';
+import InfoView from './components/InfoView';
+import AboutModal from './components/AboutModal';
 import StatusBar from './components/StatusBar';
 import LoggerPanel from './components/LoggerPanel';
 import CommandPalette from './components/CommandPalette';
-import InfoView from './components/InfoView';
 import UpdateNotification from './components/UpdateNotification';
-import AboutModal from './components/AboutModal';
-import { PlusIcon, FolderPlusIcon, TrashIcon, GearIcon, InfoIcon, FileCodeIcon } from './components/Icons';
-// Types
-import type { PromptOrFolder, Command, LogMessage, DiscoveredLLMModel, DiscoveredLLMService, Settings } from './types';
-// Context
 import { IconProvider } from './contexts/IconContext';
-// Services & Constants
 import { storageService } from './services/storageService';
-import { llmDiscoveryService } from './services/llmDiscoveryService';
 import { LOCAL_STORAGE_KEYS } from './constants';
+import { llmDiscoveryService } from './services/llmDiscoveryService';
+import type { DiscoveredLLMService, Command, UpdateStatus, PromptOrFolder } from './types';
+import { CommandIcon, FolderPlusIcon, GearIcon, InfoIcon, PlusIcon, TrashIcon } from './components/Icons';
 
-const DEFAULT_SIDEBAR_WIDTH = 288;
-const MIN_SIDEBAR_WIDTH = 200;
-const MAX_SIDEBAR_WIDTH = 500;
+type MainView = 'editor' | 'settings' | 'info';
 
-const DEFAULT_LOGGER_HEIGHT = 288;
-const MIN_LOGGER_HEIGHT = 100;
-const MAX_LOGGER_HEIGHT = 600;
-
+const isElectron = !!window.electronAPI;
 
 const App: React.FC = () => {
-    // State Hooks
+    const { items, addPrompt, addFolder, updateItem, deleteItem, moveItem } = usePrompts();
     const { settings, saveSettings, loaded: settingsLoaded } = useSettings();
-    const { items, addPrompt, addFolder, updateItem, deleteItem, moveItem, getDescendantIds } = usePrompts();
+    const { addLog } = useLogger();
+
     const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
-
-    // UI State
-    const [view, setView] = useState<'editor' | 'info' | 'settings'>('editor');
-    const [isLoggerVisible, setIsLoggerVisible] = useState(false);
-    const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+    const [mainView, setMainView] = useState<MainView>('editor');
     const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
-    const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
-    const [loggerPanelHeight, setLoggerPanelHeight] = useState(DEFAULT_LOGGER_HEIGHT);
-    const [availableModels, setAvailableModels] = useState<DiscoveredLLMModel[]>([]);
+    
+    // Sidebar & Logger Resizing
+    const [sidebarWidth, setSidebarWidth] = useState<number>(30);
+    const [loggerHeight, setLoggerHeight] = useState<number>(250);
+    const [isLoggerVisible, setIsLoggerVisible] = useState(false);
+    const debouncedSidebarWidth = useDebounce(sidebarWidth, 500);
+    const debouncedLoggerHeight = useDebounce(loggerHeight, 500);
+
+    // LLM Discovery
     const [discoveredServices, setDiscoveredServices] = useState<DiscoveredLLMService[]>([]);
-    const [isDetecting, setIsDetecting] = useState(false);
-    const [appVersion, setAppVersion] = useState('');
-    const [updateInfo, setUpdateInfo] = useState<{ ready: boolean; version: string | null }>({ ready: false, version: null });
-
-    const isSidebarResizing = useRef(false);
-    const isLoggerResizing = useRef(false);
-
-    const llmStatus = useLLMStatus(settings.llmProviderUrl);
-    const { logs, addLog } = useLogger();
-    const lastLogRef = useRef<LogMessage | null>(null);
-
-    // Derived State
-    const activeNode = useMemo(() => {
-        return items.find(p => p.id === activeNodeId) || null;
-    }, [items, activeNodeId]);
-
-    const activePrompt = useMemo(() => {
-        return activeNode?.type === 'prompt' ? activeNode : null;
-    }, [activeNode]);
-
-    // Get app version
+    const [isDetectingServices, setIsDetectingServices] = useState(false);
+    
+    // Command Palette
+    const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+    
+    // Updater state (Electron only)
+    const [appVersion, setAppVersion] = useState('0.0.0');
+    const [updateAvailable, setUpdateAvailable] = useState<string | null>(null);
+    
+    // Load persisted sizes
     useEffect(() => {
-        if (window.electronAPI?.getAppVersion) {
-            window.electronAPI.getAppVersion().then(setAppVersion);
-        }
+        storageService.load(LOCAL_STORAGE_KEYS.SIDEBAR_WIDTH, 30).then(setSidebarWidth);
+        storageService.load(LOCAL_STORAGE_KEYS.LOGGER_PANEL_HEIGHT, 250).then(setLoggerHeight);
     }, []);
 
-    // Listen for downloaded updates from the main process
+    // Save persisted sizes
     useEffect(() => {
-        if (window.electronAPI?.onUpdateDownloaded) {
-            const cleanup = window.electronAPI.onUpdateDownloaded((version) => {
-                addLog('INFO', `Update version ${version} is ready to be installed.`);
-                setUpdateInfo({ ready: true, version });
+        storageService.save(LOCAL_STORAGE_KEYS.SIDEBAR_WIDTH, debouncedSidebarWidth);
+    }, [debouncedSidebarWidth]);
+
+    useEffect(() => {
+        storageService.save(LOCAL_STORAGE_KEYS.LOGGER_PANEL_HEIGHT, debouncedLoggerHeight);
+    }, [debouncedLoggerHeight]);
+    
+    // App version and updater listeners
+    useEffect(() => {
+        if (isElectron) {
+            window.electronAPI?.getAppVersion().then(setAppVersion);
+            const removeUpdateListener = window.electronAPI?.onUpdaterUpdateDownloaded(version => {
+                setUpdateAvailable(version);
+                addLog('INFO', `Update version ${version} downloaded.`);
             });
-            return cleanup; // This will be called on component unmount to remove the listener
+            return () => removeUpdateListener?.();
         }
     }, [addLog]);
 
-
-    // Load panel sizes from storage on initial render
-    useEffect(() => {
-        storageService.load(LOCAL_STORAGE_KEYS.SIDEBAR_WIDTH, DEFAULT_SIDEBAR_WIDTH).then(width => {
-            if (typeof width === 'number') setSidebarWidth(width);
-        });
-        storageService.load(LOCAL_STORAGE_KEYS.LOGGER_PANEL_HEIGHT, DEFAULT_LOGGER_HEIGHT).then(height => {
-            if (typeof height === 'number') setLoggerPanelHeight(height);
-        });
-    }, []);
-
-    // Select the first item on load or when items change
-    useEffect(() => {
-        if (items.length > 0 && activeNodeId === null) {
-            setActiveNodeId(items[0].id);
-        } else if (items.length === 0) {
-            setActiveNodeId(null);
-        }
-    }, [items, activeNodeId]);
-
-    // Service Discovery logic
     const handleDetectServices = useCallback(async () => {
-        setIsDetecting(true);
+        setIsDetectingServices(true);
+        addLog('INFO', 'Starting detection of local LLM services...');
         try {
             const services = await llmDiscoveryService.discoverServices();
             setDiscoveredServices(services);
+            addLog('INFO', `Found ${services.length} LLM services.`);
         } catch (error) {
-            addLog('ERROR', `Failed to discover services: ${error instanceof Error ? error.message : String(error)}`);
-            setDiscoveredServices([]);
+            const msg = error instanceof Error ? error.message : 'Unknown error';
+            addLog('ERROR', `Failed to detect LLM services: ${msg}`);
         } finally {
-            setIsDetecting(false);
+            setIsDetectingServices(false);
         }
     }, [addLog]);
 
-    useEffect(() => {
-        handleDetectServices();
-    }, [handleDetectServices]);
-
-
-    // Fetch available models for the status bar dropdown
-    useEffect(() => {
-        const fetchModels = async () => {
-            if (settings.apiType !== 'unknown' && settings.llmProviderUrl) {
-                try {
-                    // Reconstruct a minimal service object to fetch models
-                    const service = {
-                        id: '', name: '', // Not needed for fetching
-                        apiType: settings.apiType,
-                        modelsUrl: settings.apiType === 'ollama' 
-                            ? new URL('/api/tags', settings.llmProviderUrl).href 
-                            : new URL('/v1/models', settings.llmProviderUrl).href,
-                        generateUrl: settings.llmProviderUrl
-                    };
-                    const models = await llmDiscoveryService.fetchModels(service);
-                    setAvailableModels(models);
-                } catch (error) {
-                    addLog('ERROR', `Failed to fetch models for status bar: ${error instanceof Error ? error.message : String(error)}`);
-                    setAvailableModels([]);
-                }
-            } else {
-                setAvailableModels([]);
-            }
-        };
-        if (settingsLoaded) {
-            fetchModels();
-        }
-    }, [settings.llmProviderUrl, settings.apiType, settingsLoaded, addLog]);
-
-    // Effect for auto-saving logs
-    useEffect(() => {
-        if (settings.autoSaveLogs && logs.length > 0) {
-            const latestLog = logs[logs.length - 1];
-            // Only save if it's a new log entry
-            if (latestLog !== lastLogRef.current) {
-                lastLogRef.current = latestLog;
-                const logContent = `[${latestLog.timestamp}] [${latestLog.level}] ${latestLog.message}\n`;
-                storageService.appendLogToFile(logContent);
-            }
-        }
-    }, [logs, settings.autoSaveLogs]);
-
-
-    // Handlers
-    const getParentIdForNewItem = useCallback(() => {
-        if (!activeNode) return null;
-        return activeNode.type === 'folder' ? activeNode.id : activeNode.parentId;
-    }, [activeNode]);
-
-    const handleNewPrompt = useCallback(() => {
-        const parentId = getParentIdForNewItem();
-        const newPrompt = addPrompt(parentId);
-        setActiveNodeId(newPrompt.id);
-        setView('editor');
-    }, [addPrompt, getParentIdForNewItem]);
-    
-    const handleNewFolder = useCallback(() => {
-        const newFolder = addFolder(null); // Always create at root
-        setActiveNodeId(newFolder.id);
-        setView('editor');
-    }, [addFolder]);
-
     const handleSelectNode = (id: string) => {
         setActiveNodeId(id);
-        setView('editor');
-    };
-
-    const handleSavePrompt = (updatedPrompt: Partial<Omit<PromptOrFolder, 'id'>>) => {
-        if (activeNodeId) {
-            updateItem(activeNodeId, updatedPrompt);
+        if (mainView !== 'editor') {
+            setMainView('editor');
         }
     };
+
+    const handleNewPrompt = useCallback(() => {
+        const activeItem = items.find(i => i.id === activeNodeId);
+        let parentId: string | null = null;
+        if (activeItem) {
+            parentId = activeItem.type === 'folder' ? activeItem.id : activeItem.parentId;
+        }
+        const newPrompt = addPrompt(parentId);
+        setActiveNodeId(newPrompt.id);
+        setMainView('editor');
+    }, [addPrompt, activeNodeId, items]);
     
-    const handleRenameNode = (id: string, title: string) => {
-        updateItem(id, { title });
-    };
+    const handleNewFolder = useCallback(() => {
+        const activeItem = items.find(i => i.id === activeNodeId);
+        let parentId: string | null = null;
+        if (activeItem) {
+            parentId = activeItem.type === 'folder' ? activeItem.id : activeItem.parentId;
+        }
+        addFolder(parentId);
+    }, [addFolder, activeNodeId, items]);
     
-    const handleCopyNodeContent = useCallback(async (nodeId: string) => {
-        const item = items.find(p => p.id === nodeId);
-        if (item && item.type === 'prompt' && item.content) {
-            try {
-                await navigator.clipboard.writeText(item.content);
-                addLog('INFO', `Content of prompt "${item.title}" copied to clipboard.`);
-            } catch (err) {
-                addLog('ERROR', `Failed to copy to clipboard: ${err instanceof Error ? err.message : 'Unknown error'}`);
-            }
-        } else if (item?.type === 'folder') {
-            addLog('WARNING', 'Cannot copy content of a folder.');
-        } else {
-            addLog('WARNING', 'Cannot copy content of an empty prompt.');
-        }
-    }, [items, addLog]);
-
-    const handleModelChange = (modelId: string) => {
-        saveSettings({ ...settings, llmModelName: modelId });
-    };
-    
-    const handleProviderChange = useCallback(async (serviceId: string) => {
-        const selectedService = discoveredServices.find(s => s.id === serviceId);
-        if (!selectedService) return;
-
-        try {
-            const models = await llmDiscoveryService.fetchModels(selectedService);
-            const newModelName = models.length > 0 ? models[0].id : '';
-            
-            saveSettings({
-                ...settings,
-                llmProviderUrl: selectedService.generateUrl,
-                llmProviderName: selectedService.name,
-                apiType: selectedService.apiType,
-                llmModelName: newModelName,
-            });
-            addLog('INFO', `Switched LLM provider to ${selectedService.name}.`);
-        } catch (e) {
-            const message = e instanceof Error ? e.message : String(e);
-            addLog('ERROR', `Failed to switch provider: ${message}`);
-        }
-    }, [discoveredServices, settings, saveSettings, addLog]);
-
-    const handleDeleteNode = useCallback((id: string) => {
-        const itemToDelete = items.find(p => p.id === id);
-        if (!itemToDelete) return;
-
-        if (itemToDelete.type === 'folder') {
-            const descendantCount = getDescendantIds(id).size;
-            const message = descendantCount > 0 
-                ? `Are you sure you want to delete the folder "${itemToDelete.title}" and its ${descendantCount} contents?`
-                : `Are you sure you want to delete the empty folder "${itemToDelete.title}"?`;
-            
-            if (!window.confirm(message)) {
-                return;
-            }
-        }
-
-        let nextNodeToSelect: PromptOrFolder | null = null;
-        const currentItemIndex = items.findIndex(p => p.id === id);
-
-        if (currentItemIndex !== -1) {
-            const siblings = items.filter(p => p.parentId === itemToDelete.parentId && p.id !== itemToDelete.id);
-            if (siblings.length > 0) {
-                const siblingIndex = siblings.findIndex(s => items.indexOf(s) > currentItemIndex);
-                nextNodeToSelect = siblings[siblingIndex] || siblings[siblings.length - 1];
-            } else if (itemToDelete.parentId) {
-                nextNodeToSelect = items.find(p => p.id === itemToDelete.parentId) || null;
-            }
-        }
-        
-        const newItems = deleteItem(id);
-
+    const handleDeleteNode = (id: string) => {
+        deleteItem(id);
         if (activeNodeId === id) {
-             if (nextNodeToSelect) {
-                 setActiveNodeId(nextNodeToSelect.id);
-             } else {
-                 setActiveNodeId(newItems.length > 0 ? newItems[0].id : null);
-             }
+            setActiveNodeId(null);
         }
-    }, [items, deleteItem, activeNodeId, getDescendantIds]);
-
-    const toggleSettingsView = () => {
-        setView(v => v === 'settings' ? 'editor' : 'settings')
-    }
-
-    // --- Resizable Panels Logic ---
-    const handleSidebarMouseDown = useCallback((e: React.MouseEvent) => {
-        e.preventDefault();
-        isSidebarResizing.current = true;
-        document.body.style.cursor = 'col-resize';
-        document.body.style.userSelect = 'none';
-    }, []);
-
-    const handleLoggerMouseDown = useCallback((e: React.MouseEvent) => {
-        e.preventDefault();
-        isLoggerResizing.current = true;
-        document.body.style.cursor = 'row-resize';
-        document.body.style.userSelect = 'none';
-    }, []);
-    
-    const handleGlobalMouseMove = useCallback((e: MouseEvent) => {
-        if (isSidebarResizing.current) {
-          const newWidth = e.clientX;
-          if (newWidth >= MIN_SIDEBAR_WIDTH && newWidth <= MAX_SIDEBAR_WIDTH) {
-            setSidebarWidth(newWidth);
-          }
-        }
-        if (isLoggerResizing.current) {
-          const newHeight = window.innerHeight - e.clientY;
-          if (newHeight >= MIN_LOGGER_HEIGHT && newHeight <= MAX_LOGGER_HEIGHT) {
-            setLoggerPanelHeight(newHeight);
-          }
-        }
-    }, []);
-
-    const handleGlobalMouseUp = useCallback(() => {
-        if (isSidebarResizing.current) {
-            isSidebarResizing.current = false;
-            storageService.save(LOCAL_STORAGE_KEYS.SIDEBAR_WIDTH, sidebarWidth);
-        }
-        if (isLoggerResizing.current) {
-            isLoggerResizing.current = false;
-            storageService.save(LOCAL_STORAGE_KEYS.LOGGER_PANEL_HEIGHT, loggerPanelHeight);
-        }
-        
-        if (document.body.style.cursor !== 'default') {
-            document.body.style.cursor = 'default';
-            document.body.style.userSelect = 'auto';
-        }
-    }, [sidebarWidth, loggerPanelHeight]);
-    
-    useEffect(() => {
-        window.addEventListener('mousemove', handleGlobalMouseMove);
-        window.addEventListener('mouseup', handleGlobalMouseUp);
-        return () => {
-            window.removeEventListener('mousemove', handleGlobalMouseMove);
-            window.removeEventListener('mouseup', handleGlobalMouseUp);
-        };
-    }, [handleGlobalMouseMove, handleGlobalMouseUp]);
-    // --- End Resizable Panels Logic ---
-
-
-    // Keyboard shortcuts
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-            const isCtrl = isMac ? e.metaKey : e.ctrlKey;
-
-            if (isCtrl && e.key === 'n') {
-                e.preventDefault();
-                handleNewPrompt();
-            }
-            if (isCtrl && e.shiftKey && e.key === 'P') {
-                e.preventDefault();
-                setIsCommandPaletteOpen(p => !p);
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [handleNewPrompt]);
-    
-    // Command Palette Commands
-    const commands: Command[] = useMemo(() => [
-        { id: 'new-prompt', name: 'Create New Prompt', action: handleNewPrompt, category: 'File', icon: PlusIcon, shortcut: ['Ctrl', 'N'], keywords: 'add create file' },
-        { id: 'new-folder', name: 'Create New Folder', action: handleNewFolder, category: 'File', icon: FolderPlusIcon, keywords: 'add create directory' },
-        { id: 'delete-item', name: 'Delete Current Item', action: () => activeNodeId && handleDeleteNode(activeNodeId), category: 'File', icon: TrashIcon, keywords: 'remove discard' },
-        { id: 'toggle-settings', name: 'Toggle Settings View', action: toggleSettingsView, category: 'View', icon: GearIcon, keywords: 'configure options' },
-        { id: 'toggle-info', name: 'Toggle Info View', action: () => setView(v => v === 'info' ? 'editor' : 'info'), category: 'View', icon: InfoIcon, keywords: 'help docs readme' },
-        { id: 'toggle-logs', name: 'Toggle Logs Panel', action: () => setIsLoggerVisible(v => !v), category: 'View', icon: FileCodeIcon, keywords: 'debug console' },
-        { id: 'about', name: 'About PromptForge', action: () => setIsAboutModalOpen(true), category: 'Help', icon: InfoIcon, keywords: 'version credits info' },
-    ], [activeNodeId, handleNewPrompt, handleNewFolder, handleDeleteNode, toggleSettingsView]);
-
-    // FIX: Ensure that only supported icon sets are passed to the IconProvider.
-    // The Settings type allows for future icon sets that are not yet implemented.
-    // This function provides a fallback to 'heroicons' for any unsupported value.
-    const getSupportedIconSet = (iconSet: Settings['iconSet']): 'heroicons' | 'lucide' => {
-        if (iconSet === 'lucide') {
-            return 'lucide';
-        }
-        return 'heroicons';
     };
+    
+    const handleSavePrompt = useCallback((prompt: PromptOrFolder) => {
+        updateItem(prompt.id, prompt);
+    }, [updateItem]);
+
+    const handleCopyNodeContent = (id: string) => {
+        const item = items.find(i => i.id === id);
+        if (item && item.type === 'prompt' && item.content) {
+            navigator.clipboard.writeText(item.content);
+            addLog('INFO', `Copied content of prompt "${item.title}"`);
+        }
+    };
+    
+    const activeItem = useMemo(() => items.find(p => p.id === activeNodeId), [items, activeNodeId]);
+
+    const toggleView = (view: MainView) => {
+        setMainView(prev => (prev === view ? 'editor' : view));
+        if (view !== 'editor') setActiveNodeId(null);
+    };
+
+    const commands: Command[] = useMemo(() => [
+        { id: 'new_prompt', title: 'New Prompt', action: handleNewPrompt, section: 'File', icon: <PlusIcon /> },
+        { id: 'new_folder', title: 'New Folder', action: handleNewFolder, section: 'File', icon: <FolderPlusIcon /> },
+        { id: 'delete_item', title: 'Delete Selected Item', action: () => activeNodeId && handleDeleteNode(activeNodeId), section: 'File', icon: <TrashIcon /> },
+        { id: 'toggle_settings', title: 'Toggle Settings', action: () => toggleView('settings'), section: 'View', icon: <GearIcon /> },
+        { id: 'toggle_info', title: 'Toggle Info', action: () => toggleView('info'), section: 'View', icon: <InfoIcon /> },
+    ], [handleNewPrompt, handleNewFolder, activeNodeId, handleDeleteNode]);
+
 
     if (!settingsLoaded) {
-        return <div className="w-screen h-screen flex items-center justify-center bg-background"><p className="text-text-main">Loading application...</p></div>;
+        return <div className="w-screen h-screen bg-background" />; // Or a proper loading screen
     }
 
+    const renderMainView = () => {
+        switch (mainView) {
+            case 'settings':
+                return <SettingsView 
+                            settings={settings} 
+                            onSave={saveSettings}
+                            discoveredServices={discoveredServices}
+                            onDetectServices={handleDetectServices}
+                            isDetecting={isDetectingServices}
+                        />;
+            case 'info':
+                return <InfoView onOpenAboutModal={() => setIsAboutModalOpen(true)} />;
+            case 'editor':
+            default:
+                if (activeItem) {
+                    return <PromptEditor key={activeItem.id} prompt={activeItem} onSave={handleSavePrompt} onDelete={handleDeleteNode} settings={settings} />;
+                }
+                return <WelcomeScreen onNewPrompt={handleNewPrompt} />;
+        }
+    };
+    
     return (
-        <IconProvider value={{ iconSet: getSupportedIconSet(settings.iconSet) }}>
-            <div className="flex flex-col h-screen font-sans bg-background text-text-main antialiased">
+        <IconProvider value={{ iconSet: settings.iconSet }}>
+            <div className="flex flex-col h-screen bg-background text-text-main font-sans antialiased">
                 <Header 
-                    onToggleSettingsView={toggleSettingsView}
-                    isSettingsViewActive={view === 'settings'}
-                    onToggleInfoView={() => setView(v => v === 'info' ? 'editor' : 'info')}
-                    isInfoViewActive={view === 'info'}
+                    onToggleSettingsView={() => toggleView('settings')}
+                    onToggleInfoView={() => toggleView('info')}
                     onToggleLogger={() => setIsLoggerVisible(v => !v)}
                     onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+                    isInfoViewActive={mainView === 'info'}
+                    isSettingsViewActive={mainView === 'settings'}
                 />
+
                 <main className="flex-1 flex overflow-hidden">
-                    {view === 'editor' && (
-                        <>
-                             <aside 
-                                style={{ width: `${sidebarWidth}px` }} 
-                                className="bg-secondary border-r border-border-color flex flex-col flex-shrink-0"
-                            >
-                                <PromptList 
-                                    items={items}
-                                    activeNodeId={activeNodeId}
-                                    onSelectNode={handleSelectNode}
-                                    onDeleteNode={handleDeleteNode}
-                                    onRenameNode={handleRenameNode}
-                                    onMoveNode={moveItem}
-                                    onNewPrompt={handleNewPrompt}
-                                    onNewFolder={handleNewFolder}
-                                    onCopyNodeContent={handleCopyNodeContent}
-                                />
-                            </aside>
-                            <div 
-                                onMouseDown={handleSidebarMouseDown}
-                                className="w-1.5 cursor-col-resize flex-shrink-0 bg-border-color/50 hover:bg-primary transition-colors duration-200"
+                    <Split
+                        sizes={[sidebarWidth, 100 - sidebarWidth]}
+                        minSize={250}
+                        gutterSize={8}
+                        className="flex flex-1"
+                        onDrag={sizes => setSidebarWidth(sizes[0])}
+                    >
+                        <aside className="h-full bg-secondary border-r border-border-color">
+                            <PromptList
+                                items={items}
+                                activeNodeId={activeNodeId}
+                                onSelectNode={handleSelectNode}
+                                onDeleteNode={handleDeleteNode}
+                                onRenameNode={(id, title) => updateItem(id, { title })}
+                                onMoveNode={moveItem}
+                                onNewPrompt={handleNewPrompt}
+                                onNewFolder={handleNewFolder}
+                                onCopyNodeContent={handleCopyNodeContent}
                             />
-                        </>
-                    )}
-                    <section className="flex-1 flex flex-col overflow-y-auto">
-                        {view === 'editor' && (
-                            activeNode ? (
-                                activeNode.type === 'prompt' ? (
-                                    <PromptEditor 
-                                        key={activeNode.id}
-                                        prompt={activeNode}
-                                        onSave={(p) => handleSavePrompt(p)}
-                                        onDelete={handleDeleteNode}
-                                        settings={settings}
-                                    />
-                                ) : (
-                                    <WelcomeScreen onNewPrompt={handleNewPrompt} /> // Show welcome if a folder is selected
-                                )
-                            ) : (
-                                <WelcomeScreen onNewPrompt={handleNewPrompt} />
-                            )
-                        )}
-                        {view === 'info' && <InfoView onOpenAboutModal={() => setIsAboutModalOpen(true)} />}
-                        {view === 'settings' && <SettingsView settings={settings} onSave={saveSettings} discoveredServices={discoveredServices} onDetectServices={handleDetectServices} isDetecting={isDetecting} />}
-                    </section>
+                        </aside>
+                        <section className="flex-1 h-full overflow-y-auto">
+                            {renderMainView()}
+                        </section>
+                    </Split>
                 </main>
+                
                 <StatusBar 
-                    status={llmStatus}
+                    providerUrl={settings.llmProviderUrl} 
+                    providerName={settings.llmProviderName}
                     modelName={settings.llmModelName}
-                    llmProviderName={settings.llmProviderName}
-                    llmProviderUrl={settings.llmProviderUrl}
-                    promptCount={items.filter(i => i.type === 'prompt').length}
-                    lastSaved={activePrompt?.updatedAt}
-                    availableModels={availableModels}
-                    onModelChange={handleModelChange}
-                    discoveredServices={discoveredServices}
-                    onProviderChange={handleProviderChange}
                     appVersion={appVersion}
                 />
-            </div>
-            
-            <LoggerPanel 
-                isVisible={isLoggerVisible} 
-                onToggleVisibility={() => setIsLoggerVisible(v => !v)}
-                height={loggerPanelHeight}
-                onResizeStart={handleLoggerMouseDown}
-            />
-            <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} commands={commands} />
 
-            {updateInfo.ready && window.electronAPI?.quitAndInstallUpdate && (
-                <UpdateNotification
-                    version={updateInfo.version!}
-                    onInstall={() => window.electronAPI!.quitAndInstallUpdate!()}
-                    onClose={() => setUpdateInfo({ ready: false, version: null })}
+                {isLoggerVisible && (
+                     <LoggerPanel 
+                        isVisible={isLoggerVisible}
+                        onToggleVisibility={() => setIsLoggerVisible(false)}
+                        height={loggerHeight}
+                        onResizeStart={(e) => {
+                            const startHeight = loggerHeight;
+                            const startPosition = e.clientY;
+                            const handleMouseMove = (moveEvent: MouseEvent) => {
+                                const newHeight = startHeight - (moveEvent.clientY - startPosition);
+                                if (newHeight > 100 && newHeight < window.innerHeight - 200) {
+                                    setLoggerHeight(newHeight);
+                                }
+                            };
+                            const handleMouseUp = () => {
+                                window.removeEventListener('mousemove', handleMouseMove);
+                                window.removeEventListener('mouseup', handleMouseUp);
+                            };
+                            window.addEventListener('mousemove', handleMouseMove);
+                            window.addEventListener('mouseup', handleMouseUp);
+                        }}
+                    />
+                )}
+                
+                {isAboutModalOpen && <AboutModal onClose={() => setIsAboutModalOpen(false)} version={appVersion} />}
+                
+                <CommandPalette 
+                    isOpen={isCommandPaletteOpen}
+                    onClose={() => setIsCommandPaletteOpen(false)}
+                    commands={commands}
                 />
-            )}
-            <AboutModal 
-                isOpen={isAboutModalOpen} 
-                onClose={() => setIsAboutModalOpen(false)} 
-                version={appVersion}
-            />
+                
+                {updateAvailable && (
+                    <UpdateNotification 
+                        version={updateAvailable} 
+                        onInstall={() => window.electronAPI?.updaterInstallUpdate()} 
+                        onClose={() => setUpdateAvailable(null)}
+                    />
+                )}
+
+            </div>
         </IconProvider>
     );
 };

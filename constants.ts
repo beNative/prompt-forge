@@ -1,6 +1,8 @@
 
 
 
+
+// FIX: Correcting the module import. This will work once `types.ts` is created.
 import type { Settings } from './types';
 
 export const LOCAL_STORAGE_KEYS = {

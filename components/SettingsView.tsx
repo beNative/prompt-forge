@@ -1,6 +1,9 @@
 
 
+
+
 import React, { useState, useEffect } from 'react';
+// FIX: Correcting module imports. These will work once `types.ts`, `Icons.tsx`, and iconset files are created.
 import type { Settings, DiscoveredLLMService, DiscoveredLLMModel, AppIcon } from '../types';
 import { llmDiscoveryService } from '../services/llmDiscoveryService';
 import { SparklesIcon, FileIcon as DefaultAppIcon, CommandIcon, GearIcon, FolderIcon } from './Icons';

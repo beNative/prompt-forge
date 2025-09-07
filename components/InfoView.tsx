@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import Button from './Button';
 
@@ -32,6 +33,7 @@ const InfoView: React.FC<InfoViewProps> = ({ onOpenAboutModal }) => {
 
   useEffect(() => {
     const fetchDocs = async () => {
+      // FIX: This check is correct and relies on the preload script. The TS error will be fixed by declaring `electronAPI` on the `Window` interface in `types.ts`.
       const isElectron = !!window.electronAPI;
       try {
         const docPromises = (Object.keys(docFiles) as DocTab[]).map(async (tab) => {
@@ -39,6 +41,7 @@ const InfoView: React.FC<InfoViewProps> = ({ onOpenAboutModal }) => {
           let text = '';
 
           if (isElectron) {
+            // FIX: This call is correct and relies on the preload script.
             const result = await window.electronAPI!.readDoc(filename);
             if (result.success && result.content) {
               text = result.content;

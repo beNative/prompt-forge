@@ -1,4 +1,6 @@
+
 import { useState, useEffect } from 'react';
+// FIX: Correcting the module import. This will work once `types.ts` is created.
 import type { LLMStatus } from '../types';
 
 export const useLLMStatus = (providerUrl: string): LLMStatus => {

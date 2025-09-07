@@ -1,7 +1,10 @@
 
 
 
+
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+// FIX: Correcting module imports. These will work once `types.ts` and `Icons.tsx` are created.
 import type { PromptOrFolder, Settings } from '../types';
 import { llmService } from '../services/llmService';
 import { SparklesIcon, TrashIcon, UndoIcon, RedoIcon, CopyIcon, CheckIcon } from './Icons';

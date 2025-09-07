@@ -1,6 +1,9 @@
 
 
 
+
+
+// FIX: Correcting module imports. These will work once `types.ts` and `storageService.ts` are created.
 import { useState, useEffect, useCallback } from 'react';
 import type { Settings } from '../types';
 import { LOCAL_STORAGE_KEYS, DEFAULT_SETTINGS } from '../constants';
@@ -8,6 +11,7 @@ import { storageService } from '../services/storageService';
 import { useLogger } from './useLogger';
 import { llmDiscoveryService } from '../services/llmDiscoveryService';
 
+// FIX: This check is correct and relies on the preload script. The TS error will be fixed by declaring `electronAPI` on the `Window` interface in `types.ts`.
 const isElectron = !!window.electronAPI;
 
 export const useSettings = () => {
@@ -77,8 +81,10 @@ export const useSettings = () => {
 
   // Effect to notify main process of prerelease setting changes
   useEffect(() => {
+    // FIX: This check is correct and relies on the preload script.
     if (loaded && isElectron && window.electronAPI?.updaterSetAllowPrerelease) {
       addLog('DEBUG', `Notifying main process: allowPrerelease is ${settings.allowPrerelease}`);
+      // FIX: This check is correct and relies on the preload script.
       window.electronAPI.updaterSetAllowPrerelease(settings.allowPrerelease);
     }
   }, [settings.allowPrerelease, loaded, addLog]);
@@ -91,8 +97,10 @@ export const useSettings = () => {
     addLog('INFO', 'Application settings updated and saved.');
 
     // Notify main process if app icon has changed
+    // FIX: This check is correct and relies on the preload script.
     if (isElectron && window.electronAPI?.setAppIcon && oldSettings.appIcon !== newSettings.appIcon) {
         addLog('DEBUG', `Notifying main process: appIcon changed to ${newSettings.appIcon}`);
+        // FIX: This check is correct and relies on the preload script.
         window.electronAPI.setAppIcon(newSettings.appIcon);
     }
   }, [addLog, settings]);

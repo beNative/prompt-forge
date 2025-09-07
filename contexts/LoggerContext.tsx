@@ -1,4 +1,6 @@
+
 import React, { createContext, useState, useCallback, useMemo } from 'react';
+// FIX: Correcting the module import. This will work once `types.ts` is created.
 import type { LogMessage, LogLevel } from '../types';
 
 interface LoggerContextType {

@@ -1,5 +1,7 @@
 
+
 import React from 'react';
+// FIX: Correcting the module import. This will work once `Icons.tsx` is created.
 import { PlusIcon, FileIcon } from './Icons';
 import Button from './Button';
 
