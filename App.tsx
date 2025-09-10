@@ -312,19 +312,21 @@ const App: React.FC = () => {
     }, []);
     
     const handleGlobalMouseMove = useCallback((e: MouseEvent) => {
+        const zoomFactor = settings.uiScale / 100;
+
         if (isSidebarResizing.current) {
-          const newWidth = e.clientX;
+          const newWidth = e.clientX / zoomFactor;
           if (newWidth >= MIN_SIDEBAR_WIDTH && newWidth <= MAX_SIDEBAR_WIDTH) {
             setSidebarWidth(newWidth);
           }
         }
         if (isLoggerResizing.current) {
-          const newHeight = window.innerHeight - e.clientY;
+          const newHeight = (window.innerHeight - e.clientY) / zoomFactor;
           if (newHeight >= MIN_LOGGER_HEIGHT && newHeight <= MAX_LOGGER_HEIGHT) {
             setLoggerPanelHeight(newHeight);
           }
         }
-    }, []);
+    }, [settings.uiScale]);
 
     const handleGlobalMouseUp = useCallback(() => {
         if (isSidebarResizing.current) {
