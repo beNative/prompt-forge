@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.2.0] - 2025-09-12
+
+### Added
+- **Full Icon Set Implementation**: Implemented the Feather, Tabler, and Material icon sets, making all five icon options fully functional.
+
+### Changed
+- **Code Cleanup**: Performed a comprehensive cleanup of the entire codebase, removing commented-out code and unused elements to improve readability, clarity, and maintainability.
+- Updated all documentation to reflect the full availability of all icon sets.
+
+---
+
 ## [0.1.9] - 2025-09-11
 
 ### Added

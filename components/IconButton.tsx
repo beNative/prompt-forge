@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 
@@ -94,7 +95,6 @@ const Tooltip: React.FC<{
 const IconButton: React.FC<IconButtonProps> = ({ children, tooltip, className, variant = 'primary', size='md', tooltipPosition = 'top', ...props }) => {
     const [isHovered, setIsHovered] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null);
-    // FIX: Explicitly initialize useRef with `undefined` to satisfy the function's argument requirement.
     const timerRef = useRef<number | undefined>(undefined);
 
     const handleMouseEnter = useCallback(() => {

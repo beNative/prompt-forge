@@ -107,7 +107,7 @@ The application provides two ways to configure your LLM provider:
 
 Here you can customize the look and feel of the application.
 
-- **UI Icon Set**: Select your preferred icon set for the application's user interface from the available options (e.g., Heroicons, Lucide). Your selection is shown in a preview and applied after saving. Options for other popular icon sets like Feather, Tabler, and Material are shown as "Coming Soon" and will be available in a future update.
+- **UI Icon Set**: Select your preferred icon set for the application's user interface from the available options (e.g., Heroicons, Lucide, Feather, Tabler, Material). Your selection is shown in a preview and applied after saving.
 
 ### 6.3. Update Settings
 

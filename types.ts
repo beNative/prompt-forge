@@ -1,4 +1,5 @@
 
+
 import type React from 'react';
 
 export interface PromptOrFolder {
@@ -39,7 +40,6 @@ export interface Command {
   keywords?: string;
   action: () => void;
   category: string;
-  // FIX: Use React.FC to correctly type the icon component, matching the actual icon components.
   icon: React.FC<{ className?: string }>;
   shortcut?: string[];
 }

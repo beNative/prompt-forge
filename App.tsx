@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import ReactDOM from 'react-dom';
 // Hooks
@@ -63,7 +64,6 @@ const App: React.FC = () => {
     // Effect to apply UI scaling
     useEffect(() => {
         if (settingsLoaded) {
-            // FIX: Cast style to `any` to set the non-standard `zoom` property, resolving the TypeScript error.
             (document.documentElement.style as any).zoom = `${settings.uiScale / 100}`;
         }
     }, [settings.uiScale, settingsLoaded]);

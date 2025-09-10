@@ -14,7 +14,7 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 - **Pre-release Updates**: Opt-in to receive beta versions and test new features before the official release.
 - **Quick-Switch Status Bar**: Change your active LLM provider and model directly from the status bar for a faster workflow.
 - **Advanced Settings Management**: View, edit, import, and export your application settings directly as JSON.
-- **UI Customization**: Choose between multiple icon sets (Heroicons, Lucide) to personalize the application's appearance.
+- **UI Customization**: Choose between multiple icon sets (Heroicons, Lucide, Feather, Tabler, Material) to personalize the application's appearance.
 - **Light/Dark Mode**: A beautiful, consistent experience in both light and dark themes, with a manual toggle and respect for system preferences.
 - **Undo/Redo History**: A full history system in the editor allows you to undo and redo changes to your prompt content.
 - **Command Palette**: A quick-access command palette (Ctrl+Shift+P) for power users to perform actions like creating, deleting, and navigating.

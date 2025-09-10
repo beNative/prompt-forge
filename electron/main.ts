@@ -1,9 +1,9 @@
+
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs/promises';
 import { autoUpdater } from 'electron-updater';
 
-// FIX: Declare Node.js global to resolve TypeScript error for `__dirname`.
 declare const __dirname: string;
 
 let mainWindow: BrowserWindow | null = null;
@@ -110,7 +110,6 @@ app.whenReady().then(async () => {
       const data = await fs.readFile(filePath, 'utf-8');
       return { success: true, data };
     } catch (error) {
-      // FIX: Use a type assertion to check for the error code, as NodeJS namespace is unavailable.
       if ((error as { code: string }).code === 'ENOENT') {
           return { success: true, data: null };
       }
@@ -145,7 +144,6 @@ app.whenReady().then(async () => {
   // IPC Handler for reading markdown files
   ipcMain.handle('docs:read', async (_, filename: string) => {
     try {
-      // FIX: Use type assertion for Electron-specific `process.resourcesPath`.
       // In a packaged app, files from extraResources are in the resources directory.
       const filePath = isDev ? path.join(app.getAppPath(), filename) : path.join((process as any).resourcesPath, filename);
       const content = await fs.readFile(filePath, 'utf-8');
@@ -235,8 +233,7 @@ app.whenReady().then(async () => {
 });
 
 app.on('window-all-closed', () => {
-  // FIX: Use type assertion for `process.platform`.
-  if ((process as any).platform !== 'darwin') {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });
