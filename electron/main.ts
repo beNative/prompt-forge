@@ -195,6 +195,52 @@ app.whenReady().then(async () => {
     }
   });
 
+  ipcMain.handle('settings:export', async (_, content: string) => {
+    const window = BrowserWindow.getFocusedWindow();
+    if (!window) return { success: false, error: 'No focused window' };
+
+    const { canceled, filePath } = await dialog.showSaveDialog(window, {
+      title: 'Export Settings',
+      defaultPath: path.join(app.getPath('downloads'), 'promptforge_settings.json'),
+      filters: [{ name: 'JSON Files', extensions: ['json'] }, { name: 'All Files', extensions: ['*'] }]
+    });
+
+    if (canceled || !filePath) {
+      return { success: false, error: 'Export dialog was canceled.' };
+    }
+
+    try {
+      await fs.writeFile(filePath, content, 'utf-8');
+      return { success: true };
+    } catch (error) {
+       console.error(`Failed to export settings to ${filePath}:`, error);
+       return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle('settings:import', async () => {
+    const window = BrowserWindow.getFocusedWindow();
+    if (!window) return { success: false, error: 'No focused window' };
+
+    const { canceled, filePaths } = await dialog.showOpenDialog(window, {
+      title: 'Import Settings',
+      filters: [{ name: 'JSON Files', extensions: ['json'] }],
+      properties: ['openFile']
+    });
+
+    if (canceled || filePaths.length === 0) {
+      return { success: false, error: 'Import dialog was canceled.' };
+    }
+
+    try {
+      const content = await fs.readFile(filePaths[0], 'utf-8');
+      return { success: true, content };
+    } catch (error) {
+      console.error(`Failed to import settings from ${filePaths[0]}:`, error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
 
   createWindow(initialSettings);
 

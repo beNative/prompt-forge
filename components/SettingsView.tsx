@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect } from 'react';
 import type { Settings, DiscoveredLLMService, DiscoveredLLMModel, AppIcon } from '../types';
 import { llmDiscoveryService } from '../services/llmDiscoveryService';
@@ -9,6 +6,8 @@ import * as HeroIcons from './iconsets/Heroicons';
 import * as LucideIcons from './iconsets/Lucide';
 import Spinner from './Spinner';
 import Button from './Button';
+import JsonEditor from './JsonEditor';
+import { storageService } from '../services/storageService';
 
 interface SettingsViewProps {
   settings: Settings;
@@ -24,10 +23,59 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
   const [availableModels, setAvailableModels] = useState<DiscoveredLLMModel[]>([]);
   const [isFetchingModels, setIsFetchingModels] = useState(false);
   const [detectionError, setDetectionError] = useState<string | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [jsonString, setJsonString] = useState(() => JSON.stringify(currentSettings, null, 2));
+  const [jsonError, setJsonError] = useState<string | null>(null);
+
 
   useEffect(() => {
     setIsDirty(JSON.stringify(settings) !== JSON.stringify(currentSettings));
   }, [settings, currentSettings]);
+  
+  // Effect to sync jsonString when currentSettings changes from UI
+  useEffect(() => {
+    if(!showAdvanced) return; // Only update if visible to avoid overwriting user edits
+    setJsonString(JSON.stringify(currentSettings, null, 2));
+    setJsonError(null);
+  }, [currentSettings, showAdvanced]);
+
+  const handleJsonChange = (newJson: string) => {
+    setJsonString(newJson);
+    try {
+        const parsedSettings = JSON.parse(newJson);
+        // Basic validation: check if it's an object
+        if (typeof parsedSettings === 'object' && parsedSettings !== null && !Array.isArray(parsedSettings)) {
+            setCurrentSettings(parsedSettings);
+            setJsonError(null);
+        } else {
+            throw new Error('Settings must be a valid JSON object.');
+        }
+    } catch (e) {
+        setJsonError(e instanceof Error ? e.message : 'Invalid JSON format.');
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+        await storageService.exportSettings(JSON.stringify(currentSettings, null, 2));
+    } catch (e) {
+        console.error(e);
+        alert('Failed to export settings.');
+    }
+  };
+
+  const handleImport = async () => {
+    try {
+        const fileContent = await storageService.importSettings();
+        if (fileContent) {
+            // This will trigger validation and update state via handleJsonChange
+            handleJsonChange(fileContent);
+        }
+    } catch (e) {
+        console.error(e);
+        alert(`Failed to import settings: ${e instanceof Error ? e.message : 'Unknown error'}`);
+    }
+  };
 
   // Re-scan for services when the settings view is opened for fresh data.
   useEffect(() => {
@@ -151,7 +199,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
         <h1 className="text-2xl font-semibold text-text-main">Settings</h1>
         <Button
             onClick={handleSave}
-            disabled={!isDirty || !currentSettings.llmProviderUrl || !currentSettings.llmModelName}
+            disabled={!isDirty || !!jsonError || !currentSettings.llmProviderUrl || !currentSettings.llmModelName}
             variant="primary"
           >
             {isDirty ? 'Save Changes' : 'Saved'}
@@ -228,6 +276,31 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
                       <CardButton name="Folder" value="folder" isSelected={currentSettings.appIcon === 'folder'} onClick={handleAppIconChange} isAppIcon><FolderIcon className="w-8 h-8" /></CardButton>
                   </div>
               </div>
+          </section>
+
+          <section>
+            <SectionTitle>Advanced</SectionTitle>
+            <div className="p-6 bg-secondary rounded-lg border border-border-color space-y-4">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h4 className="font-medium text-text-main">JSON Editor</h4>
+                        <p className="text-sm text-text-secondary">Directly view and edit the settings file.</p>
+                    </div>
+                    <Button variant="secondary" onClick={() => setShowAdvanced(s => !s)}>
+                        {showAdvanced ? 'Hide Editor' : 'Show Editor'}
+                    </Button>
+                </div>
+                {showAdvanced && (
+                    <div className="pt-4 space-y-4">
+                        <JsonEditor value={jsonString} onChange={handleJsonChange} />
+                        {jsonError && <p className="text-sm text-destructive-text p-2 bg-destructive-bg/50 rounded-md">{jsonError}</p>}
+                        <div className="flex gap-4">
+                            <Button onClick={handleImport} variant="secondary">Import from File...</Button>
+                            <Button onClick={handleExport} variant="secondary">Export to File...</Button>
+                        </div>
+                    </div>
+                )}
+            </div>
           </section>
         </div>
 

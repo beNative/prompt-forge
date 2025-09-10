@@ -12,6 +12,8 @@ declare global {
       getAppVersion?: () => Promise<string>;
       onUpdateDownloaded?: (callback: (version: string) => void) => () => void;
       quitAndInstallUpdate?: () => void;
+      settingsExport: (content: string) => Promise<{ success: boolean; error?: string }>;
+      settingsImport: () => Promise<{ success: boolean; content?: string; error?: string }>;
     };
   }
 }
@@ -101,5 +103,71 @@ export const storageService = {
       }
     }
     // This feature is not supported in the web version, so we can silently ignore it or log a warning.
+  },
+
+  exportSettings: async (content: string): Promise<void> => {
+    if (isElectron) {
+      const result = await window.electronAPI!.settingsExport(content);
+      if (!result.success) {
+        console.error('Electron: Failed to export settings:', result.error);
+        alert(`Failed to export settings: ${result.error}`);
+      }
+    } else {
+      // Fallback for web: download the file
+      try {
+        const blob = new Blob([content], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'promptforge_settings.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Web: Failed to download settings file:', error);
+        alert('Failed to download settings file.');
+      }
+    }
+  },
+
+  importSettings: (): Promise<string | null> => {
+    return new Promise((resolve, reject) => {
+      if (isElectron) {
+        window.electronAPI!.settingsImport().then(result => {
+          if (result.success && result.content) {
+            resolve(result.content);
+          } else {
+            // Can be null on user cancellation, which is not an error.
+            if(result.error && result.error !== 'Import dialog was canceled.') {
+                console.error('Electron: Failed to import settings:', result.error);
+            }
+            resolve(null);
+          }
+        });
+      } else {
+        try {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = '.json,application/json';
+          input.onchange = (e: Event) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (readerEvent) => {
+                resolve(readerEvent.target?.result as string);
+              };
+              reader.onerror = (error) => reject(error);
+              reader.readAsText(file);
+            } else {
+              resolve(null); // No file selected
+            }
+          };
+          input.click();
+        } catch (error) {
+          reject(error);
+        }
+      }
+    });
   },
 };

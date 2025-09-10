@@ -15,4 +15,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('update:downloaded', handler);
   },
   quitAndInstallUpdate: () => ipcRenderer.send('updater:quit-and-install'),
+  settingsExport: (content: string) => ipcRenderer.invoke('settings:export', content),
+  settingsImport: () => ipcRenderer.invoke('settings:import'),
 });
