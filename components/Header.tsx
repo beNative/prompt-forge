@@ -1,9 +1,8 @@
 
 
-
 import React from 'react';
 import IconButton from './IconButton';
-import { GearIcon, PlusIcon, FileIcon, InfoIcon, FileCodeIcon, CommandIcon, FolderPlusIcon } from './Icons';
+import { GearIcon, InfoIcon, CommandIcon, TerminalIcon } from './Icons';
 import ThemeToggleButton from './ThemeToggleButton';
 
 interface HeaderProps {
@@ -19,7 +18,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleSettingsView, onToggleInfoView,
   return (
     <header className="flex items-center justify-between px-3 h-14 flex-shrink-0 bg-secondary border-b border-border-color z-30">
       <div className="flex items-center gap-3">
-        <FileIcon className="w-6 h-6 text-primary"/>
+        <TerminalIcon className="w-6 h-6 text-primary"/>
         <h1 className="text-lg font-semibold text-text-main tracking-wide">PromptForge</h1>
       </div>
       <div className="flex items-center gap-1">
@@ -30,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleSettingsView, onToggleInfoView,
           <InfoIcon />
         </IconButton>
         <IconButton onClick={onToggleLogger} tooltip="Logs" tooltipPosition="bottom">
-          <FileCodeIcon />
+          <TerminalIcon />
         </IconButton>
         <ThemeToggleButton />
         <IconButton onClick={onToggleSettingsView} tooltip="Settings" className={isSettingsViewActive ? 'bg-primary/10 text-primary' : ''} tooltipPosition="bottom">

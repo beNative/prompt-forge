@@ -1,11 +1,10 @@
 
+
 import React, { useState, useMemo, useEffect } from 'react';
 import type { PromptOrFolder } from '../types';
 import PromptTreeItem, { PromptNode } from './PromptTreeItem';
 import { storageService } from '../services/storageService';
 import { LOCAL_STORAGE_KEYS } from '../constants';
-import IconButton from './IconButton';
-import { FolderPlusIcon, PlusIcon, SearchIcon } from './Icons';
 
 interface PromptListProps {
   items: PromptOrFolder[];
@@ -14,17 +13,15 @@ interface PromptListProps {
   onDeleteNode: (id: string) => void;
   onRenameNode: (id: string, newTitle: string) => void;
   onMoveNode: (draggedId: string, targetId: string | null, position: 'before' | 'after' | 'inside') => void;
-  onNewPrompt: () => void;
-  onNewFolder: () => void;
   onCopyNodeContent: (id: string) => void;
+  searchTerm: string;
 }
 
 const PromptList: React.FC<PromptListProps> = ({ 
-  items, activeNodeId, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onNewPrompt, onNewFolder, onCopyNodeContent
+  items, activeNodeId, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onCopyNodeContent, searchTerm
 }) => {
   const [expandedIds, setExpandedIds] = useState(new Set<string>());
   const [isStateLoaded, setIsStateLoaded] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
 
   // Load expanded IDs from storage on mount
   useEffect(() => {
@@ -167,66 +164,40 @@ const PromptList: React.FC<PromptListProps> = ({
       e.dataTransfer.dropEffect = 'move';
   };
 
-
   return (
-    <div className="h-full flex flex-col">
-      <header className="flex items-center justify-between p-2 flex-shrink-0">
-        <h2 className="text-sm font-semibold text-text-secondary px-2 tracking-wider uppercase">Prompts</h2>
-        <div className="flex items-center gap-1">
-          <IconButton onClick={onNewFolder} tooltip="New Root Folder" size="sm" tooltipPosition="bottom">
-            <FolderPlusIcon />
-          </IconButton>
-          <IconButton onClick={onNewPrompt} tooltip="New Prompt (Ctrl+N)" size="sm" tooltipPosition="bottom">
-            <PlusIcon />
-          </IconButton>
-        </div>
-      </header>
-      <div className="px-2 pb-2 flex-shrink-0">
-        <div className="relative">
-            <SearchIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" />
-            <input
-                type="text"
-                placeholder="Search prompts..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-background border border-border-color rounded-md pl-9 pr-3 py-1.5 text-sm text-text-main focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-text-secondary"
-            />
-        </div>
-      </div>
-      <div 
-          className="flex-1 px-2 relative overflow-y-auto"
-          onDrop={handleRootDrop}
-          onDragOver={handleRootDragOver}
-      >
+    <div 
+        className="relative"
+        onDrop={handleRootDrop}
+        onDragOver={handleRootDragOver}
+    >
         <ul className="space-y-0.5">
-          {filteredTree.map((node) => (
+        {filteredTree.map((node) => (
             <PromptTreeItem
-              key={node.id}
-              node={node}
-              level={0}
-              activeNodeId={activeNodeId}
-              expandedIds={displayExpandedIds}
-              onSelectNode={onSelectNode}
-              onDeleteNode={onDeleteNode}
-              onRenameNode={onRenameNode}
-              onMoveNode={onMoveNode}
-              onToggleExpand={handleToggleExpand}
-              onCopyNodeContent={onCopyNodeContent}
-              searchTerm={searchTerm}
+            key={node.id}
+            node={node}
+            level={0}
+            activeNodeId={activeNodeId}
+            expandedIds={displayExpandedIds}
+            onSelectNode={onSelectNode}
+            onDeleteNode={onDeleteNode}
+            onRenameNode={onRenameNode}
+            onMoveNode={onMoveNode}
+            onToggleExpand={handleToggleExpand}
+            onCopyNodeContent={onCopyNodeContent}
+            searchTerm={searchTerm}
             />
-          ))}
-          {items.length === 0 && (
-              <li className="text-center text-text-secondary p-4 text-sm">
-                  No prompts or folders yet.
-              </li>
-          )}
-          {items.length > 0 && filteredTree.length === 0 && (
-              <li className="text-center text-text-secondary p-4 text-sm">
-                  No results found for "{searchTerm}".
-              </li>
-          )}
+        ))}
+        {items.length === 0 && (
+            <li className="text-center text-text-secondary p-4 text-sm">
+                No prompts or folders yet.
+            </li>
+        )}
+        {items.length > 0 && filteredTree.length === 0 && (
+            <li className="text-center text-text-secondary p-4 text-sm">
+                No results found for "{searchTerm}".
+            </li>
+        )}
         </ul>
-      </div>
     </div>
   );
 };

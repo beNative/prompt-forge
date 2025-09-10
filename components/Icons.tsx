@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useIconSet } from '../hooks/useIconSet';
 import * as HeroIcons from './iconsets/Heroicons';
@@ -76,14 +77,14 @@ export const InfoIcon: React.FC<IconProps> = (props) => {
     }
 };
 
-export const FileCodeIcon: React.FC<IconProps> = (props) => {
+export const TerminalIcon: React.FC<IconProps> = (props) => {
     const { iconSet } = useIconSet();
     switch (iconSet) {
-        case 'lucide': return <LucideIcons.FileCodeIcon {...props} />;
-        case 'feather': return <FeatherIcons.FileCodeIcon {...props} />;
-        case 'tabler': return <TablerIcons.FileCodeIcon {...props} />;
-        case 'material': return <MaterialIcons.FileCodeIcon {...props} />;
-        case 'heroicons': default: return <HeroIcons.FileCodeIcon {...props} />;
+        case 'lucide': return <LucideIcons.TerminalIcon {...props} />;
+        case 'feather': return <FeatherIcons.TerminalIcon {...props} />;
+        case 'tabler': return <TablerIcons.TerminalIcon {...props} />;
+        case 'material': return <MaterialIcons.TerminalIcon {...props} />;
+        case 'heroicons': default: return <HeroIcons.TerminalIcon {...props} />;
     }
 };
 
@@ -260,5 +261,16 @@ export const XIcon: React.FC<IconProps> = (props) => {
         case 'tabler': return <TablerIcons.XIcon {...props} />;
         case 'material': return <MaterialIcons.XIcon {...props} />;
         case 'heroicons': default: return <HeroIcons.XIcon {...props} />;
+    }
+};
+
+export const DocumentDuplicateIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    switch (iconSet) {
+        case 'lucide': return <LucideIcons.DocumentDuplicateIcon {...props} />;
+        case 'feather': return <FeatherIcons.DocumentDuplicateIcon {...props} />;
+        case 'tabler': return <TablerIcons.DocumentDuplicateIcon {...props} />;
+        case 'material': return <MaterialIcons.DocumentDuplicateIcon {...props} />;
+        case 'heroicons': default: return <HeroIcons.DocumentDuplicateIcon {...props} />;
     }
 };

@@ -1,15 +1,18 @@
 
+
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import ReactDOM from 'react-dom';
 // Hooks
 import { usePrompts } from './hooks/usePrompts';
+import { useTemplates } from './hooks/useTemplates';
 import { useSettings } from './hooks/useSettings';
 import { useLLMStatus } from './hooks/useLLMStatus';
 import { useLogger } from './hooks/useLogger';
 // Components
 import Header from './components/Header';
-import PromptList from './components/PromptList';
+import Sidebar from './components/Sidebar';
 import PromptEditor from './components/PromptEditor';
+import TemplateEditor from './components/TemplateEditor';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import SettingsView from './components/SettingsView';
 import StatusBar from './components/StatusBar';
@@ -17,9 +20,10 @@ import LoggerPanel from './components/LoggerPanel';
 import CommandPalette from './components/CommandPalette';
 import InfoView from './components/InfoView';
 import UpdateNotification from './components/UpdateNotification';
-import { PlusIcon, FolderPlusIcon, TrashIcon, GearIcon, InfoIcon, FileCodeIcon } from './components/Icons';
+import CreateFromTemplateModal from './components/CreateFromTemplateModal';
+import { PlusIcon, FolderPlusIcon, TrashIcon, GearIcon, InfoIcon, TerminalIcon, DocumentDuplicateIcon } from './components/Icons';
 // Types
-import type { PromptOrFolder, Command, LogMessage, DiscoveredLLMModel, DiscoveredLLMService, Settings } from './types';
+import type { PromptOrFolder, Command, LogMessage, DiscoveredLLMModel, DiscoveredLLMService, Settings, PromptTemplate } from './types';
 // Context
 import { IconProvider } from './contexts/IconContext';
 // Services & Constants
@@ -40,12 +44,17 @@ const App: React.FC = () => {
     // State Hooks
     const { settings, saveSettings, loaded: settingsLoaded } = useSettings();
     const { items, addPrompt, addFolder, updateItem, deleteItem, moveItem, getDescendantIds } = usePrompts();
+    const { templates, addTemplate, updateTemplate, deleteTemplate } = useTemplates();
+    
+    // Active Item State
     const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
+    const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
 
     // UI State
     const [view, setView] = useState<'editor' | 'info' | 'settings'>('editor');
     const [isLoggerVisible, setIsLoggerVisible] = useState(false);
     const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+    const [isCreateFromTemplateOpen, setCreateFromTemplateOpen] = useState(false);
     const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
     const [loggerPanelHeight, setLoggerPanelHeight] = useState(DEFAULT_LOGGER_HEIGHT);
     const [availableModels, setAvailableModels] = useState<DiscoveredLLMModel[]>([]);
@@ -72,6 +81,10 @@ const App: React.FC = () => {
     const activeNode = useMemo(() => {
         return items.find(p => p.id === activeNodeId) || null;
     }, [items, activeNodeId]);
+
+    const activeTemplate = useMemo(() => {
+        return templates.find(t => t.id === activeTemplateId) || null;
+    }, [templates, activeTemplateId]);
 
     const activePrompt = useMemo(() => {
         return activeNode?.type === 'prompt' ? activeNode : null;
@@ -108,12 +121,12 @@ const App: React.FC = () => {
 
     // Select the first item on load or when items change
     useEffect(() => {
-        if (items.length > 0 && activeNodeId === null) {
+        if (items.length > 0 && activeNodeId === null && activeTemplateId === null) {
             setActiveNodeId(items[0].id);
-        } else if (items.length === 0) {
+        } else if (items.length === 0 && activeNodeId) {
             setActiveNodeId(null);
         }
-    }, [items, activeNodeId]);
+    }, [items, activeNodeId, activeTemplateId]);
 
     // Service Discovery logic
     const handleDetectServices = useCallback(async () => {
@@ -187,17 +200,41 @@ const App: React.FC = () => {
         const parentId = getParentIdForNewItem();
         const newPrompt = addPrompt(parentId);
         setActiveNodeId(newPrompt.id);
+        setActiveTemplateId(null);
         setView('editor');
     }, [addPrompt, getParentIdForNewItem]);
     
     const handleNewFolder = useCallback(() => {
         const newFolder = addFolder(null); // Always create at root
         setActiveNodeId(newFolder.id);
+        setActiveTemplateId(null);
         setView('editor');
     }, [addFolder]);
 
+    const handleNewTemplate = useCallback(() => {
+        const newTemplate = addTemplate();
+        setActiveTemplateId(newTemplate.id);
+        setActiveNodeId(null);
+        setView('editor');
+    }, [addTemplate]);
+
+    const handleCreateFromTemplate = useCallback((title: string, content: string) => {
+        const newPrompt = addPrompt(null); // Create at root
+        updateItem(newPrompt.id, { title, content });
+        setActiveNodeId(newPrompt.id);
+        setActiveTemplateId(null);
+        setView('editor');
+    }, [addPrompt, updateItem]);
+
     const handleSelectNode = (id: string) => {
         setActiveNodeId(id);
+        setActiveTemplateId(null);
+        setView('editor');
+    };
+    
+    const handleSelectTemplate = (id: string) => {
+        setActiveTemplateId(id);
+        setActiveNodeId(null);
         setView('editor');
     };
 
@@ -207,8 +244,18 @@ const App: React.FC = () => {
         }
     };
     
+    const handleSaveTemplate = (updatedTemplate: Partial<Omit<PromptTemplate, 'id'>>) => {
+        if (activeTemplateId) {
+            updateTemplate(activeTemplateId, updatedTemplate);
+        }
+    };
+    
     const handleRenameNode = (id: string, title: string) => {
         updateItem(id, { title });
+    };
+
+    const handleRenameTemplate = (id: string, title: string) => {
+        updateTemplate(id, { title });
     };
     
     const handleCopyNodeContent = useCallback(async (nodeId: string) => {
@@ -291,6 +338,16 @@ const App: React.FC = () => {
              }
         }
     }, [items, deleteItem, activeNodeId, getDescendantIds]);
+
+    const handleDeleteTemplate = useCallback((id: string) => {
+        if (!window.confirm("Are you sure you want to delete this template?")) {
+            return;
+        }
+        const newTemplates = deleteTemplate(id);
+        if (activeTemplateId === id) {
+            setActiveTemplateId(newTemplates.length > 0 ? newTemplates[0].id : null);
+        }
+    }, [deleteTemplate, activeTemplateId]);
 
     const toggleSettingsView = () => {
         setView(v => v === 'settings' ? 'editor' : 'settings')
@@ -379,11 +436,16 @@ const App: React.FC = () => {
     const commands: Command[] = useMemo(() => [
         { id: 'new-prompt', name: 'Create New Prompt', action: handleNewPrompt, category: 'File', icon: PlusIcon, shortcut: ['Ctrl', 'N'], keywords: 'add create file' },
         { id: 'new-folder', name: 'Create New Folder', action: handleNewFolder, category: 'File', icon: FolderPlusIcon, keywords: 'add create directory' },
-        { id: 'delete-item', name: 'Delete Current Item', action: () => activeNodeId && handleDeleteNode(activeNodeId), category: 'File', icon: TrashIcon, keywords: 'remove discard' },
+        { id: 'new-template', name: 'Create New Template', action: handleNewTemplate, category: 'File', icon: DocumentDuplicateIcon, keywords: 'add create template' },
+        { id: 'new-from-template', name: 'New Prompt from Template...', action: () => setCreateFromTemplateOpen(true), category: 'File', icon: PlusIcon, keywords: 'add create file instance' },
+        { id: 'delete-item', name: 'Delete Current Item', action: () => {
+            if (activeTemplateId) handleDeleteTemplate(activeTemplateId);
+            else if (activeNodeId) handleDeleteNode(activeNodeId);
+        }, category: 'File', icon: TrashIcon, keywords: 'remove discard' },
         { id: 'toggle-settings', name: 'Toggle Settings View', action: toggleSettingsView, category: 'View', icon: GearIcon, keywords: 'configure options' },
         { id: 'toggle-info', name: 'Toggle Info View', action: () => setView(v => v === 'info' ? 'editor' : 'info'), category: 'View', icon: InfoIcon, keywords: 'help docs readme' },
-        { id: 'toggle-logs', name: 'Toggle Logs Panel', action: () => setIsLoggerVisible(v => !v), category: 'View', icon: FileCodeIcon, keywords: 'debug console' },
-    ], [activeNodeId, handleNewPrompt, handleNewFolder, handleDeleteNode, toggleSettingsView]);
+        { id: 'toggle-logs', name: 'Toggle Logs Panel', action: () => setIsLoggerVisible(v => !v), category: 'View', icon: TerminalIcon, keywords: 'debug console' },
+    ], [activeNodeId, activeTemplateId, handleNewPrompt, handleNewFolder, handleDeleteNode, handleDeleteTemplate, handleNewTemplate, toggleSettingsView]);
 
     const getSupportedIconSet = (iconSet: Settings['iconSet']): 'heroicons' | 'lucide' | 'feather' | 'tabler' | 'material' => {
         const supportedSets: Array<Settings['iconSet']> = ['heroicons', 'lucide', 'feather', 'tabler', 'material'];
@@ -396,6 +458,34 @@ const App: React.FC = () => {
     if (!settingsLoaded) {
         return <div className="w-screen h-screen flex items-center justify-center bg-background"><p className="text-text-main">Loading application...</p></div>;
     }
+
+    const renderMainContent = () => {
+        if (view === 'info') return <InfoView />;
+        if (view === 'settings') return <SettingsView settings={settings} onSave={saveSettings} discoveredServices={discoveredServices} onDetectServices={handleDetectServices} isDetecting={isDetecting} />;
+        
+        if (activeTemplate) {
+            return <TemplateEditor 
+                key={activeTemplate.id}
+                template={activeTemplate}
+                onSave={handleSaveTemplate}
+                onDelete={handleDeleteTemplate}
+            />
+        }
+        if (activeNode) {
+            return activeNode.type === 'prompt' ? (
+                <PromptEditor 
+                    key={activeNode.id}
+                    prompt={activeNode}
+                    onSave={handleSavePrompt}
+                    onDelete={handleDeleteNode}
+                    settings={settings}
+                />
+            ) : (
+                <WelcomeScreen onNewPrompt={handleNewPrompt} /> // Folder selected
+            );
+        }
+        return <WelcomeScreen onNewPrompt={handleNewPrompt} />; // Nothing selected
+    };
 
     return (
         <IconProvider value={{ iconSet: getSupportedIconSet(settings.iconSet) }}>
@@ -415,16 +505,24 @@ const App: React.FC = () => {
                                 style={{ width: `${sidebarWidth}px` }} 
                                 className="bg-secondary border-r border-border-color flex flex-col flex-shrink-0"
                             >
-                                <PromptList 
-                                    items={items}
-                                    activeNodeId={activeNodeId}
-                                    onSelectNode={handleSelectNode}
-                                    onDeleteNode={handleDeleteNode}
-                                    onRenameNode={handleRenameNode}
-                                    onMoveNode={moveItem}
+                                <Sidebar 
+                                    prompts={items}
+                                    activePromptId={activeNodeId}
+                                    onSelectPrompt={handleSelectNode}
+                                    onDeletePrompt={handleDeleteNode}
+                                    onRenamePrompt={handleRenameNode}
+                                    onMovePrompt={moveItem}
                                     onNewPrompt={handleNewPrompt}
                                     onNewFolder={handleNewFolder}
-                                    onCopyNodeContent={handleCopyNodeContent}
+                                    onCopyPromptContent={handleCopyNodeContent}
+
+                                    templates={templates}
+                                    activeTemplateId={activeTemplateId}
+                                    onSelectTemplate={handleSelectTemplate}
+                                    onDeleteTemplate={handleDeleteTemplate}
+                                    onRenameTemplate={handleRenameTemplate}
+                                    onNewTemplate={handleNewTemplate}
+                                    onNewFromTemplate={() => setCreateFromTemplateOpen(true)}
                                 />
                             </aside>
                             <div 
@@ -434,25 +532,7 @@ const App: React.FC = () => {
                         </>
                     )}
                     <section className="flex-1 flex flex-col overflow-y-auto">
-                        {view === 'editor' && (
-                            activeNode ? (
-                                activeNode.type === 'prompt' ? (
-                                    <PromptEditor 
-                                        key={activeNode.id}
-                                        prompt={activeNode}
-                                        onSave={(p) => handleSavePrompt(p)}
-                                        onDelete={handleDeleteNode}
-                                        settings={settings}
-                                    />
-                                ) : (
-                                    <WelcomeScreen onNewPrompt={handleNewPrompt} /> // Show welcome if a folder is selected
-                                )
-                            ) : (
-                                <WelcomeScreen onNewPrompt={handleNewPrompt} />
-                            )
-                        )}
-                        {view === 'info' && <InfoView />}
-                        {view === 'settings' && <SettingsView settings={settings} onSave={saveSettings} discoveredServices={discoveredServices} onDetectServices={handleDetectServices} isDetecting={isDetecting} />}
+                        {renderMainContent()}
                     </section>
                 </main>
                 <StatusBar 
@@ -477,6 +557,14 @@ const App: React.FC = () => {
                 onResizeStart={handleLoggerMouseDown}
             />
             <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} commands={commands} />
+
+            {isCreateFromTemplateOpen && (
+                <CreateFromTemplateModal
+                    templates={templates}
+                    onClose={() => setCreateFromTemplateOpen(false)}
+                    onCreate={handleCreateFromTemplate}
+                />
+            )}
 
             {updateInfo.ready && window.electronAPI?.quitAndInstallUpdate && (
                 <UpdateNotification

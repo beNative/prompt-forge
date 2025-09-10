@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import type { Settings, DiscoveredLLMService, DiscoveredLLMModel } from '../types';
 import { llmDiscoveryService } from '../services/llmDiscoveryService';
-import { SparklesIcon, FileCodeIcon, SunIcon, GearIcon } from './Icons';
+// FIX: Replaced non-existent 'FileCodeIcon' with 'FileIcon' as it is not exported from './Icons'.
+import { SparklesIcon, FileIcon, SunIcon, GearIcon } from './Icons';
 import * as HeroIcons from './iconsets/Heroicons';
 import * as LucideIcons from './iconsets/Lucide';
 import * as FeatherIcons from './iconsets/Feather';
@@ -29,7 +30,8 @@ const categories: { id: SettingsCategory; label: string; icon: React.FC<{classNa
   { id: 'provider', label: 'LLM Provider', icon: SparklesIcon },
   { id: 'appearance', label: 'Appearance', icon: SunIcon },
   { id: 'general', label: 'General', icon: GearIcon },
-  { id: 'advanced', label: 'Advanced', icon: FileCodeIcon },
+  // FIX: Replaced non-existent 'FileCodeIcon' with 'FileIcon'. 'FileIcon' is suitable as the advanced settings involve editing a settings file.
+  { id: 'advanced', label: 'Advanced', icon: FileIcon },
 ];
 
 const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discoveredServices, onDetectServices, isDetecting }) => {

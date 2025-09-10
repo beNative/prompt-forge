@@ -3,6 +3,7 @@ import type { Settings } from './types';
 
 export const LOCAL_STORAGE_KEYS = {
   PROMPTS: 'promptforge_prompts',
+  TEMPLATES: 'promptforge_templates',
   SETTINGS: 'promptforge_settings',
   SIDEBAR_WIDTH: 'promptforge_sidebar_width',
   LOGGER_PANEL_HEIGHT: 'promptforge_logger_panel_height',

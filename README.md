@@ -1,3 +1,4 @@
+
 # PromptForge
 
 Welcome to PromptForge, a powerful desktop application for creating, managing, and refining Large Language Model (LLM) prompts. Built for prompt engineers, developers, and AI enthusiasts, PromptForge provides the tools you need to perfect your prompts with the assistance of a local AI provider.
@@ -5,6 +6,7 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 ## Key Features
 
 - **Prompt Management**: Organize your prompts in a clean, intuitive, hierarchical folder structure.
+- **Prompt Templates**: Create reusable prompt templates with variables to streamline your workflow.
 - **Quick Copy**: Instantly copy a prompt's content to your clipboard from the sidebar list.
 - **Search & Highlight**: Instantly filter prompts and folders by title, with matching text highlighted for clarity.
 - **Drag & Drop Organization**: Intuitively reorder prompts and create nested folders with a smooth drag-and-drop interface.
