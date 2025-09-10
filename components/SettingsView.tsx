@@ -4,6 +4,9 @@ import { llmDiscoveryService } from '../services/llmDiscoveryService';
 import { SparklesIcon } from './Icons';
 import * as HeroIcons from './iconsets/Heroicons';
 import * as LucideIcons from './iconsets/Lucide';
+import * as FeatherIcons from './iconsets/Feather';
+import * as TablerIcons from './iconsets/Tabler';
+import * as MaterialIcons from './iconsets/Material';
 import Spinner from './Spinner';
 import Button from './Button';
 import JsonEditor from './JsonEditor';
@@ -144,7 +147,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
     setCurrentSettings(prev => ({ ...prev, llmModelName: modelId }));
   };
   
-  const handleIconSetChange = (iconSet: 'heroicons' | 'lucide') => {
+  const handleIconSetChange = (iconSet: Settings['iconSet']) => {
     setCurrentSettings(prev => ({ ...prev, iconSet }));
   };
   
@@ -329,14 +332,14 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
                       <CardButton name="Lucide" description="A modern, clean set." value="lucide" isSelected={currentSettings.iconSet === 'lucide'} onClick={handleIconSetChange}>
                           <LucideIcons.PlusIcon className="w-5 h-5" /> <LucideIcons.SparklesIcon className="w-5 h-5" /> <LucideIcons.FolderIcon className="w-5 h-5" />
                       </CardButton>
-                      <CardButton name="Feather" description="Simply beautiful icons." value="feather" isSelected={false} onClick={() => {}} isDisabled>
-                          <LucideIcons.FeatherIconPlaceholder className="w-5 h-5" />
+                      <CardButton name="Feather" description="Simply beautiful icons." value="feather" isSelected={currentSettings.iconSet === 'feather'} onClick={handleIconSetChange}>
+                          <FeatherIcons.PlusIcon className="w-5 h-5" /> <FeatherIcons.SparklesIcon className="w-5 h-5" /> <FeatherIcons.FolderIcon className="w-5 h-5" />
                       </CardButton>
-                      <CardButton name="Tabler" description="Pixel-perfect icons." value="tabler" isSelected={false} onClick={() => {}} isDisabled>
-                          <LucideIcons.TablerIconPlaceholder className="w-5 h-5" />
+                      <CardButton name="Tabler" description="Pixel-perfect icons." value="tabler" isSelected={currentSettings.iconSet === 'tabler'} onClick={handleIconSetChange}>
+                          <TablerIcons.PlusIcon className="w-5 h-5" /> <TablerIcons.SparklesIcon className="w-5 h-5" /> <TablerIcons.FolderIcon className="w-5 h-5" />
                       </CardButton>
-                      <CardButton name="Material" description="Google's design icons." value="material" isSelected={false} onClick={() => {}} isDisabled>
-                          <LucideIcons.MaterialIconPlaceholder className="w-5 h-5" />
+                      <CardButton name="Material" description="Google's design icons." value="material" isSelected={currentSettings.iconSet === 'material'} onClick={handleIconSetChange}>
+                           <MaterialIcons.PlusIcon className="w-5 h-5" /> <MaterialIcons.SparklesIcon className="w-5 h-5" /> <MaterialIcons.FolderIcon className="w-5 h-5" />
                       </CardButton>
                     </div>
                   </div>

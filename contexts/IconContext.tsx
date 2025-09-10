@@ -1,6 +1,6 @@
 import React, { createContext } from 'react';
 
-type IconSet = 'heroicons' | 'lucide';
+type IconSet = 'heroicons' | 'lucide' | 'feather' | 'tabler' | 'material';
 
 interface IconContextType {
   iconSet: IconSet;

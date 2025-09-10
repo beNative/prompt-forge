@@ -383,14 +383,12 @@ const App: React.FC = () => {
         { id: 'toggle-logs', name: 'Toggle Logs Panel', action: () => setIsLoggerVisible(v => !v), category: 'View', icon: FileCodeIcon, keywords: 'debug console' },
     ], [activeNodeId, handleNewPrompt, handleNewFolder, handleDeleteNode, toggleSettingsView]);
 
-    // FIX: Ensure that only supported icon sets are passed to the IconProvider.
-    // The Settings type allows for future icon sets that are not yet implemented.
-    // This function provides a fallback to 'heroicons' for any unsupported value.
-    const getSupportedIconSet = (iconSet: Settings['iconSet']): 'heroicons' | 'lucide' => {
-        if (iconSet === 'lucide') {
-            return 'lucide';
+    const getSupportedIconSet = (iconSet: Settings['iconSet']): 'heroicons' | 'lucide' | 'feather' | 'tabler' | 'material' => {
+        const supportedSets: Array<Settings['iconSet']> = ['heroicons', 'lucide', 'feather', 'tabler', 'material'];
+        if (supportedSets.includes(iconSet)) {
+            return iconSet;
         }
-        return 'heroicons';
+        return 'heroicons'; // Fallback to a default
     };
 
     if (!settingsLoaded) {
