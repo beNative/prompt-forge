@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [0.4.0] - 2024-07-26
+## [0.1.11] - 2024-07-26
 
 ### Added
 - **Sidebar Keyboard Navigation**: Implemented full keyboard navigation for the sidebar, allowing users to move between prompts, folders, and templates using arrow keys. This enhances accessibility and provides a power-user workflow.
