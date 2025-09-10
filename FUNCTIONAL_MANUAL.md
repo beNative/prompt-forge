@@ -82,7 +82,7 @@ You can organize your prompts and folders by dragging and dropping them in the s
 
 ## 5. Using Prompt Templates
 
-Templates are reusable blueprints for your prompts. They allow you to define a structure with variables, which you can then quickly fill in to generate new prompts.
+Templates are reusable blueprints for your prompts. They allow you to define a structure with variables, which you can then quickly fill in to generate new prompts. On first launch, the application comes pre-loaded with a set of useful example templates to help you get started.
 
 ### 5.1. Creating a New Template
 

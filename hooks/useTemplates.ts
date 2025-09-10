@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { PromptTemplate } from '../types';
-import { LOCAL_STORAGE_KEYS } from '../constants';
+import { LOCAL_STORAGE_KEYS, EXAMPLE_TEMPLATES } from '../constants';
 import { storageService } from '../services/storageService';
 import { useLogger } from './useLogger';
 
@@ -10,10 +10,26 @@ export const useTemplates = () => {
   const [templates, setTemplates] = useState<PromptTemplate[]>([]);
 
   useEffect(() => {
-    storageService.load<PromptTemplate[]>(LOCAL_STORAGE_KEYS.TEMPLATES, []).then(loadedTemplates => {
-      setTemplates(loadedTemplates);
-      addLog('DEBUG', `${loadedTemplates.length} templates loaded from storage.`);
-    });
+    const initializeTemplates = async () => {
+      const isInitialized = await storageService.load<boolean>(LOCAL_STORAGE_KEYS.TEMPLATES_INITIALIZED, false);
+      if (!isInitialized) {
+        addLog('INFO', 'First run detected. Loading initial set of example prompt templates.');
+        const initialTemplates: PromptTemplate[] = EXAMPLE_TEMPLATES.map(t => ({
+          ...t,
+          id: crypto.randomUUID(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }));
+        setTemplates(initialTemplates);
+        await storageService.save(LOCAL_STORAGE_KEYS.TEMPLATES, initialTemplates);
+        await storageService.save(LOCAL_STORAGE_KEYS.TEMPLATES_INITIALIZED, true);
+      } else {
+        const loadedTemplates = await storageService.load<PromptTemplate[]>(LOCAL_STORAGE_KEYS.TEMPLATES, []);
+        setTemplates(loadedTemplates);
+        addLog('DEBUG', `${loadedTemplates.length} templates loaded from storage.`);
+      }
+    };
+    initializeTemplates();
   }, [addLog]);
 
   const persistTemplates = useCallback(async (newTemplates: PromptTemplate[]) => {

@@ -1,6 +1,14 @@
+
 # PromptForge Version Log
 
 All notable changes to this project will be documented in this file.
+
+---
+
+## [0.2.0] - 2024-07-25
+
+### Added
+- **Example Templates**: The application now comes with a comprehensive set of predefined example templates on first launch to help users get started with the templating feature.
 
 ---
 
