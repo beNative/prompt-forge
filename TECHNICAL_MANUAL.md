@@ -46,6 +46,7 @@ The project follows a standard feature-oriented structure:
 ### 3.2. State Management & Hooks
 
 - **`usePrompts` Hook**: This central hook manages all prompt and folder data. It initializes state from storage and provides CRUD functions (`addPrompt`, `updateItem`, `deleteItem`). It also contains the `moveItem` function, which handles the complex logic of reordering items and changing their `parentId` to support drag-and-drop nesting.
+- **`useTemplates` Hook**: Similar to `usePrompts`, this hook manages all CRUD operations for prompt templates. It also includes logic to initialize a set of predefined example templates on the application's first run.
 - **`useSettings` Hook**: Manages application settings, loading them from storage and providing a `saveSettings` function to persist changes. It also contains logic to migrate settings from older versions of the application.
 - **`useHistoryState` Hook**: A specialized state hook that maintains a history of state changes for the editor's undo/redo feature.
 - **`LoggerContext`**: A global context providing logging functionality to any component.
@@ -69,7 +70,11 @@ The project follows a standard feature-oriented structure:
 
 ### 3.5. Key UI Components
 
-- **`PromptTreeItem.tsx`**: A recursive component that renders each item in the sidebar. It handles its own drag-and-drop events (`onDragStart`, `onDrop`, `onDragOver`) to determine the user's intent (move before, after, or inside another item) and calls the `onMoveNode` callback to update the global state.
+- **`Sidebar.tsx`**: A major component that acts as a container for both the `PromptList` and `TemplateList`. It manages the search functionality and, crucially, contains the logic for **keyboard navigation**. It maintains a flattened list of all visible items to handle focus management with arrow keys, `Enter` for selection, and folder expansion/collapse.
+- **`PromptTreeItem.tsx`**: A recursive component that renders each item in the sidebar. It handles its own drag-and-drop events (`onDragStart`, `onDrop`, `onDragOver`) to determine the user's intent (move before, after, or inside another item) and calls the `onMoveNode` callback to update the global state. It also accepts focus props from the parent `Sidebar` to display a visual focus indicator.
+- **`TemplateList.tsx` & `TemplateEditor.tsx`**: Components for displaying and editing prompt templates, mirroring the functionality of their prompt-related counterparts.
+- **`CreateFromTemplateModal.tsx`**: A modal component that dynamically generates a form based on the `{{variables}}` found in a selected template's content.
+- **`CommandPalette.tsx`**: A reusable component that provides a searchable list of actions. It has been recently polished with a new professional design, improved sizing, and smooth animations for a better user experience.
 - **`StatusBar.tsx`**: Displays connection status and other metadata. It now contains interactive `<select>` elements that allow the user to quickly change the active LLM provider and model without navigating to the full settings page.
 - **`SettingsView.tsx`**: A full-page settings component featuring a professional tabbed layout with a sidebar for navigation between categories (`Provider`, `Appearance`, `General`, `Advanced`). It uses new reusable components like `SettingRow.tsx` and `ToggleSwitch.tsx` to present options in a clear and consistent manner. It handles its own dirty state to enable/disable the save button. The "Advanced" section uses the `JsonEditor.tsx` component to allow direct modification of the settings file and provides buttons to trigger IPC calls for importing and exporting settings.
 - **`JsonEditor.tsx`**: A reusable component for viewing and editing text with syntax highlighting (specifically for JSON). It uses a `textarea` for input and an overlaid `<pre>` tag with Prism.js for the highlighting, ensuring a smooth editing experience.

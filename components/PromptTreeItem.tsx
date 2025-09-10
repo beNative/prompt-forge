@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import type { PromptOrFolder } from '../types';
 import IconButton from './IconButton';
@@ -31,6 +32,7 @@ interface PromptTreeItemProps {
   node: PromptNode;
   level: number;
   activeNodeId: string | null;
+  focusedItemId: string | null;
   expandedIds: Set<string>;
   onSelectNode: (id: string) => void;
   onDeleteNode: (id: string) => void;
@@ -42,7 +44,7 @@ interface PromptTreeItemProps {
 }
 
 const PromptTreeItem: React.FC<PromptTreeItemProps> = ({ 
-  node, level, activeNodeId, expandedIds, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onToggleExpand, onCopyNodeContent, searchTerm
+  node, level, activeNodeId, focusedItemId, expandedIds, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onToggleExpand, onCopyNodeContent, searchTerm
 }) => {
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
@@ -52,6 +54,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
   const isExpanded = expandedIds.has(node.id);
   const hasChildren = node.children.length > 0;
   const isFolder = node.type === 'folder';
+  const isFocused = focusedItemId === node.id;
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -135,6 +138,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
         onDragStart={handleDragStart}
         draggable={renamingId !== node.id}
         className="relative"
+        data-item-id={node.id}
     >
       <div style={{ paddingLeft: `${level * 1.25}rem` }} className="py-0.5 relative z-0">
         {renamingId === node.id ? (
@@ -155,11 +159,11 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
             onClick={() => onSelectNode(node.id)}
             onDoubleClick={handleRenameStart}
             title="" // Disable native tooltip for truncated text
-            className={`w-full text-left p-1.5 rounded-md group flex justify-between items-center transition-colors duration-150 text-sm ${
+            className={`w-full text-left p-1.5 rounded-md group flex justify-between items-center transition-colors duration-150 text-sm relative focus:outline-none ${
               activeNodeId === node.id
                 ? 'bg-background text-text-main'
                 : 'hover:bg-border-color/30 text-text-secondary hover:text-text-main'
-            }`}
+            } ${isFocused ? 'ring-2 ring-primary ring-offset-[-2px] ring-offset-secondary' : ''}`}
           >
             <div className="flex items-center gap-1 flex-1 truncate">
                <span onClick={(e) => { e.stopPropagation(); (hasChildren || isFolder) && onToggleExpand(node.id); }} className="p-1">
@@ -193,6 +197,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
               node={childNode}
               level={level + 1}
               activeNodeId={activeNodeId}
+              focusedItemId={focusedItemId}
               expandedIds={expandedIds}
               onSelectNode={onSelectNode}
               onDeleteNode={onDeleteNode}

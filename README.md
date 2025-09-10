@@ -1,4 +1,3 @@
-
 # PromptForge
 
 Welcome to PromptForge, a powerful desktop application for creating, managing, and refining Large Language Model (LLM) prompts. Built for prompt engineers, developers, and AI enthusiasts, PromptForge provides the tools you need to perfect your prompts with the assistance of a local AI provider.
@@ -21,6 +20,7 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 - **Light/Dark Mode**: A beautiful, consistent experience in both light and dark themes, with a manual toggle and respect for system preferences.
 - **Undo/Redo History**: A full history system in the editor allows you to undo and redo changes to your prompt content.
 - **Command Palette**: A quick-access command palette (Ctrl+Shift+P) for power users to perform actions like creating, deleting, and navigating.
+- **Full Keyboard Navigation**: Navigate the entire application, including the sidebar and command palette, using only your keyboard.
 - **Built-in Documentation**: Access functional and technical manuals directly within the app.
 - **Live Logging**: Monitor application activity with a built-in, filterable logging panel.
 

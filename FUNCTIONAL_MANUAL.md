@@ -1,4 +1,3 @@
-
 # PromptForge Functional Manual
 
 This manual provides a comprehensive guide to using the PromptForge application.
@@ -26,6 +25,18 @@ For quick, keyboard-driven access to common actions, use the Command Palette.
     - Use the `Up` and `Down` arrow keys to navigate the list.
     - Press `Enter` to execute the selected command.
     - Press `Esc` to close the palette.
+
+## 3.1. Keyboard Navigation
+
+PromptForge is designed to be used efficiently with a keyboard.
+
+- **Command Palette**: `Ctrl+Shift+P` opens the palette for quick access to all major actions.
+- **Sidebar**:
+    - Use the `Up` and `Down` arrow keys to move focus between all items (prompts, folders, and templates).
+    - Use `Enter` to select the focused item.
+    - For focused folders, use `Right` to expand and `Left` to collapse them.
+- **Editor**: Standard text editing shortcuts apply, including `Ctrl+Z` (Undo) and `Ctrl+Y` (Redo).
+- **Modals & Popups**: Press `Esc` to close any open modal dialog or the command palette.
 
 ## 4. Managing Prompts & Folders
 

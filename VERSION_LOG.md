@@ -1,7 +1,17 @@
-
 # PromptForge Version Log
 
 All notable changes to this project will be documented in this file.
+
+---
+
+## [0.4.0] - 2024-07-26
+
+### Added
+- **Sidebar Keyboard Navigation**: Implemented full keyboard navigation for the sidebar, allowing users to move between prompts, folders, and templates using arrow keys. This enhances accessibility and provides a power-user workflow.
+
+### Changed
+- **Command Palette Polish**: Overhauled the command palette with a more professional design, improved sizing, and smoother animations.
+- **Documentation**: Updated all documentation (`README.md`, manuals) to be fully current with all features implemented to date, including the templating system and keyboard navigation.
 
 ---
 

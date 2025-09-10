@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import ReactDOM from 'react-dom';
 // Hooks
@@ -49,6 +48,7 @@ const App: React.FC = () => {
     // Active Item State
     const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
     const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
+    const [expandedFolderIds, setExpandedFolderIds] = useState(new Set<string>());
 
     // UI State
     const [view, setView] = useState<'editor' | 'info' | 'settings'>('editor');
@@ -109,7 +109,7 @@ const App: React.FC = () => {
     }, [addLog]);
 
 
-    // Load panel sizes from storage on initial render
+    // Load panel sizes and expanded folders from storage on initial render
     useEffect(() => {
         storageService.load(LOCAL_STORAGE_KEYS.SIDEBAR_WIDTH, DEFAULT_SIDEBAR_WIDTH).then(width => {
             if (typeof width === 'number') setSidebarWidth(width);
@@ -117,7 +117,17 @@ const App: React.FC = () => {
         storageService.load(LOCAL_STORAGE_KEYS.LOGGER_PANEL_HEIGHT, DEFAULT_LOGGER_HEIGHT).then(height => {
             if (typeof height === 'number') setLoggerPanelHeight(height);
         });
+        storageService.load<string[]>(LOCAL_STORAGE_KEYS.EXPANDED_FOLDERS, []).then(ids => {
+            setExpandedFolderIds(new Set(ids));
+        });
     }, []);
+
+    // Save expanded IDs to storage whenever they change
+    useEffect(() => {
+        if (settingsLoaded) { // Assuming settingsLoaded indicates initial state is ready
+            storageService.save(LOCAL_STORAGE_KEYS.EXPANDED_FOLDERS, Array.from(expandedFolderIds));
+        }
+    }, [expandedFolderIds, settingsLoaded]);
 
     // Select the first item on load or when items change
     useEffect(() => {
@@ -349,6 +359,18 @@ const App: React.FC = () => {
         }
     }, [deleteTemplate, activeTemplateId]);
 
+    const handleToggleExpand = (id: string) => {
+        setExpandedFolderIds(prev => {
+          const newSet = new Set(prev);
+          if (newSet.has(id)) {
+            newSet.delete(id);
+          } else {
+            newSet.add(id);
+          }
+          return newSet;
+        });
+    };
+
     const toggleSettingsView = () => {
         setView(v => v === 'settings' ? 'editor' : 'settings')
     }
@@ -515,6 +537,8 @@ const App: React.FC = () => {
                                     onNewPrompt={handleNewPrompt}
                                     onNewFolder={handleNewFolder}
                                     onCopyPromptContent={handleCopyNodeContent}
+                                    expandedFolderIds={expandedFolderIds}
+                                    onToggleExpand={handleToggleExpand}
 
                                     templates={templates}
                                     activeTemplateId={activeTemplateId}
