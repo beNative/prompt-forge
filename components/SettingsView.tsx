@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect } from 'react';
 import type { Settings, DiscoveredLLMService, DiscoveredLLMModel, AppIcon } from '../types';
 import { llmDiscoveryService } from '../services/llmDiscoveryService';
@@ -234,24 +235,55 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
         <div className="lg:col-span-1 space-y-8">
            <section>
               <SectionTitle>Appearance</SectionTitle>
-              <div className="p-6 bg-secondary rounded-lg border border-border-color space-y-4">
-                  <Label>UI Icon Set</Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-                    <CardButton name="Heroicons" description="A classic, solid set." value="heroicons" isSelected={currentSettings.iconSet === 'heroicons'} onClick={handleIconSetChange}>
-                        <HeroIcons.PlusIcon className="w-5 h-5" /> <HeroIcons.SparklesIcon className="w-5 h-5" /> <HeroIcons.FolderIcon className="w-5 h-5" />
-                    </CardButton>
-                    <CardButton name="Lucide" description="A modern, clean set." value="lucide" isSelected={currentSettings.iconSet === 'lucide'} onClick={handleIconSetChange}>
-                        <LucideIcons.PlusIcon className="w-5 h-5" /> <LucideIcons.SparklesIcon className="w-5 h-5" /> <LucideIcons.FolderIcon className="w-5 h-5" />
-                    </CardButton>
-                    <CardButton name="Feather" description="Simply beautiful icons." value="feather" isSelected={false} onClick={() => {}} isDisabled>
-                        <LucideIcons.FeatherIconPlaceholder className="w-5 h-5" />
-                    </CardButton>
-                    <CardButton name="Tabler" description="Pixel-perfect icons." value="tabler" isSelected={false} onClick={() => {}} isDisabled>
-                        <LucideIcons.TablerIconPlaceholder className="w-5 h-5" />
-                    </CardButton>
-                    <CardButton name="Material" description="Google's design icons." value="material" isSelected={false} onClick={() => {}} isDisabled>
-                        <LucideIcons.MaterialIconPlaceholder className="w-5 h-5" />
-                    </CardButton>
+              <div className="p-6 bg-secondary rounded-lg border border-border-color">
+                  <div>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <label htmlFor="uiScale" className="font-medium text-text-main">Interface Zoom</label>
+                            <p className="text-sm text-text-secondary">Adjust the size of the entire interface.</p>
+                        </div>
+                        <span className="font-semibold text-text-main tabular-nums min-w-[50px] text-right">{currentSettings.uiScale}%</span>
+                    </div>
+                    <div className="mt-3">
+                        <input
+                            id="uiScale"
+                            type="range"
+                            min="50"
+                            max="400"
+                            step="10"
+                            value={currentSettings.uiScale}
+                            onChange={(e) => setCurrentSettings(prev => ({ ...prev, uiScale: Number(e.target.value) }))}
+                            className="w-full h-2 bg-border-color rounded-lg appearance-none cursor-pointer range-slider"
+                        />
+                         <div className="flex justify-between text-xs text-text-secondary mt-1">
+                            <span>50%</span>
+                            <button onClick={() => setCurrentSettings(prev => ({ ...prev, uiScale: 100 }))} className="text-xs text-text-secondary hover:text-primary">
+                              Reset
+                            </button>
+                            <span>400%</span>
+                        </div>
+                    </div>
+                  </div>
+                  <div className="h-px bg-border-color my-6"></div>
+                  <div>
+                    <Label>UI Icon Set</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 mt-2">
+                      <CardButton name="Heroicons" description="A classic, solid set." value="heroicons" isSelected={currentSettings.iconSet === 'heroicons'} onClick={handleIconSetChange}>
+                          <HeroIcons.PlusIcon className="w-5 h-5" /> <HeroIcons.SparklesIcon className="w-5 h-5" /> <HeroIcons.FolderIcon className="w-5 h-5" />
+                      </CardButton>
+                      <CardButton name="Lucide" description="A modern, clean set." value="lucide" isSelected={currentSettings.iconSet === 'lucide'} onClick={handleIconSetChange}>
+                          <LucideIcons.PlusIcon className="w-5 h-5" /> <LucideIcons.SparklesIcon className="w-5 h-5" /> <LucideIcons.FolderIcon className="w-5 h-5" />
+                      </CardButton>
+                      <CardButton name="Feather" description="Simply beautiful icons." value="feather" isSelected={false} onClick={() => {}} isDisabled>
+                          <LucideIcons.FeatherIconPlaceholder className="w-5 h-5" />
+                      </CardButton>
+                      <CardButton name="Tabler" description="Pixel-perfect icons." value="tabler" isSelected={false} onClick={() => {}} isDisabled>
+                          <LucideIcons.TablerIconPlaceholder className="w-5 h-5" />
+                      </CardButton>
+                      <CardButton name="Material" description="Google's design icons." value="material" isSelected={false} onClick={() => {}} isDisabled>
+                          <LucideIcons.MaterialIconPlaceholder className="w-5 h-5" />
+                      </CardButton>
+                    </div>
                   </div>
               </div>
           </section>

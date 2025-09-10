@@ -1,5 +1,6 @@
 
 
+
 import type React from 'react';
 
 export type AppIcon = 'default' | 'sparkles' | 'command' | 'gear' | 'folder';
@@ -23,6 +24,7 @@ export interface Settings {
   autoSaveLogs: boolean;
   allowPrerelease: boolean;
   appIcon: AppIcon;
+  uiScale: number;
 }
 
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR';

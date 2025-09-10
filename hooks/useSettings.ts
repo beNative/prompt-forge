@@ -1,6 +1,8 @@
 
 
 
+
+
 import { useState, useEffect, useCallback } from 'react';
 import type { Settings } from '../types';
 import { LOCAL_STORAGE_KEYS, DEFAULT_SETTINGS } from '../constants';
@@ -42,6 +44,10 @@ export const useSettings = () => {
         // Migration for appIcon
         if (loadedSettings.appIcon === undefined) {
           loadedSettings.appIcon = 'default';
+        }
+        // Migration for uiScale
+        if (loadedSettings.uiScale === undefined) {
+          loadedSettings.uiScale = 100;
         }
 
 

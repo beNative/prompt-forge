@@ -60,6 +60,14 @@ const App: React.FC = () => {
     const { logs, addLog } = useLogger();
     const lastLogRef = useRef<LogMessage | null>(null);
 
+    // Effect to apply UI scaling
+    useEffect(() => {
+        if (settingsLoaded) {
+            // FIX: Cast style to `any` to set the non-standard `zoom` property, resolving the TypeScript error.
+            (document.documentElement.style as any).zoom = `${settings.uiScale / 100}`;
+        }
+    }, [settings.uiScale, settingsLoaded]);
+
     // Derived State
     const activeNode = useMemo(() => {
         return items.find(p => p.id === activeNodeId) || null;

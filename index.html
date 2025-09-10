@@ -67,6 +67,21 @@
           pointer-events: none;
         }
 
+        /* Custom range slider thumb */
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 1rem; /* 16px */
+            height: 1rem; /* 16px */
+            background: rgb(var(--color-accent));
+            cursor: pointer;
+            border-radius: 9999px;
+            margin-top: -6px; /* center thumb on track (track is h-2 = 8px, thumb is 16px) */
+        }
+        .range-slider::-moz-range-thumb {
+            width: 1rem; height: 1rem; background: rgb(var(--color-accent)); cursor: pointer; border-radius: 9999px; border: none;
+        }
+
         /* Custom PrismJS theme for light/dark mode */
         pre[class*="language-"] { background: transparent; }
         :not(pre) > code[class*="language-"] { background: rgb(var(--color-secondary)); }
