@@ -322,7 +322,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
                   <div className="h-px bg-border-color my-6"></div>
                   <div>
                     <Label>UI Icon Set</Label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 mt-2">
+                    <div className="space-y-4 mt-2">
                       <CardButton name="Heroicons" description="A classic, solid set." value="heroicons" isSelected={currentSettings.iconSet === 'heroicons'} onClick={handleIconSetChange}>
                           <HeroIcons.PlusIcon className="w-5 h-5" /> <HeroIcons.SparklesIcon className="w-5 h-5" /> <HeroIcons.FolderIcon className="w-5 h-5" />
                       </CardButton>

@@ -399,7 +399,7 @@ const App: React.FC = () => {
 
     return (
         <IconProvider value={{ iconSet: getSupportedIconSet(settings.iconSet) }}>
-            <div className="flex flex-col h-screen font-sans bg-background text-text-main antialiased">
+            <div className="flex flex-col h-full font-sans bg-background text-text-main antialiased">
                 <Header 
                     onToggleSettingsView={toggleSettingsView}
                     isSettingsViewActive={view === 'settings'}
