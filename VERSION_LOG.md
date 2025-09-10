@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.3.0] - 2025-09-13
+
+### Changed
+- **Professional Settings UI**: Completely redesigned the settings page with a professional and organized tabbed interface, featuring a clear navigation sidebar and logically grouped categories.
+- **Bug Fix**: Resolved a UI scaling bug where draggable splitters (for the sidebar and logger panel) would become offset from the mouse cursor when the application zoom was not at 100%.
+
+---
+
 ## [0.2.0] - 2025-09-12
 
 ### Added

@@ -91,42 +91,42 @@ This is one of PromptForge's key features. You can ask your connected local LLM 
 
 - Click the **Gear (⚙️) icon** in the header to open the Settings view.
 - Or, open the **Command Palette** and select "Toggle Settings View".
-- The Settings view is a full-page interface divided into sections for **LLM Provider**, **Appearance**, **Updates**, and **Logging**.
+- The Settings view features a professional layout with a navigation sidebar on the left and the content for the selected category on the right.
 
-### 6.1. LLM Provider Configuration
+Settings are organized into four categories:
+- **LLM Provider**: Configure your connection to local AI services.
+- **Appearance**: Customize the look and feel of the application.
+- **General**: Manage application behavior like updates and logging.
+- **Advanced**: Directly edit, import, and export the application's configuration.
 
-The application provides two ways to configure your LLM provider:
+### 6.1. LLM Provider
 
-- **Quick-Switch (Status Bar)**: For fast changes, use the dropdown menus in the status bar at the bottom of the application to switch between detected providers and their available models.
-- **Full Configuration (Settings View)**:
-    1.  **Detect Service**: If your service isn't listed, ensure it's running and click the **"Re-Detect Services"** button.
-    2.  **Select a Service**: Choose one of the automatically detected services from the "Detected Service" dropdown.
-    3.  **Select a Model**: Once a service is selected, the application will fetch its available models. Choose the model you wish to use from the "Model Name" dropdown.
+This section allows you to configure your connection to a local LLM service.
+- **Detect Service**: If your service (like Ollama or LM Studio) is not listed, ensure it's running on your machine and click the **"Re-Detect Services"** button to scan again.
+- **Select a Service**: Choose one of the automatically detected services from the "Detected Service" dropdown. The application will fill in the connection details for you.
+- **Select a Model**: Once a service is selected, the application will fetch its available models. Choose the model you wish to use from the "Model Name" dropdown.
+- **Quick-Switch**: For even faster changes, you can also use the dropdown menus in the status bar at the bottom of the main application window.
 
-### 6.2. Appearance Settings
+### 6.2. Appearance
 
-Here you can customize the look and feel of the application.
-
+Here you can customize the visual style of the application.
+- **UI Scale**: Adjust the overall size of the interface elements. Use the slider to zoom in or out, and click "Reset" to return to the default 100% scale.
 - **UI Icon Set**: Select your preferred icon set for the application's user interface from the available options (e.g., Heroicons, Lucide, Feather, Tabler, Material). Your selection is shown in a preview and applied after saving.
 
-### 6.3. Update Settings
+### 6.3. General Settings
 
-- **Receive Pre-releases**: Toggle this option to be notified of new beta versions. This allows you to try out new features before they are officially released.
+This section contains general application behavior settings.
+- **Receive Pre-releases**: Toggle this option on to be notified of new beta versions. This allows you to try out new features before they are officially released.
+- **Auto-save Logs**: Toggle this option on to automatically append all log messages to a daily log file in the application's data directory. This is useful for debugging and is only available in the desktop version.
 
-### 6.4. Logging Settings
+### 6.4. Advanced Settings
 
-- **Auto-save Logs**: Toggle this option to automatically append all log messages to a daily log file in the application's `data` directory. This is useful for debugging and is only available in the desktop version.
-
-### 6.5. Advanced Settings (Import/Export)
-
-For power users, an advanced settings section provides direct access to the application's configuration file.
-
-- **Accessing the Editor**: In the "Advanced" section of the settings page, click the **"Show Editor"** button.
-- **Editing**: This will reveal a text editor with your current settings displayed in JSON format, complete with syntax highlighting. You can make direct changes here. The editor will show an error if the JSON is not valid, preventing you from saving until it is fixed.
+For power users, this section provides direct access to the application's configuration file.
+- **JSON Editor**: You can view and edit your current settings in a syntax-highlighted JSON editor. The editor will show an error if the JSON is not valid, preventing you from saving until it is fixed.
 - **Exporting**: Click the **"Export to File..."** button to save a copy of your current settings as a `.json` file. This is useful for backups or for sharing your configuration.
 - **Importing**: Click the **"Import from File..."** button to open a file dialog. Select a valid `promptforge_settings.json` file to load its configuration into the application. The imported settings will be displayed in the editor, and you must click "Save Changes" to apply them.
 
-### 6.6. Saving Changes
+### 6.5. Saving Changes
 
 Changes are not applied immediately. You must click the **"Save Changes"** button at the top-right of the screen to apply your new settings. The button will be disabled if there are no changes to save.
 

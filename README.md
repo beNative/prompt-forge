@@ -13,6 +13,7 @@ Welcome to PromptForge, a powerful desktop application for creating, managing, a
 - **Automatic Updates**: Stay up-to-date with the latest features and fixes. The app automatically checks for updates and notifies you when one is available.
 - **Pre-release Updates**: Opt-in to receive beta versions and test new features before the official release.
 - **Quick-Switch Status Bar**: Change your active LLM provider and model directly from the status bar for a faster workflow.
+- **Polished & Organized Settings**: A professional, tabbed interface for managing all application settings.
 - **Advanced Settings Management**: View, edit, import, and export your application settings directly as JSON.
 - **UI Customization**: Choose between multiple icon sets (Heroicons, Lucide, Feather, Tabler, Material) to personalize the application's appearance.
 - **Light/Dark Mode**: A beautiful, consistent experience in both light and dark themes, with a manual toggle and respect for system preferences.
