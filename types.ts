@@ -1,9 +1,5 @@
 
-
-
 import type React from 'react';
-
-export type AppIcon = 'default' | 'sparkles' | 'command' | 'gear' | 'folder';
 
 export interface PromptOrFolder {
   id: string;
@@ -23,7 +19,6 @@ export interface Settings {
   iconSet: 'heroicons' | 'lucide' | 'feather' | 'tabler' | 'material';
   autoSaveLogs: boolean;
   allowPrerelease: boolean;
-  appIcon: AppIcon;
   uiScale: number;
 }
 

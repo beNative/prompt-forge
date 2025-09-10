@@ -107,8 +107,6 @@ The application provides two ways to configure your LLM provider:
 
 Here you can customize the look and feel of the application.
 
-- **Application Icon**: Choose the icon that represents PromptForge in your operating system's taskbar, dock, and application shortcuts. Select from one of the five available options. Note that a restart may be required for the change to be fully reflected everywhere (like in pinned shortcuts).
-
 - **UI Icon Set**: Select your preferred icon set for the application's user interface from the available options (e.g., Heroicons, Lucide). Your selection is shown in a preview and applied after saving. Options for other popular icon sets like Feather, Tabler, and Material are shown as "Coming Soon" and will be available in a future update.
 
 ### 6.3. Update Settings
@@ -119,7 +117,16 @@ Here you can customize the look and feel of the application.
 
 - **Auto-save Logs**: Toggle this option to automatically append all log messages to a daily log file in the application's `data` directory. This is useful for debugging and is only available in the desktop version.
 
-### 6.5. Saving Changes
+### 6.5. Advanced Settings (Import/Export)
+
+For power users, an advanced settings section provides direct access to the application's configuration file.
+
+- **Accessing the Editor**: In the "Advanced" section of the settings page, click the **"Show Editor"** button.
+- **Editing**: This will reveal a text editor with your current settings displayed in JSON format, complete with syntax highlighting. You can make direct changes here. The editor will show an error if the JSON is not valid, preventing you from saving until it is fixed.
+- **Exporting**: Click the **"Export to File..."** button to save a copy of your current settings as a `.json` file. This is useful for backups or for sharing your configuration.
+- **Importing**: Click the **"Import from File..."** button to open a file dialog. Select a valid `promptforge_settings.json` file to load its configuration into the application. The imported settings will be displayed in the editor, and you must click "Save Changes" to apply them.
+
+### 6.6. Saving Changes
 
 Changes are not applied immediately. You must click the **"Save Changes"** button at the top-right of the screen to apply your new settings. The button will be disabled if there are no changes to save.
 

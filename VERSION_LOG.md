@@ -4,10 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [0.1.9] - 2025-09-11
+
+### Added
+- **Advanced Settings Editor**: Added an "Advanced" section in the settings view with a syntax-highlighted JSON editor to directly view and edit the application's configuration file.
+- **Import/Export Settings**: Implemented functionality to import settings from and export settings to a `.json` file.
+
+---
+
 ## [0.1.8] - 2025-09-10
 
 ### Added
-- **Application Icon Customization**: Added a new setting to change the main application icon. Users can choose from five different icons (Default, Sparkles, Command, Gear, Folder).
 - **Expanded Icon Set Options**: Added placeholder options for Feather, Tabler, and Material icon sets in the appearance settings, marked as "Coming Soon".
 
 ---

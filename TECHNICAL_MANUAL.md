@@ -39,8 +39,8 @@ The project follows a standard feature-oriented structure:
 ### 3.1. Electron Main Process (`electron/main.ts`)
 
 - This is the application's entry point. It creates the `BrowserWindow` that renders the React UI.
-- It is responsible for all Node.js and OS-level integrations. On startup, it reads the `promptforge_settings.json` file to configure initial settings like the application icon and `autoUpdater` preferences before the main window is even created.
-- **IPC (Inter-Process Communication)**: It listens for events from the renderer process to perform actions that the browser cannot, such as accessing the file system. It also handles dynamic application changes, such as updating the `autoUpdater` configuration or changing the main window's icon at runtime via IPC listeners (`updater:set-allow-prerelease`, `app:set-icon`).
+- It is responsible for all Node.js and OS-level integrations. On startup, it reads the `promptforge_settings.json` file to configure initial settings like `autoUpdater` preferences before the main window is even created.
+- **IPC (Inter-Process Communication)**: It listens for events from the renderer process to perform actions that the browser cannot, such as accessing the file system, exporting settings via a native save dialog, or importing them via a native open dialog. It also handles dynamic application changes, such as updating the `autoUpdater` configuration at runtime via an IPC listener (`updater:set-allow-prerelease`).
 - **User Data Path**: The `getDataPath` function uses Electron's `app.getPath('userData')` method to determine the storage location. This ensures the application follows operating system standards for storing user data (e.g., in `%APPDATA%` on Windows or `~/Library/Application Support` on macOS) rather than storing data alongside the executable.
 
 ### 3.2. State Management & Hooks
@@ -71,7 +71,8 @@ The project follows a standard feature-oriented structure:
 
 - **`PromptTreeItem.tsx`**: A recursive component that renders each item in the sidebar. It handles its own drag-and-drop events (`onDragStart`, `onDrop`, `onDragOver`) to determine the user's intent (move before, after, or inside another item) and calls the `onMoveNode` callback to update the global state.
 - **`StatusBar.tsx`**: Displays connection status and other metadata. It now contains interactive `<select>` elements that allow the user to quickly change the active LLM provider and model without navigating to the full settings page.
-- **`SettingsView.tsx`**: A full-page settings component with a responsive two-column layout. It handles its own dirty state to enable/disable the save button, providing a better user experience than the previous modal.
+- **`SettingsView.tsx`**: A full-page settings component with a responsive two-column layout. It handles its own dirty state to enable/disable the save button, providing a better user experience than the previous modal. It also includes an "Advanced" section that uses the `JsonEditor.tsx` component to allow direct modification of the settings file, and provides buttons to trigger IPC calls for importing and exporting settings.
+- **`JsonEditor.tsx`**: A reusable component for viewing and editing text with syntax highlighting (specifically for JSON). It uses a `textarea` for input and an overlaid `<pre>` tag with Prism.js for the highlighting, ensuring a smooth editing experience.
 - **`IconButton.tsx`**: This component features a robust, custom tooltip implementation. Tooltips are rendered into a React Portal (`#overlay-root`) and use `useLayoutEffect` and JavaScript to dynamically calculate their position, ensuring they always stay within the viewport and are never clipped by parent containers. The position is recalculated on scroll and resize events.
 
 ### 3.6. Automatic Update Mechanism

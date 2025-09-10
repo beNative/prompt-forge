@@ -1,7 +1,4 @@
 
-
-
-
 import type { Settings } from './types';
 
 export const LOCAL_STORAGE_KEYS = {
@@ -20,6 +17,5 @@ export const DEFAULT_SETTINGS: Settings = {
   iconSet: 'heroicons',
   autoSaveLogs: false,
   allowPrerelease: false,
-  appIcon: 'default',
   uiScale: 100,
 };

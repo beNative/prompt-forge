@@ -16,24 +16,11 @@ const getDataPath = (filename: string) => {
   return path.join(userDataPath, filename);
 };
 
-const getIconPath = (iconName?: string): string => {
-    // We assume .png files are available for runtime changes on all platforms.
-    // For the packaged app's initial icon, electron-builder uses platform-specific formats.
-    const name = iconName || 'default';
-    const filename = `icon-${name}.png`;
-    const iconPath = isDev 
-        ? path.join(app.getAppPath(), 'assets', 'icons', filename) 
-        : path.join((process as any).resourcesPath, 'assets', 'icons', filename);
-    return iconPath;
-};
-
-
-const createWindow = (initialSettings: { appIcon?: string }) => {
+const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     autoHideMenuBar: true,
-    icon: getIconPath(initialSettings.appIcon),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -73,15 +60,6 @@ ipcMain.on('updater:set-allow-prerelease', (_, allow: boolean) => {
     autoUpdater.allowPrerelease = allow;
 });
 
-// Listener to change the app icon dynamically
-ipcMain.on('app:set-icon', (_, iconName: string) => {
-    if (mainWindow) {
-        const iconPath = getIconPath(iconName);
-        console.log(`Setting app icon to: ${iconPath}`);
-        mainWindow.setIcon(iconPath);
-    }
-});
-
 // Listener for renderer to trigger the update installation
 ipcMain.on('updater:quit-and-install', () => {
   console.log('Renderer requested app restart to install update.');
@@ -90,8 +68,8 @@ ipcMain.on('updater:quit-and-install', () => {
 
 
 app.whenReady().then(async () => {
-  // Read settings on startup to configure updater and initial icon
-  let initialSettings: { allowPrerelease?: boolean; appIcon?: string } = {};
+  // Read settings on startup to configure updater
+  let initialSettings: { allowPrerelease?: boolean } = {};
   try {
     const settingsPath = getDataPath('promptforge_settings.json');
     const settingsData = await fs.readFile(settingsPath, 'utf-8');
@@ -242,7 +220,7 @@ app.whenReady().then(async () => {
   });
 
 
-  createWindow(initialSettings);
+  createWindow();
 
   // Check for updates after the window has been created
   if (!isDev) {
@@ -251,7 +229,7 @@ app.whenReady().then(async () => {
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow(initialSettings);
+      createWindow();
     }
   });
 });

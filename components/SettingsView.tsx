@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import type { Settings, DiscoveredLLMService, DiscoveredLLMModel, AppIcon } from '../types';
+import type { Settings, DiscoveredLLMService, DiscoveredLLMModel } from '../types';
 import { llmDiscoveryService } from '../services/llmDiscoveryService';
-import { SparklesIcon, FileIcon as DefaultAppIcon, CommandIcon, GearIcon, FolderIcon } from './Icons';
+import { SparklesIcon } from './Icons';
 import * as HeroIcons from './iconsets/Heroicons';
 import * as LucideIcons from './iconsets/Lucide';
 import Spinner from './Spinner';
@@ -148,10 +148,6 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
     setCurrentSettings(prev => ({ ...prev, iconSet }));
   };
   
-  const handleAppIconChange = (appIcon: AppIcon) => {
-    setCurrentSettings(prev => ({ ...prev, appIcon }));
-  };
-
   const handleSave = () => {
     onSave(currentSettings);
   };
@@ -262,20 +258,6 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
                 </div>
               </div>
             </div>
-          </section>
-
-          <section>
-            <SectionTitle>Application Icon</SectionTitle>
-              <div className="p-6 bg-secondary rounded-lg border border-border-color">
-                  <p className="text-sm text-text-secondary mb-4">Choose the icon for the application. Requires a restart to take full effect on shortcuts and the taskbar.</p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                      <CardButton name="Default" value="default" isSelected={currentSettings.appIcon === 'default'} onClick={handleAppIconChange} isAppIcon><DefaultAppIcon className="w-8 h-8" /></CardButton>
-                      <CardButton name="Sparkles" value="sparkles" isSelected={currentSettings.appIcon === 'sparkles'} onClick={handleAppIconChange} isAppIcon><SparklesIcon className="w-8 h-8" /></CardButton>
-                      <CardButton name="Command" value="command" isSelected={currentSettings.appIcon === 'command'} onClick={handleAppIconChange} isAppIcon><CommandIcon className="w-8 h-8" /></CardButton>
-                      <CardButton name="Gear" value="gear" isSelected={currentSettings.appIcon === 'gear'} onClick={handleAppIconChange} isAppIcon><GearIcon className="w-8 h-8" /></CardButton>
-                      <CardButton name="Folder" value="folder" isSelected={currentSettings.appIcon === 'folder'} onClick={handleAppIconChange} isAppIcon><FolderIcon className="w-8 h-8" /></CardButton>
-                  </div>
-              </div>
           </section>
 
           <section>

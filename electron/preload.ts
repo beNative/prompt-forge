@@ -7,7 +7,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   readDoc: (filename: string) => ipcRenderer.invoke('docs:read', filename),
   appendLog: (content: string) => ipcRenderer.invoke('storage:appendLog', content),
   updaterSetAllowPrerelease: (allow: boolean) => ipcRenderer.send('updater:set-allow-prerelease', allow),
-  setAppIcon: (iconName: string) => ipcRenderer.send('app:set-icon', iconName),
   getAppVersion: () => ipcRenderer.invoke('app:get-version'),
   onUpdateDownloaded: (callback: (version: string) => void) => {
     const handler = (_: IpcRendererEvent, version: string) => callback(version);
