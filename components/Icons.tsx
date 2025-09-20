@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { useIconSet } from '../hooks/useIconSet';
 import * as HeroIcons from './iconsets/Heroicons';
@@ -284,5 +283,16 @@ export const HistoryIcon: React.FC<IconProps> = (props) => {
         case 'tabler': return <TablerIcons.HistoryIcon {...props} />;
         case 'material': return <MaterialIcons.HistoryIcon {...props} />;
         case 'heroicons': default: return <HeroIcons.HistoryIcon {...props} />;
+    }
+};
+
+export const ArrowLeftIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    switch (iconSet) {
+        case 'lucide': return <LucideIcons.ArrowLeftIcon {...props} />;
+        case 'feather': return <FeatherIcons.ArrowLeftIcon {...props} />;
+        case 'tabler': return <TablerIcons.ArrowLeftIcon {...props} />;
+        case 'material': return <MaterialIcons.ArrowLeftIcon {...props} />;
+        case 'heroicons': default: return <HeroIcons.ArrowLeftIcon {...props} />;
     }
 };

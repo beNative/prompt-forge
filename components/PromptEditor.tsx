@@ -1,7 +1,4 @@
 
-
-
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { PromptOrFolder, Settings } from '../types';
 import { llmService } from '../services/llmService';
@@ -12,7 +9,6 @@ import { useLogger } from '../hooks/useLogger';
 import { useHistoryState } from '../hooks/useHistoryState';
 import IconButton from './IconButton';
 import Button from './Button';
-import PromptHistoryModal from './PromptHistoryModal';
 
 // Let TypeScript know Prism is available on the window
 declare const Prism: any;
@@ -22,9 +18,10 @@ interface PromptEditorProps {
   onSave: (prompt: PromptOrFolder) => void;
   onDelete: (id: string) => void;
   settings: Settings;
+  onShowHistory: () => void;
 }
 
-const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, settings }) => {
+const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, settings, onShowHistory }) => {
   const [title, setTitle] = useState(prompt.title);
   const { state: content, setState: setContent, undo, redo, canUndo, canRedo } = useHistoryState(prompt.content || '');
   
@@ -34,7 +31,6 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
   const [isDirty, setIsDirty] = useState(false);
   const [isAutoNaming, setIsAutoNaming] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const { addLog } = useLogger();
 
   const editorRef = useRef<HTMLTextAreaElement>(null);
@@ -183,13 +179,6 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
     }
   };
 
-  const handleRestoreVersion = (newContent: string) => {
-    setContent(newContent);
-    setIsHistoryModalOpen(false);
-    addLog('INFO', `Restored prompt "${title}" to a previous version.`);
-  };
-
-
   return (
     <div className="flex-1 flex flex-col p-6 bg-background overflow-y-auto">
       <div className="flex justify-between items-center mb-6 gap-4">
@@ -213,7 +202,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
             )}
         </div>
         <div className="flex items-center gap-2">
-            <IconButton onClick={() => setIsHistoryModalOpen(true)} tooltip="View History">
+            <IconButton onClick={onShowHistory} tooltip="View History">
               <HistoryIcon className="w-5 h-5" />
             </IconButton>
             <IconButton
@@ -291,14 +280,6 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
                 </div>
             </div>
         </Modal>
-      )}
-
-      {isHistoryModalOpen && (
-        <PromptHistoryModal
-            prompt={prompt}
-            onClose={() => setIsHistoryModalOpen(false)}
-            onRestore={handleRestoreVersion}
-        />
       )}
     </div>
   );

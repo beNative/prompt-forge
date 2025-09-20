@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 
 type IconProps = {
@@ -92,4 +91,8 @@ export const DocumentDuplicateIcon: React.FC<IconProps> = ({ className }) => (
 );
 export const HistoryIcon: React.FC<IconProps> = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+);
+
+export const ArrowLeftIcon: React.FC<IconProps> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
 );

@@ -20,6 +20,7 @@ import CommandPalette from './components/CommandPalette';
 import InfoView from './components/InfoView';
 import UpdateNotification from './components/UpdateNotification';
 import CreateFromTemplateModal from './components/CreateFromTemplateModal';
+import PromptHistoryView from './components/PromptHistoryView';
 import { PlusIcon, FolderPlusIcon, TrashIcon, GearIcon, InfoIcon, TerminalIcon, DocumentDuplicateIcon } from './components/Icons';
 // Types
 import type { PromptOrFolder, Command, LogMessage, DiscoveredLLMModel, DiscoveredLLMService, Settings, PromptTemplate } from './types';
@@ -52,6 +53,7 @@ const App: React.FC = () => {
 
     // UI State
     const [view, setView] = useState<'editor' | 'info' | 'settings'>('editor');
+    const [promptView, setPromptView] = useState<'editor' | 'history'>('editor');
     const [isLoggerVisible, setIsLoggerVisible] = useState(false);
     const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
     const [isCreateFromTemplateOpen, setCreateFromTemplateOpen] = useState(false);
@@ -211,6 +213,7 @@ const App: React.FC = () => {
         const newPrompt = addPrompt(parentId);
         setActiveNodeId(newPrompt.id);
         setActiveTemplateId(null);
+        setPromptView('editor');
         setView('editor');
     }, [addPrompt, getParentIdForNewItem]);
     
@@ -218,6 +221,7 @@ const App: React.FC = () => {
         const newFolder = addFolder(null); // Always create at root
         setActiveNodeId(newFolder.id);
         setActiveTemplateId(null);
+        setPromptView('editor');
         setView('editor');
     }, [addFolder]);
 
@@ -233,10 +237,14 @@ const App: React.FC = () => {
         updateItem(newPrompt.id, { title, content });
         setActiveNodeId(newPrompt.id);
         setActiveTemplateId(null);
+        setPromptView('editor');
         setView('editor');
     }, [addPrompt, updateItem]);
 
     const handleSelectNode = (id: string) => {
+        if (activeNodeId !== id) {
+            setPromptView('editor');
+        }
         setActiveNodeId(id);
         setActiveTemplateId(null);
         setView('editor');
@@ -375,6 +383,16 @@ const App: React.FC = () => {
         setView(v => v === 'settings' ? 'editor' : 'settings')
     }
 
+    const handleRestorePromptVersion = useCallback((promptId: string, content: string) => {
+        const prompt = items.find(p => p.id === promptId);
+        if (prompt) {
+            updateItem(promptId, { content });
+            addLog('INFO', `Restored prompt "${prompt.title}" to a previous version.`);
+            setPromptView('editor');
+        }
+    }, [items, updateItem, addLog]);
+
+
     // --- Resizable Panels Logic ---
     const handleSidebarMouseDown = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
@@ -494,17 +512,28 @@ const App: React.FC = () => {
             />
         }
         if (activeNode) {
-            return activeNode.type === 'prompt' ? (
-                <PromptEditor 
-                    key={activeNode.id}
-                    prompt={activeNode}
-                    onSave={handleSavePrompt}
-                    onDelete={handleDeleteNode}
-                    settings={settings}
-                />
-            ) : (
-                <WelcomeScreen onNewPrompt={handleNewPrompt} /> // Folder selected
-            );
+            if (activeNode.type === 'prompt') {
+                if (promptView === 'history') {
+                    return (
+                        <PromptHistoryView
+                            prompt={activeNode}
+                            onBackToEditor={() => setPromptView('editor')}
+                            onRestore={(content) => handleRestorePromptVersion(activeNode.id, content)}
+                        />
+                    );
+                }
+                return (
+                    <PromptEditor 
+                        key={activeNode.id}
+                        prompt={activeNode}
+                        onSave={handleSavePrompt}
+                        onDelete={handleDeleteNode}
+                        settings={settings}
+                        onShowHistory={() => setPromptView('history')}
+                    />
+                );
+            }
+            return <WelcomeScreen onNewPrompt={handleNewPrompt} />; // Folder selected
         }
         return <WelcomeScreen onNewPrompt={handleNewPrompt} />; // Nothing selected
     };
