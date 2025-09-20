@@ -1,16 +1,18 @@
 
 
 
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { PromptOrFolder, Settings } from '../types';
 import { llmService } from '../services/llmService';
-import { SparklesIcon, TrashIcon, UndoIcon, RedoIcon, CopyIcon, CheckIcon } from './Icons';
+import { SparklesIcon, TrashIcon, UndoIcon, RedoIcon, CopyIcon, CheckIcon, HistoryIcon } from './Icons';
 import Spinner from './Spinner';
 import Modal from './Modal';
 import { useLogger } from '../hooks/useLogger';
 import { useHistoryState } from '../hooks/useHistoryState';
 import IconButton from './IconButton';
 import Button from './Button';
+import PromptHistoryModal from './PromptHistoryModal';
 
 // Let TypeScript know Prism is available on the window
 declare const Prism: any;
@@ -32,6 +34,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
   const [isDirty, setIsDirty] = useState(false);
   const [isAutoNaming, setIsAutoNaming] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const { addLog } = useLogger();
 
   const editorRef = useRef<HTMLTextAreaElement>(null);
@@ -180,6 +183,12 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
     }
   };
 
+  const handleRestoreVersion = (newContent: string) => {
+    setContent(newContent);
+    setIsHistoryModalOpen(false);
+    addLog('INFO', `Restored prompt "${title}" to a previous version.`);
+  };
+
 
   return (
     <div className="flex-1 flex flex-col p-6 bg-background overflow-y-auto">
@@ -204,6 +213,9 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
             )}
         </div>
         <div className="flex items-center gap-2">
+            <IconButton onClick={() => setIsHistoryModalOpen(true)} tooltip="View History">
+              <HistoryIcon className="w-5 h-5" />
+            </IconButton>
             <IconButton
               onClick={handleCopy}
               disabled={!content.trim()}
@@ -279,6 +291,14 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
                 </div>
             </div>
         </Modal>
+      )}
+
+      {isHistoryModalOpen && (
+        <PromptHistoryModal
+            prompt={prompt}
+            onClose={() => setIsHistoryModalOpen(false)}
+            onRestore={handleRestoreVersion}
+        />
       )}
     </div>
   );

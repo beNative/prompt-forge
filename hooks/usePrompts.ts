@@ -3,9 +3,11 @@ import type { PromptOrFolder } from '../types';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { storageService } from '../services/storageService';
 import { useLogger } from './useLogger';
+import { usePromptHistory } from '../contexts/PromptHistoryContext';
 
 export const usePrompts = () => {
   const { addLog } = useLogger();
+  const { addVersion } = usePromptHistory();
   const [items, setItems] = useState<PromptOrFolder[]>([]);
 
   useEffect(() => {
@@ -59,12 +61,25 @@ export const usePrompts = () => {
   }, [items, persistItems, addLog]);
 
   const updateItem = useCallback((id: string, updatedItem: Partial<Omit<PromptOrFolder, 'id'>>) => {
+    const originalItem = items.find((p) => p.id === id);
+
+    // Save history BEFORE updating the state
+    if (
+      originalItem &&
+      originalItem.type === 'prompt' &&
+      updatedItem.content !== undefined &&
+      originalItem.content !== updatedItem.content &&
+      originalItem.content?.trim()
+    ) {
+      addVersion(id, originalItem.content, originalItem.updatedAt);
+    }
+      
     const newItems = items.map((p) =>
         p.id === id ? { ...p, ...updatedItem, updatedAt: new Date().toISOString() } : p
       );
     persistItems(newItems);
      addLog('DEBUG', `Item updated with ID: ${id}`);
-  }, [items, persistItems, addLog]);
+  }, [items, persistItems, addLog, addVersion]);
 
   const getDescendantIds = useCallback((itemId: string): Set<string> => {
       const descendantIds = new Set<string>();

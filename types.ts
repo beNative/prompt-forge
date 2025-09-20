@@ -20,6 +20,13 @@ export interface PromptTemplate {
   updatedAt: string;
 }
 
+export interface PromptVersion {
+  id: string; // Unique ID for the version entry
+  promptId: string; // FK to the PromptOrFolder
+  content: string;
+  createdAt: string; // The timestamp of when this version was created (from the prompt's updatedAt)
+}
+
 export interface Settings {
   llmProviderUrl: string;
   llmModelName: string;
@@ -43,7 +50,7 @@ export interface LogMessage {
 export type LLMStatus = 'checking' | 'connected' | 'error';
 
 export interface Command {
-  id: string;
+  id:string;
   name: string;
   keywords?: string;
   action: () => void;

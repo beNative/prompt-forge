@@ -1,4 +1,5 @@
 
+
 import type { Settings, PromptTemplate } from './types';
 
 export const LOCAL_STORAGE_KEYS = {
@@ -9,6 +10,7 @@ export const LOCAL_STORAGE_KEYS = {
   LOGGER_PANEL_HEIGHT: 'promptforge_logger_panel_height',
   EXPANDED_FOLDERS: 'promptforge_expanded_folders',
   TEMPLATES_INITIALIZED: 'promptforge_templates_initialized',
+  PROMPT_VERSIONS: 'promptforge_prompt_versions',
 };
 
 export const DEFAULT_SETTINGS: Settings = {
