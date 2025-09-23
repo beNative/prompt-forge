@@ -11,6 +11,8 @@ interface CustomTitleBarProps {
   isInfoViewActive: boolean;
   isSettingsViewActive: boolean;
   commandPaletteTargetRef: React.RefObject<HTMLDivElement>;
+  searchTerm: string;
+  onSearchTermChange: (term: string) => void;
 }
 
 const WindowControls: React.FC<{ platform: string, isMaximized: boolean }> = ({ platform, isMaximized }) => {
@@ -36,7 +38,10 @@ const WindowControls: React.FC<{ platform: string, isMaximized: boolean }> = ({ 
   return <>{controls}</>;
 };
 
-const CustomTitleBar: React.FC<CustomTitleBarProps> = ({ onToggleSettingsView, onToggleInfoView, onToggleLogger, onOpenCommandPalette, isInfoViewActive, isSettingsViewActive, commandPaletteTargetRef }) => {
+const CustomTitleBar: React.FC<CustomTitleBarProps> = ({ 
+    onToggleSettingsView, onToggleInfoView, onToggleLogger, onOpenCommandPalette, 
+    isInfoViewActive, isSettingsViewActive, commandPaletteTargetRef, searchTerm, onSearchTermChange
+}) => {
     const [platform, setPlatform] = useState('');
     const [isMaximized, setIsMaximized] = useState(false);
 
@@ -53,12 +58,18 @@ const CustomTitleBar: React.FC<CustomTitleBarProps> = ({ onToggleSettingsView, o
     const CommandPaletteSearch = () => (
         <div 
             ref={commandPaletteTargetRef}
-            className="not-draggable flex-1 max-w-lg mx-auto h-8 px-3 rounded-md bg-background border border-border-color hover:border-primary/50 flex items-center gap-2 cursor-text"
-            onClick={onOpenCommandPalette}
+            className="not-draggable flex-1 max-w-lg mx-auto h-8 px-3 rounded-md bg-background border border-border-color hover:border-primary/50 flex items-center gap-2 relative"
         >
             <SearchIcon className="w-4 h-4 text-text-secondary" />
-            <span className="text-sm text-text-secondary">Search commands...</span>
-            <span className="ml-auto text-xs text-text-secondary bg-border-color/50 px-1.5 py-0.5 rounded">Ctrl+Shift+P</span>
+            <input
+                type="text"
+                placeholder="Search commands..."
+                value={searchTerm}
+                onChange={(e) => onSearchTermChange(e.target.value)}
+                onFocus={onOpenCommandPalette}
+                className="w-full bg-transparent text-sm text-text-main placeholder:text-text-secondary focus:outline-none"
+            />
+            <span className="text-xs text-text-secondary bg-border-color/50 px-1.5 py-0.5 rounded">Ctrl+Shift+P</span>
         </div>
     );
     

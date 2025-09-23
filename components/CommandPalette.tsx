@@ -8,14 +8,13 @@ interface CommandPaletteProps {
   onClose: () => void;
   commands: Command[];
   targetRef: React.RefObject<HTMLElement>;
+  searchTerm: string;
 }
 
-const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, commands, targetRef }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, commands, targetRef, searchTerm }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [style, setStyle] = useState<React.CSSProperties>({});
-  const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const paletteRef = useRef<HTMLDivElement>(null);
 
@@ -45,7 +44,6 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
       }
       const timer = setTimeout(() => {
         setIsVisible(true);
-        inputRef.current?.focus();
       }, 10);
       return () => clearTimeout(timer);
     } else {
@@ -72,7 +70,6 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
   // Reset search on open
   useEffect(() => {
     if (isOpen) {
-      setSearchTerm('');
       setSelectedIndex(0);
     }
   }, [isOpen]);
@@ -92,6 +89,14 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Allow parent to handle search term typing
+      if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete') {
+        const target = e.target as HTMLElement;
+        if(target.tagName.toLowerCase() !== 'input') {
+          return;
+        }
+      }
+        
       if (filteredCommands.length === 0 && e.key !== 'Escape') return;
 
       if (e.key === 'ArrowDown') {
@@ -176,20 +181,6 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
         role="dialog"
         aria-modal="true"
       >
-        <div className="flex items-center gap-3 p-4 border-b border-border-color">
-          <CommandIcon className="w-5 h-5 text-text-secondary flex-shrink-0" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={searchTerm}
-            onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setSelectedIndex(0);
-            }}
-            placeholder="Type a command or search..."
-            className="w-full bg-transparent text-text-main placeholder:text-text-secondary focus:outline-none text-base"
-          />
-        </div>
         <ul ref={listRef} className="flex-1 overflow-y-auto py-2">
           {filteredCommands.length > 0 ? (
             renderCommands()

@@ -19,15 +19,13 @@ const Tooltip: React.FC<{
 
   const calculatePosition = useCallback(() => {
     if (targetRef.current && tooltipRef.current && targetRef.current.offsetWidth > 0) {
-      const scaledTargetRect = targetRef.current.getBoundingClientRect();
-      
-      // Directly measure the zoom factor from the element itself. This is much more robust
-      // than relying on a setting, as it accounts for any kind of zoom (CSS, browser, etc.).
-      const zoomFactor = scaledTargetRect.width / targetRef.current.offsetWidth;
-      
-      // If zoomFactor is 0 or NaN (e.g., element is not displayed), bail out.
-      if (!zoomFactor || !isFinite(zoomFactor)) return;
+      // FIX: Read zoom directly from document styles for accuracy. Calculating it from
+      // element dimensions was prone to floating-point and rounding errors that caused drift.
+      // FIX: Cast to `any` to access the non-standard `zoom` property which is available in Electron/Chromium.
+      const zoomFactorString = (getComputedStyle(document.documentElement) as any).zoom || '1';
+      const zoomFactor = parseFloat(zoomFactorString);
 
+      const scaledTargetRect = targetRef.current.getBoundingClientRect();
       const scaledTooltipRect = tooltipRef.current.getBoundingClientRect();
 
       // Convert all visual (scaled) coordinates and dimensions back to layout coordinates.

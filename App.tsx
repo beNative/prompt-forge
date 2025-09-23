@@ -57,6 +57,7 @@ const App: React.FC = () => {
     const [promptView, setPromptView] = useState<'editor' | 'history'>('editor');
     const [isLoggerVisible, setIsLoggerVisible] = useState(false);
     const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+    const [commandPaletteSearchTerm, setCommandPaletteSearchTerm] = useState('');
     const [isCreateFromTemplateOpen, setCreateFromTemplateOpen] = useState(false);
     const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
     const [loggerPanelHeight, setLoggerPanelHeight] = useState(DEFAULT_LOGGER_HEIGHT);
@@ -452,6 +453,11 @@ const App: React.FC = () => {
         };
     }, [handleGlobalMouseMove, handleGlobalMouseUp]);
     // --- End Resizable Panels Logic ---
+    
+    const handleOpenCommandPalette = useCallback(() => {
+        setIsCommandPaletteOpen(true);
+        setCommandPaletteSearchTerm('');
+    }, []);
 
 
     // Keyboard shortcuts
@@ -544,7 +550,7 @@ const App: React.FC = () => {
         onToggleSettingsView: toggleSettingsView,
         onToggleInfoView: () => setView(v => v === 'info' ? 'editor' : 'info'),
         onToggleLogger: () => setIsLoggerVisible(v => !v),
-        onOpenCommandPalette: () => setIsCommandPaletteOpen(true),
+        onOpenCommandPalette: handleOpenCommandPalette,
         isInfoViewActive: view === 'info',
         isSettingsViewActive: view === 'settings',
     };
@@ -553,7 +559,7 @@ const App: React.FC = () => {
         <IconProvider value={{ iconSet: getSupportedIconSet(settings.iconSet) }}>
             <div className="flex flex-col h-full font-sans bg-background text-text-main antialiased">
                 {isElectron 
-                    ? <CustomTitleBar {...headerProps} commandPaletteTargetRef={commandPaletteTargetRef} /> 
+                    ? <CustomTitleBar {...headerProps} commandPaletteTargetRef={commandPaletteTargetRef} searchTerm={commandPaletteSearchTerm} onSearchTermChange={setCommandPaletteSearchTerm} /> 
                     : <Header {...headerProps} />
                 }
                 <main className="flex-1 flex overflow-hidden">
@@ -621,6 +627,7 @@ const App: React.FC = () => {
                 onClose={() => setIsCommandPaletteOpen(false)} 
                 commands={commands}
                 targetRef={commandPaletteTargetRef}
+                searchTerm={commandPaletteSearchTerm}
             />
 
             {isCreateFromTemplateOpen && (
