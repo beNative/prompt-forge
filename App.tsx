@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import ReactDOM from 'react-dom';
 // Hooks
@@ -584,7 +585,7 @@ const App: React.FC = () => {
                             />
                         </>
                     )}
-                    <section className="flex-1 flex flex-col overflow-y-auto">
+                    <section className="flex-1 flex flex-col overflow-y-auto bg-background">
                         {renderMainContent()}
                     </section>
                 </main>

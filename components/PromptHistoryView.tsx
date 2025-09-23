@@ -49,8 +49,8 @@ const PromptHistoryView: React.FC<PromptHistoryViewProps> = ({ prompt, onBackToE
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-secondary overflow-y-auto">
-        <header className="flex justify-between items-center px-6 py-6 gap-4 flex-shrink-0 border-b border-border-color">
+    <div className="flex-1 flex flex-col bg-background overflow-y-auto">
+        <header className="flex justify-between items-center px-6 py-6 gap-4 flex-shrink-0 border-b border-border-color bg-secondary">
             <div className="flex items-center gap-3 flex-1 min-w-0">
                 <h1 className="text-2xl font-semibold text-text-main truncate">
                     History for "{prompt.title}"
@@ -64,7 +64,7 @@ const PromptHistoryView: React.FC<PromptHistoryViewProps> = ({ prompt, onBackToE
             </div>
         </header>
 
-        <div className="flex-1 flex gap-6 overflow-hidden p-6 bg-background">
+        <div className="flex-1 flex gap-6 overflow-hidden p-6 bg-secondary">
             <aside className="w-1/3 max-w-xs border-r border-border-color pr-6 overflow-y-auto">
                 <h3 className="text-lg font-semibold mb-3">Versions</h3>
                 <ul className="space-y-1">

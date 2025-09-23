@@ -50,8 +50,8 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onSave, onDel
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-secondary overflow-y-auto">
-      <div className="flex justify-between items-center px-6 py-6 gap-4 border-b border-border-color flex-shrink-0">
+    <div className="flex-1 flex flex-col bg-background overflow-y-auto">
+      <div className="flex justify-between items-center px-6 py-6 gap-4 border-b border-border-color flex-shrink-0 bg-secondary">
         <div className="flex items-center gap-3 flex-1 min-w-0">
             <input
               type="text"
@@ -77,7 +77,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onSave, onDel
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col bg-background overflow-y-auto">
+      <div className="flex-1 flex flex-col bg-secondary overflow-y-auto">
         <div 
             className="editor-container relative w-full flex-1 focus-within:ring-2 focus-within:ring-primary"
             data-placeholder={!content ? "Enter your template content with {{variables}} here..." : ""}

@@ -93,11 +93,11 @@ const Tooltip: React.FC<{
 
 const IconButton: React.FC<IconButtonProps> = ({ children, tooltip, className, variant = 'primary', size='md', tooltipPosition = 'top', ...props }) => {
     const [isHovered, setIsHovered] = useState(false);
-    const buttonRef = useRef<HTMLButtonElement>(null);
+    const wrapperRef = useRef<HTMLSpanElement>(null);
 
     const handleMouseEnter = useCallback(() => {
-        setIsHovered(true);
-    }, []);
+        if (tooltip) setIsHovered(true);
+    }, [tooltip]);
 
     const handleMouseLeave = useCallback(() => {
         setIsHovered(false);
@@ -118,18 +118,22 @@ const IconButton: React.FC<IconButtonProps> = ({ children, tooltip, className, v
   
   return (
     <>
-      <button
-        ref={buttonRef}
-        className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+      <span
+        ref={wrapperRef}
+        className="inline-flex"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onFocus={handleMouseEnter}
         onBlur={handleMouseLeave}
-        {...props}
       >
-        {children}
-      </button>
-      {isHovered && <Tooltip targetRef={buttonRef} tooltip={tooltip} position={tooltipPosition} />}
+        <button
+          className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+          {...props}
+        >
+          {children}
+        </button>
+      </span>
+      {isHovered && <Tooltip targetRef={wrapperRef} tooltip={tooltip} position={tooltipPosition} />}
     </>
   );
 };

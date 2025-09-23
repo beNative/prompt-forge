@@ -193,8 +193,8 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-secondary overflow-y-auto">
-      <div className="flex justify-between items-center px-6 py-6 gap-4 border-b border-border-color flex-shrink-0">
+    <div className="flex-1 flex flex-col bg-background overflow-y-auto">
+      <div className="flex justify-between items-center px-6 py-6 gap-4 border-b border-border-color flex-shrink-0 bg-secondary">
         <div className="flex items-center gap-3 flex-1 min-w-0">
             <input
               type="text"
@@ -250,7 +250,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         </div>
       </div>
 
-        <div className="flex-1 flex flex-col bg-background overflow-y-auto">
+        <div className="flex-1 flex flex-col bg-secondary overflow-y-auto">
             {viewMode === 'edit' ? (
             <div 
                 className="editor-container relative w-full flex-1 focus-within:ring-2 focus-within:ring-primary"
