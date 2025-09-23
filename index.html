@@ -70,7 +70,7 @@
           content: attr(data-placeholder);
           position: absolute;
           inset: 0;
-          padding: 1rem; /* p-4 */
+          padding: 1.5rem; /* p-6 */
           color: rgb(var(--color-text-secondary) / 0.7);
           pointer-events: none;
         }
@@ -116,6 +116,9 @@
         .dark .token.regex, .dark .token.important, .dark .token.variable { color: #f1fa8c; }
 
         /* Markdown rendering styles */
+        .markdown-content > :first-child {
+            margin-top: 0;
+        }
         .markdown-content h1, .markdown-content h2, .markdown-content h3 {
             color: rgb(var(--color-text-main));
             margin-top: 1.5em;
