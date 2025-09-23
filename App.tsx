@@ -20,6 +20,8 @@ import UpdateNotification from './components/UpdateNotification';
 import CreateFromTemplateModal from './components/CreateFromTemplateModal';
 import PromptHistoryView from './components/PromptHistoryView';
 import { PlusIcon, FolderPlusIcon, TrashIcon, GearIcon, InfoIcon, TerminalIcon, DocumentDuplicateIcon } from './components/Icons';
+import Header from './components/Header';
+import CustomTitleBar from './components/CustomTitleBar';
 // Types
 import type { PromptOrFolder, Command, LogMessage, DiscoveredLLMModel, DiscoveredLLMService, Settings, PromptTemplate } from './types';
 // Context
@@ -37,6 +39,7 @@ const DEFAULT_LOGGER_HEIGHT = 288;
 const MIN_LOGGER_HEIGHT = 100;
 const MAX_LOGGER_HEIGHT = 600;
 
+const isElectron = !!window.electronAPI;
 
 const App: React.FC = () => {
     // State Hooks
@@ -536,9 +539,19 @@ const App: React.FC = () => {
         return <WelcomeScreen onNewPrompt={handleNewPrompt} />; // Nothing selected
     };
 
+    const headerProps = {
+        onToggleSettingsView: toggleSettingsView,
+        onToggleInfoView: () => setView(v => v === 'info' ? 'editor' : 'info'),
+        onToggleLogger: () => setIsLoggerVisible(v => !v),
+        onOpenCommandPalette: () => setIsCommandPaletteOpen(true),
+        isInfoViewActive: view === 'info',
+        isSettingsViewActive: view === 'settings',
+    };
+
     return (
         <IconProvider value={{ iconSet: getSupportedIconSet(settings.iconSet) }}>
             <div className="flex flex-col h-full font-sans bg-background text-text-main antialiased">
+                {isElectron ? <CustomTitleBar {...headerProps} /> : <Header {...headerProps} />}
                 <main className="flex-1 flex overflow-hidden">
                     {view === 'editor' && (
                         <>
@@ -590,14 +603,6 @@ const App: React.FC = () => {
                     discoveredServices={discoveredServices}
                     onProviderChange={handleProviderChange}
                     appVersion={appVersion}
-                    onToggleSettingsView={toggleSettingsView}
-                    isSettingsViewActive={view === 'settings'}
-                    onToggleInfoView={() => setView(v => v === 'info' ? 'editor' : 'info')}
-                    isInfoViewActive={view === 'info'}
-                    onToggleLogger={() => setIsLoggerVisible(v => !v)}
-                    onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-                    onShowEditor={() => setView('editor')}
-                    isEditorViewActive={view === 'editor'}
                 />
             </div>
             

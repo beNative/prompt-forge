@@ -105,3 +105,13 @@ export const LayoutHorizontalIcon: React.FC<IconProps> = ({ className }) => (
 export const LayoutVerticalIcon: React.FC<IconProps> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M13 19V5h8v14h-8zM3 19V5h8v14H3zm2-2h4V7H5v10z"/></svg>
 );
+
+export const MinimizeIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M19 13H5v-2h14v2z"/></svg>
+);
+export const MaximizeIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M3 3h18v18H3V3zm2 2v14h14V5H5z"/></svg>
+);
+export const RestoreIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M3 3h10v2H5v8H3V3zm12 0h6v6h-2V5h-4V3zm-2 12H5v6h6v-2h4v2h2v-4h-2v-2zM19 13v6h-6v-2h4v-4h2z"/></svg>
+);

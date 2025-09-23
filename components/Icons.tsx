@@ -339,3 +339,40 @@ export const LayoutVerticalIcon: React.FC<IconProps> = (props) => {
         case 'heroicons': default: return <HeroIcons.LayoutVerticalIcon {...props} />;
     }
 };
+
+export const MinimizeIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    switch (iconSet) {
+        case 'lucide': return <LucideIcons.MinimizeIcon {...props} />;
+        case 'feather': return <FeatherIcons.MinimizeIcon {...props} />;
+        case 'tabler': return <TablerIcons.MinimizeIcon {...props} />;
+        case 'material': return <MaterialIcons.MinimizeIcon {...props} />;
+        case 'heroicons': default: return <HeroIcons.MinimizeIcon {...props} />;
+    }
+};
+
+export const MaximizeIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    switch (iconSet) {
+        case 'lucide': return <LucideIcons.MaximizeIcon {...props} />;
+        case 'feather': return <FeatherIcons.MaximizeIcon {...props} />;
+        case 'tabler': return <TablerIcons.MaximizeIcon {...props} />;
+        case 'material': return <MaterialIcons.MaximizeIcon {...props} />;
+        case 'heroicons': default: return <HeroIcons.MaximizeIcon {...props} />;
+    }
+};
+
+export const RestoreIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    switch (iconSet) {
+        case 'lucide': return <LucideIcons.RestoreIcon {...props} />;
+        case 'feather': return <FeatherIcons.RestoreIcon {...props} />;
+        case 'tabler': return <TablerIcons.RestoreIcon {...props} />;
+        case 'material': return <MaterialIcons.RestoreIcon {...props} />;
+        case 'heroicons': default: return <HeroIcons.RestoreIcon {...props} />;
+    }
+};
+
+export const CloseIcon: React.FC<IconProps> = (props) => {
+    return <XIcon {...props} />;
+};

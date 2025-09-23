@@ -13,6 +13,13 @@ declare global {
       quitAndInstallUpdate?: () => void;
       settingsExport: (content: string) => Promise<{ success: boolean; error?: string }>;
       settingsImport: () => Promise<{ success: boolean; content?: string; error?: string }>;
+      // FIX: Added missing electronAPI method definitions for custom title bar functionality.
+      // This ensures that TypeScript can correctly type-check these methods when they are called from the renderer process.
+      getPlatform?: () => string;
+      minimizeWindow?: () => void;
+      maximizeWindow?: () => void;
+      closeWindow?: () => void;
+      onWindowStateChange?: (callback: (state: { isMaximized: boolean }) => void) => () => void;
     };
   }
 }

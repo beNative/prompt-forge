@@ -65,6 +65,10 @@
         }
         body { font-family: 'Inter', sans-serif; }
         
+        /* Styles for custom title bar */
+        .draggable { -webkit-app-region: drag; }
+        .not-draggable { -webkit-app-region: no-drag; }
+        
         /* Custom styles for components */
         .editor-container::after {
           content: attr(data-placeholder);

@@ -1,5 +1,3 @@
-
-
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs/promises';
@@ -22,12 +20,22 @@ const createWindow = () => {
     width: 1200,
     height: 800,
     autoHideMenuBar: true,
+    frame: false, // Create a frameless window
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
   });
+
+  // Listen for window state changes and notify the renderer
+  mainWindow.on('maximize', () => {
+    mainWindow?.webContents.send('window:state-changed', { isMaximized: true });
+  });
+  mainWindow.on('unmaximize', () => {
+    mainWindow?.webContents.send('window:state-changed', { isMaximized: false });
+  });
+
 
   mainWindow.loadFile(path.join(__dirname, '../index.html'));
   
@@ -65,6 +73,21 @@ ipcMain.on('updater:set-allow-prerelease', (_, allow: boolean) => {
 ipcMain.on('updater:quit-and-install', () => {
   console.log('Renderer requested app restart to install update.');
   autoUpdater.quitAndInstall();
+});
+
+// --- IPC Handlers for Custom Window Controls ---
+ipcMain.on('window:minimize', () => {
+    mainWindow?.minimize();
+});
+ipcMain.on('window:maximize', () => {
+    if (mainWindow?.isMaximized()) {
+        mainWindow.unmaximize();
+    } else {
+        mainWindow?.maximize();
+    }
+});
+ipcMain.on('window:close', () => {
+    mainWindow?.close();
 });
 
 
