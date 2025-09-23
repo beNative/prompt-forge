@@ -596,6 +596,8 @@ const App: React.FC = () => {
                     isInfoViewActive={view === 'info'}
                     onToggleLogger={() => setIsLoggerVisible(v => !v)}
                     onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+                    onShowEditor={() => setView('editor')}
+                    isEditorViewActive={view === 'editor'}
                 />
             </div>
             

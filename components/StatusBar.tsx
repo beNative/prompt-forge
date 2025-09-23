@@ -2,7 +2,7 @@ import React from 'react';
 import type { LLMStatus, DiscoveredLLMModel, DiscoveredLLMService } from '../types';
 import IconButton from './IconButton';
 import ThemeToggleButton from './ThemeToggleButton';
-import { GearIcon, InfoIcon, CommandIcon, TerminalIcon } from './Icons';
+import { GearIcon, InfoIcon, CommandIcon, TerminalIcon, PencilIcon } from './Icons';
 
 interface StatusBarProps {
   status: LLMStatus;
@@ -20,8 +20,10 @@ interface StatusBarProps {
   onToggleInfoView: () => void;
   onToggleLogger: () => void;
   onOpenCommandPalette: () => void;
+  onShowEditor: () => void;
   isInfoViewActive: boolean;
   isSettingsViewActive: boolean;
+  isEditorViewActive: boolean;
 }
 
 const statusConfig: Record<LLMStatus, { text: string; color: string; tooltip: string }> = {
@@ -44,7 +46,7 @@ const statusConfig: Record<LLMStatus, { text: string; color: string; tooltip: st
 
 const StatusBar: React.FC<StatusBarProps> = ({ 
     status, modelName, llmProviderName, llmProviderUrl, promptCount, lastSaved, availableModels, onModelChange, discoveredServices, onProviderChange, appVersion,
-    onToggleSettingsView, onToggleInfoView, onToggleLogger, onOpenCommandPalette, isInfoViewActive, isSettingsViewActive
+    onToggleSettingsView, onToggleInfoView, onToggleLogger, onOpenCommandPalette, onShowEditor, isInfoViewActive, isSettingsViewActive, isEditorViewActive
 }) => {
   const { text, color, tooltip } = statusConfig[status];
   const selectedService = discoveredServices.find(s => s.generateUrl === llmProviderUrl);
@@ -65,6 +67,8 @@ const StatusBar: React.FC<StatusBarProps> = ({
       backgroundRepeat: 'no-repeat',
       backgroundSize: '1.2em 1.2em',
   };
+  
+  const focusOverrideClass = 'focus:ring-0 focus:bg-border-color/50';
 
   return (
     <footer className="flex items-center justify-between px-4 h-8 bg-secondary border-t border-border-color text-xs text-text-secondary flex-shrink-0 z-30">
@@ -123,19 +127,28 @@ const StatusBar: React.FC<StatusBarProps> = ({
         {appVersion && <span>v{appVersion}</span>}
         <div className="h-4 w-px bg-border-color"></div>
         <div className="flex items-center gap-1">
-            <IconButton onClick={onOpenCommandPalette} tooltip="Command Palette (Ctrl+Shift+P)" size="sm" tooltipPosition="top">
+            <IconButton onClick={onOpenCommandPalette} tooltip="Command Palette (Ctrl+Shift+P)" size="sm" tooltipPosition="top" className={focusOverrideClass}>
               <CommandIcon className="w-5 h-5" />
             </IconButton>
-            <IconButton onClick={onToggleInfoView} tooltip="Info" className={isInfoViewActive ? 'bg-primary/10 text-primary' : ''} size="sm" tooltipPosition="top">
+
+            <div className="h-4 w-px bg-border-color mx-1"></div>
+
+            <IconButton onClick={onShowEditor} tooltip="Editor" className={`${isEditorViewActive ? 'bg-primary/10 text-primary' : ''} ${focusOverrideClass}`} size="sm" tooltipPosition="top">
+                <PencilIcon className="w-5 h-5" />
+            </IconButton>
+            <IconButton onClick={onToggleInfoView} tooltip="Info" className={`${isInfoViewActive ? 'bg-primary/10 text-primary' : ''} ${focusOverrideClass}`} size="sm" tooltipPosition="top">
               <InfoIcon className="w-5 h-5" />
             </IconButton>
-            <IconButton onClick={onToggleLogger} tooltip="Logs" size="sm" tooltipPosition="top">
-              <TerminalIcon className="w-5 h-5" />
-            </IconButton>
-            <ThemeToggleButton size="sm" tooltipPosition="top" />
-            <IconButton onClick={onToggleSettingsView} tooltip="Settings" className={isSettingsViewActive ? 'bg-primary/10 text-primary' : ''} size="sm" tooltipPosition="top">
+            <IconButton onClick={onToggleSettingsView} tooltip="Settings" className={`${isSettingsViewActive ? 'bg-primary/10 text-primary' : ''} ${focusOverrideClass}`} size="sm" tooltipPosition="top">
               <GearIcon className="w-5 h-5" />
             </IconButton>
+
+            <div className="h-4 w-px bg-border-color mx-1"></div>
+
+            <IconButton onClick={onToggleLogger} tooltip="Logs" size="sm" tooltipPosition="top" className={focusOverrideClass}>
+              <TerminalIcon className="w-5 h-5" />
+            </IconButton>
+            <ThemeToggleButton size="sm" tooltipPosition="top" className={focusOverrideClass} />
         </div>
       </div>
     </footer>
