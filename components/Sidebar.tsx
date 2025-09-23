@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import PromptList from './PromptList';
 import TemplateList from './TemplateList';
@@ -43,10 +42,10 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
     if (searchTerm.trim()) {
         const lowerCaseSearchTerm = searchTerm.toLowerCase();
         const visibleIds = new Set<string>();
-        const originalItemsById = new Map(props.prompts.map(i => [i.id, i]));
+        // FIX: Explicitly type the Map to ensure `get` returns a typed value, preventing downstream inference issues.
+        const originalItemsById: Map<string, PromptOrFolder> = new Map(props.prompts.map(i => [i.id, i]));
         const getAncestors = (itemId: string) => {
-            // FIX: Explicitly type `current` to resolve type inference issue where it was being treated as `unknown`.
-            let current: PromptOrFolder | undefined = originalItemsById.get(itemId);
+            let current = originalItemsById.get(itemId);
             while (current && current.parentId) {
               visibleIds.add(current.parentId);
               current = originalItemsById.get(current.parentId);

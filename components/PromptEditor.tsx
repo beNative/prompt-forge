@@ -285,22 +285,22 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
       
       {error && <div className="mt-4 text-destructive-text p-3 bg-destructive-bg rounded-md text-sm">{error}</div>}
 
-      <div className="mt-4 flex justify-between items-center">
-        <div className="flex items-center gap-1">
-            <IconButton onClick={undo} disabled={!canUndo || viewMode === 'preview'} tooltip="Undo (Ctrl+Z)">
-                <UndoIcon className={!canUndo || viewMode === 'preview' ? 'text-text-secondary/50' : ''} />
-            </IconButton>
-            <IconButton onClick={redo} disabled={!canRedo || viewMode === 'preview'} tooltip="Redo (Ctrl+Y)">
-                <RedoIcon className={!canRedo || viewMode === 'preview' ? 'text-text-secondary/50' : ''} />
-            </IconButton>
+      <div className="mt-3 flex justify-between items-center p-1 bg-secondary rounded-lg border border-border-color">
+        <div className="flex items-center">
+          <IconButton onClick={undo} disabled={!canUndo || viewMode === 'preview'} tooltip="Undo last change (Ctrl+Z)" size="sm" variant="ghost">
+              <UndoIcon className={`w-5 h-5 ${!canUndo || viewMode === 'preview' ? 'text-text-secondary/50' : ''}`} />
+          </IconButton>
+          <IconButton onClick={redo} disabled={!canRedo || viewMode === 'preview'} tooltip="Redo last change (Ctrl+Y)" size="sm" variant="ghost">
+              <RedoIcon className={`w-5 h-5 ${!canRedo || viewMode === 'preview' ? 'text-text-secondary/50' : ''}`} />
+          </IconButton>
         </div>
         <Button
           onClick={handleRefine}
           disabled={!content.trim() || viewMode === 'preview'}
           isLoading={isRefining}
-          className="min-w-[150px]"
+          className="px-3 py-1.5 !text-xs"
         >
-          {!isRefining && <SparklesIcon className="w-5 h-5 mr-2" />}
+          {!isRefining && <SparklesIcon className="w-4 h-4 mr-1.5" />}
           {isRefining ? 'Refining...' : 'Refine with AI'}
         </Button>
       </div>
