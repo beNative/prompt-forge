@@ -8,7 +8,8 @@
     "build": "node esbuild.config.js",
     "watch": "node esbuild.config.js --watch",
     "package": "npm run build && electron-builder",
-    "release": "npm run build && electron-builder --publish always"
+    "release": "npm run build && electron-builder --publish always",
+    "publish": "npm run build && electron-builder --publish always"
   },
   "keywords": [],
   "author": "",
