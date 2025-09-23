@@ -15,6 +15,33 @@ interface CustomTitleBarProps {
   onSearchTermChange: (term: string) => void;
 }
 
+interface CommandPaletteSearchProps {
+    commandPaletteTargetRef: React.RefObject<HTMLDivElement>;
+    searchTerm: string;
+    onSearchTermChange: (term: string) => void;
+    onOpenCommandPalette: () => void;
+}
+
+const CommandPaletteSearch: React.FC<CommandPaletteSearchProps> = ({ 
+    commandPaletteTargetRef, searchTerm, onSearchTermChange, onOpenCommandPalette 
+}) => (
+    <div 
+        ref={commandPaletteTargetRef}
+        className="not-draggable flex-1 max-w-lg mx-auto h-8 px-3 rounded-md bg-background border border-border-color hover:border-primary/50 flex items-center gap-2 relative"
+    >
+        <SearchIcon className="w-4 h-4 text-text-secondary" />
+        <input
+            type="text"
+            placeholder="Search commands..."
+            value={searchTerm}
+            onChange={(e) => onSearchTermChange(e.target.value)}
+            onFocus={onOpenCommandPalette}
+            className="w-full bg-transparent text-sm text-text-main placeholder:text-text-secondary focus:outline-none"
+        />
+        <span className="text-xs text-text-secondary bg-border-color/50 px-1.5 py-0.5 rounded">Ctrl+Shift+P</span>
+    </div>
+);
+
 const WindowControls: React.FC<{ platform: string, isMaximized: boolean }> = ({ platform, isMaximized }) => {
   const handleMinimize = () => window.electronAPI?.minimizeWindow();
   const handleMaximize = () => window.electronAPI?.maximizeWindow();
@@ -54,24 +81,6 @@ const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
             return cleanup;
         }
     }, []);
-
-    const CommandPaletteSearch = () => (
-        <div 
-            ref={commandPaletteTargetRef}
-            className="not-draggable flex-1 max-w-lg mx-auto h-8 px-3 rounded-md bg-background border border-border-color hover:border-primary/50 flex items-center gap-2 relative"
-        >
-            <SearchIcon className="w-4 h-4 text-text-secondary" />
-            <input
-                type="text"
-                placeholder="Search commands..."
-                value={searchTerm}
-                onChange={(e) => onSearchTermChange(e.target.value)}
-                onFocus={onOpenCommandPalette}
-                className="w-full bg-transparent text-sm text-text-main placeholder:text-text-secondary focus:outline-none"
-            />
-            <span className="text-xs text-text-secondary bg-border-color/50 px-1.5 py-0.5 rounded">Ctrl+Shift+P</span>
-        </div>
-    );
     
     return (
         <header className="draggable flex items-center justify-between h-10 flex-shrink-0 bg-secondary border-b border-border-color z-30 text-text-main">
@@ -81,7 +90,12 @@ const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
             </div>
 
             <div className="flex-1 flex justify-center">
-                <CommandPaletteSearch />
+                <CommandPaletteSearch 
+                    commandPaletteTargetRef={commandPaletteTargetRef}
+                    searchTerm={searchTerm}
+                    onSearchTermChange={onSearchTermChange}
+                    onOpenCommandPalette={onOpenCommandPalette}
+                />
             </div>
 
             <div className="flex items-center gap-1 flex-1 justify-end">
