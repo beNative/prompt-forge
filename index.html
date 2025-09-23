@@ -114,6 +114,68 @@
         .dark .token.atrule, .dark .token.attr-value, .dark .token.keyword { color: #8be9fd; }
         .dark .token.function, .dark .token.class-name { color: #ffb86c; }
         .dark .token.regex, .dark .token.important, .dark .token.variable { color: #f1fa8c; }
+
+        /* Markdown rendering styles */
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 {
+            color: rgb(var(--color-text-main));
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+            font-weight: 600;
+        }
+        .markdown-content h1 {
+            font-size: 1.875rem; /* text-3xl */
+            border-bottom: 1px solid rgb(var(--color-border));
+            padding-bottom: 0.4em;
+        }
+        .markdown-content h2 {
+            font-size: 1.5rem; /* text-2xl */
+        }
+        .markdown-content h3 {
+            font-size: 1.25rem; /* text-xl */
+        }
+        .markdown-content p {
+            margin-bottom: 1em;
+            line-height: 1.65;
+        }
+        .markdown-content ul, .markdown-content ol {
+            padding-left: 1.5em;
+            margin-bottom: 1em;
+        }
+        .markdown-content li {
+            margin-bottom: 0.5em;
+        }
+        .markdown-content a {
+            color: rgb(var(--color-accent));
+            text-decoration: underline;
+        }
+        .markdown-content a:hover {
+            opacity: 0.8;
+        }
+        .markdown-content code {
+            background-color: rgb(var(--color-background));
+            padding: 0.2em 0.4em;
+            margin: 0;
+            font-size: 85%;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            color: rgb(var(--color-accent));
+            border: 1px solid rgb(var(--color-border));
+        }
+        .markdown-content pre {
+            background-color: rgb(var(--color-background));
+            padding: 1em;
+            border: 1px solid rgb(var(--color-border));
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 1em;
+        }
+        .markdown-content pre code {
+            padding: 0;
+            margin: 0;
+            font-size: 100%;
+            background-color: transparent;
+            border: none;
+        }
     </style>
 <script type="importmap">
 {

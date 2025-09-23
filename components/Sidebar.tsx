@@ -45,10 +45,11 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
         const visibleIds = new Set<string>();
         const originalItemsById = new Map(props.prompts.map(i => [i.id, i]));
         const getAncestors = (itemId: string) => {
-            let current = originalItemsById.get(itemId);
+            // FIX: Explicitly type `current` to resolve type inference issue where it was being treated as `unknown`.
+            let current: PromptOrFolder | undefined = originalItemsById.get(itemId);
             while (current && current.parentId) {
-            visibleIds.add(current.parentId);
-            current = originalItemsById.get(current.parentId);
+              visibleIds.add(current.parentId);
+              current = originalItemsById.get(current.parentId);
             }
         };
         const getDescendantIds = (itemId: string): Set<string> => {

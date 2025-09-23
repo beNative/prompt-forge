@@ -1,8 +1,9 @@
 
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { PromptOrFolder, Settings } from '../types';
 import { llmService } from '../services/llmService';
-import { SparklesIcon, TrashIcon, UndoIcon, RedoIcon, CopyIcon, CheckIcon, HistoryIcon } from './Icons';
+import { SparklesIcon, TrashIcon, UndoIcon, RedoIcon, CopyIcon, CheckIcon, HistoryIcon, EyeIcon, PencilIcon } from './Icons';
 import Spinner from './Spinner';
 import Modal from './Modal';
 import { useLogger } from '../hooks/useLogger';
@@ -10,8 +11,9 @@ import { useHistoryState } from '../hooks/useHistoryState';
 import IconButton from './IconButton';
 import Button from './Button';
 
-// Let TypeScript know Prism is available on the window
+// Let TypeScript know Prism and marked are available on the window
 declare const Prism: any;
+declare const marked: any;
 
 interface PromptEditorProps {
   prompt: PromptOrFolder;
@@ -31,11 +33,17 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
   const [isDirty, setIsDirty] = useState(false);
   const [isAutoNaming, setIsAutoNaming] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
   const { addLog } = useLogger();
 
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const preRef = useRef<HTMLPreElement>(null);
   const autoNameTimeoutRef = useRef<number | null>(null);
+
+  // Switch back to edit mode if prompt changes
+  useEffect(() => {
+    setViewMode('edit');
+  }, [prompt.id]);
   
   // Effect to detect unsaved changes
   useEffect(() => {
@@ -109,6 +117,13 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
     }
     // Append a newline to prevent issues with highlighting the last line
     return Prism.highlight(content + '\n', Prism.languages.markdown, 'markdown');
+  }, [content]);
+
+  const renderedPreviewHtml = useMemo(() => {
+    if (typeof marked === 'undefined' || !content) {
+        return '';
+    }
+    return marked.parse(content);
   }, [content]);
 
   const syncScroll = () => {
@@ -202,6 +217,24 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
             )}
         </div>
         <div className="flex items-center gap-2">
+            <div className="flex items-center p-1 bg-secondary rounded-lg border border-border-color">
+                <IconButton
+                    onClick={() => setViewMode('edit')}
+                    tooltip="Edit"
+                    size="sm"
+                    className={`rounded-md ${viewMode === 'edit' ? 'bg-background text-primary' : 'text-text-secondary'}`}
+                >
+                    <PencilIcon className="w-5 h-5" />
+                </IconButton>
+                <IconButton
+                    onClick={() => setViewMode('preview')}
+                    tooltip="Preview"
+                    size="sm"
+                    className={`rounded-md ${viewMode === 'preview' ? 'bg-background text-primary' : 'text-text-secondary'}`}
+                >
+                    <EyeIcon className="w-5 h-5" />
+                </IconButton>
+            </div>
             <IconButton onClick={onShowHistory} tooltip="View History">
               <HistoryIcon className="w-5 h-5" />
             </IconButton>
@@ -219,42 +252,51 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         </div>
       </div>
 
-      <div 
-        className="editor-container relative w-full flex-1 rounded-lg bg-secondary border border-border-color focus-within:ring-2 focus-within:ring-primary focus-within:border-primary"
-        data-placeholder={!content ? "Enter your prompt here..." : ""}
-      >
-        <textarea
-          ref={editorRef}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          onKeyDown={handleContentKeyDown}
-          onScroll={syncScroll}
-          spellCheck="false"
-          className="absolute inset-0 p-4 w-full h-full bg-transparent text-transparent caret-primary resize-none font-mono text-base focus:outline-none z-10 whitespace-pre-wrap break-words"
-        />
-        <pre 
-            ref={preRef}
-            aria-hidden="true" 
-            className="absolute inset-0 p-4 w-full h-full overflow-auto pointer-events-none font-mono text-base whitespace-pre-wrap break-words"
+      {viewMode === 'edit' ? (
+        <div 
+            className="editor-container relative w-full flex-1 rounded-lg bg-secondary border border-border-color focus-within:ring-2 focus-within:ring-primary focus-within:border-primary"
+            data-placeholder={!content ? "Enter your prompt here..." : ""}
         >
-          <code className="language-markdown" dangerouslySetInnerHTML={{ __html: highlightedContent }} />
-        </pre>
-      </div>
+            <textarea
+            ref={editorRef}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            onKeyDown={handleContentKeyDown}
+            onScroll={syncScroll}
+            spellCheck="false"
+            className="absolute inset-0 p-4 w-full h-full bg-transparent text-transparent caret-primary resize-none font-mono text-base focus:outline-none z-10 whitespace-pre-wrap break-words"
+            />
+            <pre 
+                ref={preRef}
+                aria-hidden="true" 
+                className="absolute inset-0 p-4 w-full h-full overflow-auto pointer-events-none font-mono text-base whitespace-pre-wrap break-words"
+            >
+            <code className="language-markdown" dangerouslySetInnerHTML={{ __html: highlightedContent }} />
+            </pre>
+        </div>
+      ) : (
+        <div className="flex-1 w-full rounded-lg bg-secondary border border-border-color p-6 overflow-y-auto">
+            <div 
+                className="markdown-content text-text-secondary" 
+                dangerouslySetInnerHTML={{ __html: renderedPreviewHtml }}
+            />
+        </div>
+      )}
       
       {error && <div className="mt-4 text-destructive-text p-3 bg-destructive-bg rounded-md text-sm">{error}</div>}
 
       <div className="mt-4 flex justify-between items-center">
         <div className="flex items-center gap-1">
-            <IconButton onClick={undo} disabled={!canUndo} tooltip="Undo (Ctrl+Z)">
-                <UndoIcon className={!canUndo ? 'text-text-secondary/50' : ''} />
+            <IconButton onClick={undo} disabled={!canUndo || viewMode === 'preview'} tooltip="Undo (Ctrl+Z)">
+                <UndoIcon className={!canUndo || viewMode === 'preview' ? 'text-text-secondary/50' : ''} />
             </IconButton>
-            <IconButton onClick={redo} disabled={!canRedo} tooltip="Redo (Ctrl+Y)">
-                <RedoIcon className={!canRedo ? 'text-text-secondary/50' : ''} />
+            <IconButton onClick={redo} disabled={!canRedo || viewMode === 'preview'} tooltip="Redo (Ctrl+Y)">
+                <RedoIcon className={!canRedo || viewMode === 'preview' ? 'text-text-secondary/50' : ''} />
             </IconButton>
         </div>
         <Button
           onClick={handleRefine}
-          disabled={!content.trim()}
+          disabled={!content.trim() || viewMode === 'preview'}
           isLoading={isRefining}
           className="min-w-[150px]"
         >

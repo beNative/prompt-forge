@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { useIconSet } from '../hooks/useIconSet';
 import * as HeroIcons from './iconsets/Heroicons';
@@ -294,5 +295,27 @@ export const ArrowLeftIcon: React.FC<IconProps> = (props) => {
         case 'tabler': return <TablerIcons.ArrowLeftIcon {...props} />;
         case 'material': return <MaterialIcons.ArrowLeftIcon {...props} />;
         case 'heroicons': default: return <HeroIcons.ArrowLeftIcon {...props} />;
+    }
+};
+
+export const EyeIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    switch (iconSet) {
+        case 'lucide': return <LucideIcons.EyeIcon {...props} />;
+        case 'feather': return <FeatherIcons.EyeIcon {...props} />;
+        case 'tabler': return <TablerIcons.EyeIcon {...props} />;
+        case 'material': return <MaterialIcons.EyeIcon {...props} />;
+        case 'heroicons': default: return <HeroIcons.EyeIcon {...props} />;
+    }
+};
+
+export const PencilIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    switch (iconSet) {
+        case 'lucide': return <LucideIcons.PencilIcon {...props} />;
+        case 'feather': return <FeatherIcons.PencilIcon {...props} />;
+        case 'tabler': return <TablerIcons.PencilIcon {...props} />;
+        case 'material': return <MaterialIcons.PencilIcon {...props} />;
+        case 'heroicons': default: return <HeroIcons.PencilIcon {...props} />;
     }
 };
