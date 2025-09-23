@@ -50,15 +50,15 @@
     },
     "win": {
       "target": "nsis",
-      "icon": "assets/icon.svg"
+      "icon": "icon.svg"
     },
     "mac": {
       "target": "dmg",
-      "icon": "assets/icon.svg"
+      "icon": "icon.svg"
     },
     "linux": {
       "target": "AppImage",
-      "icon": "assets/icon.svg"
+      "icon": "icon.svg"
     }
   }
 }
