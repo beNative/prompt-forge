@@ -163,7 +163,7 @@ export const ArrowLeftIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) =>
 
 export const EyeIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639l4.418-5.571a.998.998 0 0 1 1.486-.252l2.115 1.586a.998.998 0 0 0 1.258 0l2.115-1.586a.998.998 0 0 1 1.486.252l4.418 5.571a1.012 1.012 0 0 1 0 .639l-4.418 5.571a.998.998 0 0 1-1.486.252l-2.115-1.586a.998.998 0 0 0-1.258 0l-2.115 1.586a.998.998 0 0 1-1.486-.252L2.036 12.322z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639l4.418-5.571a.998.998 0 0 1 1.486-.252l2.115 1.586a.998.998 0 0 0 1.258 0l2.115-1.586a.998.998 0 0 1 1.486.252l4.418 5.571a1.012 1.012 0 0 1 0 .639l-4.418 5.571a.998.998 0 0 1-1.486.252l-2.115-1.586a.998.998 0 0 0-1.258 0l-2.115-1.586a.998.998 0 0 1-1.486-.252L2.036 12.322z" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
   </svg>
 );
@@ -171,5 +171,17 @@ export const EyeIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
 export const PencilIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
         <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+    </svg>
+);
+
+export const LayoutHorizontalIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+    </svg>
+);
+
+export const LayoutVerticalIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5" />
     </svg>
 );

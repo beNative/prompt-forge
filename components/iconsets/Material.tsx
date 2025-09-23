@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 
 type IconProps = {
@@ -98,4 +96,12 @@ export const EyeIcon: React.FC<IconProps> = ({ className }) => (
 
 export const PencilIcon: React.FC<IconProps> = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+);
+
+export const LayoutHorizontalIcon: React.FC<IconProps> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H3V6h18v12zM6 10h12v2H6z"/></svg>
+);
+
+export const LayoutVerticalIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M13 19V5h8v14h-8zM3 19V5h8v14H3zm2-2h4V7H5v10z"/></svg>
 );

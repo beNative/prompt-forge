@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import type { PromptOrFolder, Settings } from '../types';
 import { llmService } from '../services/llmService';
-import { SparklesIcon, TrashIcon, UndoIcon, RedoIcon, CopyIcon, CheckIcon, HistoryIcon, EyeIcon, PencilIcon } from './Icons';
+import { SparklesIcon, TrashIcon, UndoIcon, RedoIcon, CopyIcon, CheckIcon, HistoryIcon, EyeIcon, PencilIcon, LayoutHorizontalIcon, LayoutVerticalIcon } from './Icons';
 import Spinner from './Spinner';
 import Modal from './Modal';
 import { useLogger } from '../hooks/useLogger';
@@ -12,6 +12,8 @@ import Button from './Button';
 // Let TypeScript know Prism and marked are available on the window
 declare const Prism: any;
 declare const marked: any;
+
+type ViewMode = 'edit' | 'preview' | 'split-vertical' | 'split-horizontal';
 
 interface PromptEditorProps {
   prompt: PromptOrFolder;
@@ -31,11 +33,9 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
   const [isDirty, setIsDirty] = useState(false);
   const [isAutoNaming, setIsAutoNaming] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
+  const [viewMode, setViewMode] = useState<ViewMode>('edit');
   const { addLog } = useLogger();
-
-  const editorRef = useRef<HTMLTextAreaElement>(null);
-  const preRef = useRef<HTMLPreElement>(null);
+  
   const autoNameTimeoutRef = useRef<number | null>(null);
 
   // Switch back to edit mode if prompt changes
@@ -108,29 +108,12 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
     };
   }, [content, prompt.title, prompt.type, settings, addLog, isAutoNaming]);
   
-  const highlightedContent = useMemo(() => {
-    if (typeof Prism === 'undefined' || !Prism.languages.markdown) {
-        // Fallback for when Prism isn't loaded yet
-        return content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
-    // Append a newline to prevent issues with highlighting the last line
-    return Prism.highlight(content + '\n', Prism.languages.markdown, 'markdown');
-  }, [content]);
-
   const renderedPreviewHtml = useMemo(() => {
     if (typeof marked === 'undefined' || !content) {
         return '';
     }
     return marked.parse(content);
   }, [content]);
-
-  const syncScroll = () => {
-    if (editorRef.current && preRef.current) {
-        preRef.current.scrollTop = editorRef.current.scrollTop;
-        preRef.current.scrollLeft = editorRef.current.scrollLeft;
-    }
-  };
-
 
   const handleRefine = async () => {
     setIsRefining(true);
@@ -165,21 +148,6 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
     setRefinedContent(null);
   }
 
-  const handleContentKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    const isUndo = (isMac ? e.metaKey : e.ctrlKey) && !e.shiftKey && e.key === 'z';
-    const isRedo = (isMac ? e.metaKey && e.shiftKey && e.key === 'z' : e.ctrlKey && e.key === 'y');
-
-    if (isUndo) {
-        e.preventDefault();
-        undo();
-    }
-    if (isRedo) {
-        e.preventDefault();
-        redo();
-    }
-  };
-
   const handleCopy = async () => {
     if (!content.trim()) return;
     try {
@@ -191,6 +159,92 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         addLog('ERROR', `Failed to copy to clipboard: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
+  
+  const EditorPane = useCallback(() => {
+    const editorRef = useRef<HTMLTextAreaElement>(null);
+    const preRef = useRef<HTMLPreElement>(null);
+
+    const highlightedContent = useMemo(() => {
+        if (typeof Prism === 'undefined' || !Prism.languages.markdown) {
+            return content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+        return Prism.highlight(content + '\n', Prism.languages.markdown, 'markdown');
+    }, [content]);
+
+    const syncScroll = () => {
+        if (editorRef.current && preRef.current) {
+            preRef.current.scrollTop = editorRef.current.scrollTop;
+            preRef.current.scrollLeft = editorRef.current.scrollLeft;
+        }
+    };
+
+    const handleContentKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        const isUndo = (isMac ? e.metaKey : e.ctrlKey) && !e.shiftKey && e.key === 'z';
+        const isRedo = (isMac ? e.metaKey && e.shiftKey && e.key === 'z' : e.ctrlKey && e.key === 'y');
+
+        if (isUndo) { e.preventDefault(); undo(); }
+        if (isRedo) { e.preventDefault(); redo(); }
+    };
+    
+    return (
+        <div 
+            className="editor-container relative w-full h-full focus-within:ring-2 focus-within:ring-primary"
+            data-placeholder={!content ? "Enter your prompt here..." : ""}
+        >
+            <textarea
+                ref={editorRef}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onKeyDown={handleContentKeyDown}
+                onScroll={syncScroll}
+                spellCheck="false"
+                className="absolute inset-0 p-6 w-full h-full bg-transparent text-transparent caret-primary resize-none font-mono text-base focus:outline-none z-10 whitespace-pre-wrap break-words"
+            />
+            <pre 
+                ref={preRef}
+                aria-hidden="true" 
+                className="absolute inset-0 p-6 w-full h-full overflow-auto pointer-events-none font-mono text-base whitespace-pre-wrap break-words"
+            >
+                <code className="language-markdown" dangerouslySetInnerHTML={{ __html: highlightedContent }} />
+            </pre>
+        </div>
+    );
+  }, [content, setContent, undo, redo]);
+  
+  const PreviewPane = useCallback(() => (
+    <div className="w-full h-full p-6 overflow-y-auto">
+        <div 
+            className="markdown-content text-text-secondary" 
+            dangerouslySetInnerHTML={{ __html: renderedPreviewHtml }}
+        />
+    </div>
+  ), [renderedPreviewHtml]);
+
+  const renderContent = () => {
+    switch(viewMode) {
+        case 'edit':
+            return <EditorPane />;
+        case 'preview':
+            return <PreviewPane />;
+        case 'split-vertical':
+            return (
+                <div className="flex flex-row h-full">
+                    <div className="w-1/2 h-full"><EditorPane /></div>
+                    <div className="w-px bg-border-color" />
+                    <div className="w-1/2 h-full"><PreviewPane /></div>
+                </div>
+            );
+        case 'split-horizontal':
+            return (
+                <div className="flex flex-col h-full">
+                    <div className="h-1/2 w-full"><EditorPane /></div>
+                    <div className="h-px bg-border-color" />
+                    <div className="h-1/2 w-full"><PreviewPane /></div>
+                </div>
+            );
+    }
+  }
 
   return (
     <div className="flex-1 flex flex-col bg-background overflow-y-auto">
@@ -216,11 +270,17 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         </div>
         <div className="flex items-center gap-1">
             <div className="flex items-center p-1 bg-background rounded-lg border border-border-color">
-                <IconButton onClick={() => setViewMode('edit')} tooltip="Edit" size="sm" className={`rounded-md ${viewMode === 'edit' ? 'bg-secondary text-primary' : 'text-text-secondary'}`} >
+                <IconButton onClick={() => setViewMode('edit')} tooltip="Editor Only" size="sm" className={`rounded-md ${viewMode === 'edit' ? 'bg-secondary text-primary' : 'text-text-secondary'}`} >
                     <PencilIcon className="w-5 h-5" />
                 </IconButton>
-                <IconButton onClick={() => setViewMode('preview')} tooltip="Preview" size="sm" className={`rounded-md ${viewMode === 'preview' ? 'bg-secondary text-primary' : 'text-text-secondary'}`}>
+                <IconButton onClick={() => setViewMode('preview')} tooltip="Preview Only" size="sm" className={`rounded-md ${viewMode === 'preview' ? 'bg-secondary text-primary' : 'text-text-secondary'}`}>
                     <EyeIcon className="w-5 h-5" />
+                </IconButton>
+                 <IconButton onClick={() => setViewMode('split-vertical')} tooltip="Split Vertical" size="sm" className={`rounded-md ${viewMode === 'split-vertical' ? 'bg-secondary text-primary' : 'text-text-secondary'}`}>
+                    <LayoutVerticalIcon className="w-5 h-5" />
+                </IconButton>
+                 <IconButton onClick={() => setViewMode('split-horizontal')} tooltip="Split Horizontal" size="sm" className={`rounded-md ${viewMode === 'split-horizontal' ? 'bg-secondary text-primary' : 'text-text-secondary'}`}>
+                    <LayoutHorizontalIcon className="w-5 h-5" />
                 </IconButton>
             </div>
 
@@ -250,40 +310,10 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         </div>
       </div>
 
-        <div className="flex-1 flex flex-col bg-secondary overflow-y-auto">
-            {viewMode === 'edit' ? (
-            <div 
-                className="editor-container relative w-full flex-1 focus-within:ring-2 focus-within:ring-primary"
-                data-placeholder={!content ? "Enter your prompt here..." : ""}
-            >
-                <textarea
-                ref={editorRef}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                onKeyDown={handleContentKeyDown}
-                onScroll={syncScroll}
-                spellCheck="false"
-                className="absolute inset-0 p-6 w-full h-full bg-transparent text-transparent caret-primary resize-none font-mono text-base focus:outline-none z-10 whitespace-pre-wrap break-words"
-                />
-                <pre 
-                    ref={preRef}
-                    aria-hidden="true" 
-                    className="absolute inset-0 p-6 w-full h-full overflow-auto pointer-events-none font-mono text-base whitespace-pre-wrap break-words"
-                >
-                <code className="language-markdown" dangerouslySetInnerHTML={{ __html: highlightedContent }} />
-                </pre>
-            </div>
-          ) : (
-            <div className="flex-1 w-full p-6 overflow-y-auto">
-                <div 
-                    className="markdown-content text-text-secondary" 
-                    dangerouslySetInnerHTML={{ __html: renderedPreviewHtml }}
-                />
-            </div>
-          )}
-          
-          {error && <div className="text-destructive-text p-3 bg-destructive-bg rounded-md text-sm mx-6 mb-6">{error}</div>}
-        </div>
+      <div className="flex-1 flex flex-col bg-secondary overflow-hidden">
+        {renderContent()}
+        {error && <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-destructive-text p-3 bg-destructive-bg rounded-md text-sm shadow-lg z-20">{error}</div>}
+      </div>
       
       {refinedContent && (
         <Modal onClose={discardRefinement} title="AI Refinement Suggestion">

@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { useIconSet } from '../hooks/useIconSet';
 import * as HeroIcons from './iconsets/Heroicons';
@@ -317,5 +315,27 @@ export const PencilIcon: React.FC<IconProps> = (props) => {
         case 'tabler': return <TablerIcons.PencilIcon {...props} />;
         case 'material': return <MaterialIcons.PencilIcon {...props} />;
         case 'heroicons': default: return <HeroIcons.PencilIcon {...props} />;
+    }
+};
+
+export const LayoutHorizontalIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    switch (iconSet) {
+        case 'lucide': return <LucideIcons.LayoutHorizontalIcon {...props} />;
+        case 'feather': return <FeatherIcons.LayoutHorizontalIcon {...props} />;
+        case 'tabler': return <TablerIcons.LayoutHorizontalIcon {...props} />;
+        case 'material': return <MaterialIcons.LayoutHorizontalIcon {...props} />;
+        case 'heroicons': default: return <HeroIcons.LayoutHorizontalIcon {...props} />;
+    }
+};
+
+export const LayoutVerticalIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    switch (iconSet) {
+        case 'lucide': return <LucideIcons.LayoutVerticalIcon {...props} />;
+        case 'feather': return <FeatherIcons.LayoutVerticalIcon {...props} />;
+        case 'tabler': return <TablerIcons.LayoutVerticalIcon {...props} />;
+        case 'material': return <MaterialIcons.LayoutVerticalIcon {...props} />;
+        case 'heroicons': default: return <HeroIcons.LayoutVerticalIcon {...props} />;
     }
 };
