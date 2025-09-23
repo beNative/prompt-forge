@@ -45,7 +45,6 @@
       "./VERSION_LOG.md"
     ],
     "directories": {
-      "buildResources": "assets",
       "output": "release"
     },
     "win": {
