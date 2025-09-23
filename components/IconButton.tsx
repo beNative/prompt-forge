@@ -1,6 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
-import { useSettings } from '../hooks/useSettings';
 
 interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
@@ -15,19 +14,23 @@ const Tooltip: React.FC<{
   tooltip: string;
   position: 'top' | 'bottom';
 }> = ({ targetRef, tooltip, position }) => {
-  const { settings } = useSettings();
   const tooltipRef = useRef<HTMLSpanElement>(null);
   const [style, setStyle] = useState<React.CSSProperties>({ opacity: 0 });
 
   const calculatePosition = useCallback(() => {
-    const zoomFactor = settings.uiScale / 100;
-
-    if (targetRef.current && tooltipRef.current) {
-      // getBoundingClientRect returns coordinates and dimensions in "visual" (scaled) pixels.
+    if (targetRef.current && tooltipRef.current && targetRef.current.offsetWidth > 0) {
       const scaledTargetRect = targetRef.current.getBoundingClientRect();
+      
+      // Directly measure the zoom factor from the element itself. This is much more robust
+      // than relying on a setting, as it accounts for any kind of zoom (CSS, browser, etc.).
+      const zoomFactor = scaledTargetRect.width / targetRef.current.offsetWidth;
+      
+      // If zoomFactor is 0 or NaN (e.g., element is not displayed), bail out.
+      if (!zoomFactor || !isFinite(zoomFactor)) return;
+
       const scaledTooltipRect = tooltipRef.current.getBoundingClientRect();
 
-      // We need to convert these back to "layout" pixels to work with the layout viewport (window.innerWidth).
+      // Convert all visual (scaled) coordinates and dimensions back to layout coordinates.
       const targetRect = {
         top: scaledTargetRect.top / zoomFactor,
         left: scaledTargetRect.left / zoomFactor,
@@ -42,7 +45,7 @@ const Tooltip: React.FC<{
         height: scaledTooltipRect.height / zoomFactor,
       };
 
-      // window.innerWidth/Height are already in "layout" pixels.
+      // `window.innerWidth/Height` are already in layout pixels.
       const { innerWidth, innerHeight } = window;
       const margin = 8;
 
@@ -73,8 +76,8 @@ const Tooltip: React.FC<{
       if (left + tooltipRect.width > innerWidth - margin) left = innerWidth - tooltipRect.width - margin;
       if (top < margin) top = margin;
       if (top + tooltipRect.height > innerHeight - margin) top = innerHeight - tooltipRect.height - margin;
-
-      // Set the final style using layout pixel values. The browser's zoom will handle rendering it correctly.
+      
+      // Set the final style using layout pixel values. The browser's zoom will render it correctly.
       setStyle({
         position: 'fixed',
         top: `${top}px`,
@@ -82,15 +85,12 @@ const Tooltip: React.FC<{
         opacity: 1,
       });
     }
-  }, [targetRef, position, settings.uiScale]);
+  }, [targetRef, position]);
 
   React.useLayoutEffect(() => {
-    // Calculate position on mount and when layout changes.
     calculatePosition();
-
     window.addEventListener('resize', calculatePosition);
     document.addEventListener('scroll', calculatePosition, true);
-
     return () => {
       window.removeEventListener('resize', calculatePosition);
       document.removeEventListener('scroll', calculatePosition, true);
