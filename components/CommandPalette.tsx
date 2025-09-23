@@ -67,12 +67,12 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
   }, [isOpen, onClose, targetRef]);
 
 
-  // Reset search on open
+  // Reset selection on open or when search term changes
   useEffect(() => {
     if (isOpen) {
       setSelectedIndex(0);
     }
-  }, [isOpen]);
+  }, [isOpen, searchTerm]);
   
   // Scroll the selected item into view
   useEffect(() => {
@@ -89,32 +89,34 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Allow parent to handle search term typing
-      if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete') {
-        const target = e.target as HTMLElement;
-        if(target.tagName.toLowerCase() !== 'input') {
-          return;
-        }
-      }
-        
+      // This listener ONLY handles navigation and execution.
+      // It IGNORES all other keys, allowing them to be handled by the focused element (e.g., the search input).
       if (filteredCommands.length === 0 && e.key !== 'Escape') return;
 
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setSelectedIndex((prev) => (prev + 1) % filteredCommands.length);
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setSelectedIndex((prev) => (prev - 1 + filteredCommands.length) % filteredCommands.length);
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        const command = filteredCommands[selectedIndex];
-        if (command) {
-          command.action();
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          setSelectedIndex((prev) => (prev + 1) % filteredCommands.length);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          setSelectedIndex((prev) => (prev - 1 + filteredCommands.length) % filteredCommands.length);
+          break;
+        case 'Enter':
+          e.preventDefault();
+          const command = filteredCommands[selectedIndex];
+          if (command) {
+            command.action();
+            onClose();
+          }
+          break;
+        case 'Escape':
+          e.preventDefault();
           onClose();
-        }
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
+          break;
+        default:
+          // Do nothing for any other key, allowing default browser behavior.
+          break;
       }
     };
 
