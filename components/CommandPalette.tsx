@@ -7,14 +7,17 @@ interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
   commands: Command[];
+  targetRef: React.RefObject<HTMLElement>;
 }
 
-const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, commands }) => {
+const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, commands, targetRef }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [style, setStyle] = useState<React.CSSProperties>({});
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const paletteRef = useRef<HTMLDivElement>(null);
 
   const filteredCommands = useMemo(() => {
     const sorted = [...commands].sort((a, b) => a.category.localeCompare(b.category));
@@ -29,21 +32,42 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
     );
   }, [commands, searchTerm]);
 
-  const handleClose = useCallback(() => {
-    setIsVisible(false);
-    setTimeout(onClose, 200); // Match transition duration
-  }, [onClose]);
-
-  // Handle animations and focus
+  // Handle positioning and animations
   useEffect(() => {
     if (isOpen) {
+      if (targetRef.current) {
+        const rect = targetRef.current.getBoundingClientRect();
+        setStyle({
+          top: `${rect.bottom + 6}px`,
+          left: `${rect.left}px`,
+          width: `${rect.width}px`,
+        });
+      }
       const timer = setTimeout(() => {
         setIsVisible(true);
         inputRef.current?.focus();
-      }, 10); // Small delay to allow mounting and trigger transition
+      }, 10);
       return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
     }
-  }, [isOpen]);
+  }, [isOpen, targetRef]);
+
+  // Handle closing on outside click
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        paletteRef.current && !paletteRef.current.contains(event.target as Node) &&
+        targetRef.current && !targetRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen, onClose, targetRef]);
+
 
   // Reset search on open
   useEffect(() => {
@@ -81,17 +105,17 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
         const command = filteredCommands[selectedIndex];
         if (command) {
           command.action();
-          handleClose();
+          onClose();
         }
       } else if (e.key === 'Escape') {
         e.preventDefault();
-        handleClose();
+        onClose();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, filteredCommands, selectedIndex, handleClose]);
+  }, [isOpen, filteredCommands, selectedIndex, onClose]);
   
   const overlayRoot = document.getElementById('overlay-root');
   if (!isOpen) {
@@ -118,7 +142,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
           data-index={index}
           onClick={() => {
             command.action();
-            handleClose();
+            onClose();
           }}
           className={`flex items-center justify-between px-3 py-2.5 mx-2 rounded-md cursor-pointer text-sm ${
             isSelected ? 'bg-primary text-primary-text' : 'text-text-main hover:bg-border-color/50'
@@ -145,15 +169,12 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
 
 
   const paletteContent = (
-    <div 
-        className={`fixed inset-0 bg-modal-backdrop z-50 flex justify-center pt-[15vh] transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-        onClick={handleClose}
+      <div 
+        ref={paletteRef}
+        style={style}
+        className={`fixed z-50 bg-secondary rounded-xl shadow-2xl border border-border-color flex flex-col overflow-hidden max-h-[60vh] transition-all duration-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
         role="dialog"
         aria-modal="true"
-    >
-      <div 
-        className={`w-full max-w-lg mx-4 bg-secondary rounded-xl shadow-2xl border border-border-color flex flex-col overflow-hidden max-h-[60vh] transition-all duration-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 p-4 border-b border-border-color">
           <CommandIcon className="w-5 h-5 text-text-secondary flex-shrink-0" />
@@ -177,7 +198,6 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
           )}
         </ul>
       </div>
-    </div>
   );
 
   return ReactDOM.createPortal(paletteContent, overlayRoot);

@@ -68,6 +68,7 @@ const App: React.FC = () => {
 
     const isSidebarResizing = useRef(false);
     const isLoggerResizing = useRef(false);
+    const commandPaletteTargetRef = useRef<HTMLDivElement>(null);
 
     const llmStatus = useLLMStatus(settings.llmProviderUrl);
     const { logs, addLog } = useLogger();
@@ -551,7 +552,10 @@ const App: React.FC = () => {
     return (
         <IconProvider value={{ iconSet: getSupportedIconSet(settings.iconSet) }}>
             <div className="flex flex-col h-full font-sans bg-background text-text-main antialiased">
-                {isElectron ? <CustomTitleBar {...headerProps} /> : <Header {...headerProps} />}
+                {isElectron 
+                    ? <CustomTitleBar {...headerProps} commandPaletteTargetRef={commandPaletteTargetRef} /> 
+                    : <Header {...headerProps} />
+                }
                 <main className="flex-1 flex overflow-hidden">
                     {view === 'editor' && (
                         <>
@@ -612,7 +616,12 @@ const App: React.FC = () => {
                 height={loggerPanelHeight}
                 onResizeStart={handleLoggerMouseDown}
             />
-            <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} commands={commands} />
+            <CommandPalette 
+                isOpen={isCommandPaletteOpen} 
+                onClose={() => setIsCommandPaletteOpen(false)} 
+                commands={commands}
+                targetRef={commandPaletteTargetRef}
+            />
 
             {isCreateFromTemplateOpen && (
                 <CreateFromTemplateModal
