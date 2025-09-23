@@ -30,6 +30,17 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
         command.keywords?.toLowerCase().includes(lowercasedTerm)
     );
   }, [commands, searchTerm]);
+  
+  // Refs to hold the latest values for the event listener without adding them as dependencies.
+  const filteredCommandsRef = useRef(filteredCommands);
+  const selectedIndexRef = useRef(selectedIndex);
+  
+  // Keep the refs updated on each render.
+  useEffect(() => {
+    filteredCommandsRef.current = filteredCommands;
+    selectedIndexRef.current = selectedIndex;
+  }, [filteredCommands, selectedIndex]);
+
 
   // Handle positioning and animations
   useEffect(() => {
@@ -83,46 +94,55 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
         }
     }
   }, [selectedIndex, filteredCommands]);
+  
+  // The keyboard handler, wrapped in useCallback for stability.
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // It now reads from refs, so it doesn't need the state values in its dependency array.
+    const commands = filteredCommandsRef.current;
+    if (commands.length === 0 && e.key !== 'Escape') return;
 
-  // Handle keyboard navigation
+    switch (e.key) {
+      case 'ArrowDown': {
+        e.preventDefault();
+        // We still call the state setter function here.
+        setSelectedIndex(prev => (prev + 1) % commands.length);
+        break;
+      }
+      case 'ArrowUp': {
+        e.preventDefault();
+        setSelectedIndex(prev => (prev - 1 + commands.length) % commands.length);
+        break;
+      }
+      case 'Enter': {
+        e.preventDefault();
+        const currentIndex = selectedIndexRef.current;
+        const command = commands[currentIndex];
+        if (command) {
+          command.action();
+          onClose();
+        }
+        break;
+      }
+      case 'Escape': {
+        e.preventDefault();
+        onClose();
+        break;
+      }
+      default:
+        break;
+    }
+  }, [onClose]); // Dependency is stable. setSelectedIndex is guaranteed stable by React.
+
+  // The effect that attaches the listener. Now its dependencies are stable.
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // This listener ONLY handles navigation and execution.
-      // It IGNORES all other keys, allowing them to be handled by the focused element (e.g., the search input).
-      if (filteredCommands.length === 0 && e.key !== 'Escape') return;
-
-      switch (e.key) {
-        case 'ArrowDown':
-          e.preventDefault();
-          setSelectedIndex((prev) => (prev + 1) % filteredCommands.length);
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          setSelectedIndex((prev) => (prev - 1 + filteredCommands.length) % filteredCommands.length);
-          break;
-        case 'Enter':
-          e.preventDefault();
-          const command = filteredCommands[selectedIndex];
-          if (command) {
-            command.action();
-            onClose();
-          }
-          break;
-        case 'Escape':
-          e.preventDefault();
-          onClose();
-          break;
-        default:
-          // Do nothing for any other key, allowing default browser behavior.
-          break;
-      }
-    };
-
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, filteredCommands, selectedIndex, onClose]);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, handleKeyDown]);
+
   
   const overlayRoot = document.getElementById('overlay-root');
   if (!isOpen) {
