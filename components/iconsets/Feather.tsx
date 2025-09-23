@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 
 type IconProps = {
@@ -49,10 +47,10 @@ export const ChevronRightIcon: React.FC<IconProps> = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><polyline points="9 18 15 12 9 6"></polyline></svg>
 );
 export const UndoIcon: React.FC<IconProps> = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M11 4H4a2 2 0 0 0-2 2v10"></path><path d="M11 9l-7 7 7-7"></path><path d="M20 18c-3.7 0-6.8-2.5-7.8-6"></path></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
 );
 export const RedoIcon: React.FC<IconProps> = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M13 20h7a2 2 0 0 0 2-2V8"></path><path d="M13 15l7-7-7-7"></path><path d="M4 12c.8 4.5 4.5 8 9 8"></path></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><polyline points="15 14 20 9 15 4"></polyline><path d="M4 20v-7a4 4 0 0 1 4-4h12"></path></svg>
 );
 export const CommandIcon: React.FC<IconProps> = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"></path></svg>

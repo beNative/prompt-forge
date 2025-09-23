@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { PromptOrFolder, Settings } from '../types';
 import { llmService } from '../services/llmService';
@@ -216,39 +214,39 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
                 </div>
             )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
             <div className="flex items-center p-1 bg-secondary rounded-lg border border-border-color">
-                <IconButton
-                    onClick={() => setViewMode('edit')}
-                    tooltip="Edit"
-                    size="sm"
-                    className={`rounded-md ${viewMode === 'edit' ? 'bg-background text-primary' : 'text-text-secondary'}`}
-                >
+                <IconButton onClick={() => setViewMode('edit')} tooltip="Edit" size="sm" className={`rounded-md ${viewMode === 'edit' ? 'bg-background text-primary' : 'text-text-secondary'}`} >
                     <PencilIcon className="w-5 h-5" />
                 </IconButton>
-                <IconButton
-                    onClick={() => setViewMode('preview')}
-                    tooltip="Preview"
-                    size="sm"
-                    className={`rounded-md ${viewMode === 'preview' ? 'bg-background text-primary' : 'text-text-secondary'}`}
-                >
+                <IconButton onClick={() => setViewMode('preview')} tooltip="Preview" size="sm" className={`rounded-md ${viewMode === 'preview' ? 'bg-background text-primary' : 'text-text-secondary'}`}>
                     <EyeIcon className="w-5 h-5" />
                 </IconButton>
             </div>
-            <IconButton onClick={onShowHistory} tooltip="View History">
+
+            <div className="h-6 w-px bg-border-color mx-1"></div>
+
+            <IconButton onClick={undo} disabled={!canUndo || viewMode === 'preview'} tooltip="Undo (Ctrl+Z)" size="sm" variant="ghost">
+                <UndoIcon className="w-5 h-5" />
+            </IconButton>
+            <IconButton onClick={redo} disabled={!canRedo || viewMode === 'preview'} tooltip="Redo (Ctrl+Y)" size="sm" variant="ghost">
+                <RedoIcon className="w-5 h-5" />
+            </IconButton>
+            <IconButton onClick={onShowHistory} tooltip="View Version History" size="sm" variant="ghost">
               <HistoryIcon className="w-5 h-5" />
             </IconButton>
-            <IconButton
-              onClick={handleCopy}
-              disabled={!content.trim()}
-              tooltip={isCopied ? 'Copied!' : 'Copy Prompt'}
-            >
+            
+            <div className="h-6 w-px bg-border-color mx-1"></div>
+
+            <IconButton onClick={handleCopy} disabled={!content.trim()} tooltip={isCopied ? 'Copied!' : 'Copy Prompt'} size="sm" variant="ghost">
               {isCopied ? <CheckIcon className="w-5 h-5 text-success" /> : <CopyIcon className="w-5 h-5" />}
             </IconButton>
-            <Button variant="destructive" onClick={() => onDelete(prompt.id)}>
-              <TrashIcon className="w-4 h-4 mr-2" />
-              Delete
-            </Button>
+            <IconButton onClick={handleRefine} disabled={!content.trim() || viewMode === 'preview' || isRefining} tooltip="Refine with AI" size="sm" variant="ghost">
+                {isRefining ? <Spinner /> : <SparklesIcon className="w-5 h-5 text-primary" />}
+            </IconButton>
+            <IconButton onClick={() => onDelete(prompt.id)} tooltip="Delete Prompt" size="sm" variant="destructive">
+              <TrashIcon className="w-5 h-5" />
+            </IconButton>
         </div>
       </div>
 
@@ -284,26 +282,6 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
       )}
       
       {error && <div className="mt-4 text-destructive-text p-3 bg-destructive-bg rounded-md text-sm">{error}</div>}
-
-      <div className="mt-3 flex justify-between items-center p-1 bg-secondary rounded-lg border border-border-color">
-        <div className="flex items-center">
-          <IconButton onClick={undo} disabled={!canUndo || viewMode === 'preview'} tooltip="Undo last change (Ctrl+Z)" size="sm" variant="ghost">
-              <UndoIcon className={`w-5 h-5 ${!canUndo || viewMode === 'preview' ? 'text-text-secondary/50' : ''}`} />
-          </IconButton>
-          <IconButton onClick={redo} disabled={!canRedo || viewMode === 'preview'} tooltip="Redo last change (Ctrl+Y)" size="sm" variant="ghost">
-              <RedoIcon className={`w-5 h-5 ${!canRedo || viewMode === 'preview' ? 'text-text-secondary/50' : ''}`} />
-          </IconButton>
-        </div>
-        <Button
-          onClick={handleRefine}
-          disabled={!content.trim() || viewMode === 'preview'}
-          isLoading={isRefining}
-          className="px-3 py-1.5 !text-xs"
-        >
-          {!isRefining && <SparklesIcon className="w-4 h-4 mr-1.5" />}
-          {isRefining ? 'Refining...' : 'Refine with AI'}
-        </Button>
-      </div>
       
       {refinedContent && (
         <Modal onClose={discardRefinement} title="AI Refinement Suggestion">
