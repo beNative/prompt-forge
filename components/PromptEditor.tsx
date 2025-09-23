@@ -193,8 +193,8 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
   };
 
   return (
-    <div className="flex-1 flex flex-col p-6 bg-background overflow-y-auto">
-      <div className="flex justify-between items-center mb-6 gap-4">
+    <div className="flex-1 flex flex-col bg-secondary overflow-y-auto">
+      <div className="flex justify-between items-center px-6 py-6 gap-4 border-b border-border-color flex-shrink-0">
         <div className="flex items-center gap-3 flex-1 min-w-0">
             <input
               type="text"
@@ -215,11 +215,11 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
             )}
         </div>
         <div className="flex items-center gap-1">
-            <div className="flex items-center p-1 bg-secondary rounded-lg border border-border-color">
-                <IconButton onClick={() => setViewMode('edit')} tooltip="Edit" size="sm" className={`rounded-md ${viewMode === 'edit' ? 'bg-background text-primary' : 'text-text-secondary'}`} >
+            <div className="flex items-center p-1 bg-background rounded-lg border border-border-color">
+                <IconButton onClick={() => setViewMode('edit')} tooltip="Edit" size="sm" className={`rounded-md ${viewMode === 'edit' ? 'bg-secondary text-primary' : 'text-text-secondary'}`} >
                     <PencilIcon className="w-5 h-5" />
                 </IconButton>
-                <IconButton onClick={() => setViewMode('preview')} tooltip="Preview" size="sm" className={`rounded-md ${viewMode === 'preview' ? 'bg-background text-primary' : 'text-text-secondary'}`}>
+                <IconButton onClick={() => setViewMode('preview')} tooltip="Preview" size="sm" className={`rounded-md ${viewMode === 'preview' ? 'bg-secondary text-primary' : 'text-text-secondary'}`}>
                     <EyeIcon className="w-5 h-5" />
                 </IconButton>
             </div>
@@ -250,38 +250,40 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         </div>
       </div>
 
-      {viewMode === 'edit' ? (
-        <div 
-            className="editor-container relative w-full flex-1 rounded-lg bg-secondary border border-border-color focus-within:ring-2 focus-within:ring-primary focus-within:border-primary"
-            data-placeholder={!content ? "Enter your prompt here..." : ""}
-        >
-            <textarea
-            ref={editorRef}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            onKeyDown={handleContentKeyDown}
-            onScroll={syncScroll}
-            spellCheck="false"
-            className="absolute inset-0 p-4 w-full h-full bg-transparent text-transparent caret-primary resize-none font-mono text-base focus:outline-none z-10 whitespace-pre-wrap break-words"
-            />
-            <pre 
-                ref={preRef}
-                aria-hidden="true" 
-                className="absolute inset-0 p-4 w-full h-full overflow-auto pointer-events-none font-mono text-base whitespace-pre-wrap break-words"
-            >
-            <code className="language-markdown" dangerouslySetInnerHTML={{ __html: highlightedContent }} />
-            </pre>
-        </div>
-      ) : (
-        <div className="flex-1 w-full rounded-lg bg-secondary border border-border-color p-6 overflow-y-auto">
+        <div className="flex-1 flex flex-col bg-background overflow-y-auto">
+            {viewMode === 'edit' ? (
             <div 
-                className="markdown-content text-text-secondary" 
-                dangerouslySetInnerHTML={{ __html: renderedPreviewHtml }}
-            />
+                className="editor-container relative w-full flex-1 focus-within:ring-2 focus-within:ring-primary"
+                data-placeholder={!content ? "Enter your prompt here..." : ""}
+            >
+                <textarea
+                ref={editorRef}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onKeyDown={handleContentKeyDown}
+                onScroll={syncScroll}
+                spellCheck="false"
+                className="absolute inset-0 p-6 w-full h-full bg-transparent text-transparent caret-primary resize-none font-mono text-base focus:outline-none z-10 whitespace-pre-wrap break-words"
+                />
+                <pre 
+                    ref={preRef}
+                    aria-hidden="true" 
+                    className="absolute inset-0 p-6 w-full h-full overflow-auto pointer-events-none font-mono text-base whitespace-pre-wrap break-words"
+                >
+                <code className="language-markdown" dangerouslySetInnerHTML={{ __html: highlightedContent }} />
+                </pre>
+            </div>
+          ) : (
+            <div className="flex-1 w-full p-6 overflow-y-auto">
+                <div 
+                    className="markdown-content text-text-secondary" 
+                    dangerouslySetInnerHTML={{ __html: renderedPreviewHtml }}
+                />
+            </div>
+          )}
+          
+          {error && <div className="text-destructive-text p-3 bg-destructive-bg rounded-md text-sm mx-6 mb-6">{error}</div>}
         </div>
-      )}
-      
-      {error && <div className="mt-4 text-destructive-text p-3 bg-destructive-bg rounded-md text-sm">{error}</div>}
       
       {refinedContent && (
         <Modal onClose={discardRefinement} title="AI Refinement Suggestion">

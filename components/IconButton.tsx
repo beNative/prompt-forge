@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 
@@ -95,16 +94,12 @@ const Tooltip: React.FC<{
 const IconButton: React.FC<IconButtonProps> = ({ children, tooltip, className, variant = 'primary', size='md', tooltipPosition = 'top', ...props }) => {
     const [isHovered, setIsHovered] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null);
-    const timerRef = useRef<number | undefined>(undefined);
 
     const handleMouseEnter = useCallback(() => {
-        timerRef.current = window.setTimeout(() => {
-            setIsHovered(true);
-        }, 500); // Replicate 500ms delay from previous CSS
+        setIsHovered(true);
     }, []);
 
     const handleMouseLeave = useCallback(() => {
-        clearTimeout(timerRef.current);
         setIsHovered(false);
     }, []);
 

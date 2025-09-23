@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import type { PromptTemplate } from '../types';
 import { TrashIcon } from './Icons';
@@ -51,8 +50,8 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onSave, onDel
   };
 
   return (
-    <div className="flex-1 flex flex-col p-6 bg-background overflow-y-auto">
-      <div className="flex justify-between items-center mb-6 gap-4">
+    <div className="flex-1 flex flex-col bg-secondary overflow-y-auto">
+      <div className="flex justify-between items-center px-6 py-6 gap-4 border-b border-border-color flex-shrink-0">
         <div className="flex items-center gap-3 flex-1 min-w-0">
             <input
               type="text"
@@ -78,25 +77,27 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({ template, onSave, onDel
         </div>
       </div>
 
-      <div 
-        className="editor-container relative w-full flex-1 rounded-lg bg-secondary border border-border-color focus-within:ring-2 focus-within:ring-primary focus-within:border-primary"
-        data-placeholder={!content ? "Enter your template content with {{variables}} here..." : ""}
-      >
-        <textarea
-          ref={editorRef}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          onScroll={syncScroll}
-          spellCheck="false"
-          className="absolute inset-0 p-4 w-full h-full bg-transparent text-transparent caret-primary resize-none font-mono text-base focus:outline-none z-10 whitespace-pre-wrap break-words"
-        />
-        <pre 
-            ref={preRef}
-            aria-hidden="true" 
-            className="absolute inset-0 p-4 w-full h-full overflow-auto pointer-events-none font-mono text-base whitespace-pre-wrap break-words"
+      <div className="flex-1 flex flex-col bg-background overflow-y-auto">
+        <div 
+            className="editor-container relative w-full flex-1 focus-within:ring-2 focus-within:ring-primary"
+            data-placeholder={!content ? "Enter your template content with {{variables}} here..." : ""}
         >
-          <code className="language-markdown" dangerouslySetInnerHTML={{ __html: highlightedContent }} />
-        </pre>
+            <textarea
+            ref={editorRef}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            onScroll={syncScroll}
+            spellCheck="false"
+            className="absolute inset-0 p-6 w-full h-full bg-transparent text-transparent caret-primary resize-none font-mono text-base focus:outline-none z-10 whitespace-pre-wrap break-words"
+            />
+            <pre 
+                ref={preRef}
+                aria-hidden="true" 
+                className="absolute inset-0 p-6 w-full h-full overflow-auto pointer-events-none font-mono text-base whitespace-pre-wrap break-words"
+            >
+            <code className="language-markdown" dangerouslySetInnerHTML={{ __html: highlightedContent }} />
+            </pre>
+        </div>
       </div>
     </div>
   );
