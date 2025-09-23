@@ -1,5 +1,8 @@
 import React from 'react';
 import type { LLMStatus, DiscoveredLLMModel, DiscoveredLLMService } from '../types';
+import IconButton from './IconButton';
+import ThemeToggleButton from './ThemeToggleButton';
+import { GearIcon, InfoIcon, CommandIcon, TerminalIcon } from './Icons';
 
 interface StatusBarProps {
   status: LLMStatus;
@@ -13,6 +16,12 @@ interface StatusBarProps {
   discoveredServices: DiscoveredLLMService[];
   onProviderChange: (serviceId: string) => void;
   appVersion: string;
+  onToggleSettingsView: () => void;
+  onToggleInfoView: () => void;
+  onToggleLogger: () => void;
+  onOpenCommandPalette: () => void;
+  isInfoViewActive: boolean;
+  isSettingsViewActive: boolean;
 }
 
 const statusConfig: Record<LLMStatus, { text: string; color: string; tooltip: string }> = {
@@ -33,7 +42,10 @@ const statusConfig: Record<LLMStatus, { text: string; color: string; tooltip: st
   },
 };
 
-const StatusBar: React.FC<StatusBarProps> = ({ status, modelName, llmProviderName, llmProviderUrl, promptCount, lastSaved, availableModels, onModelChange, discoveredServices, onProviderChange, appVersion }) => {
+const StatusBar: React.FC<StatusBarProps> = ({ 
+    status, modelName, llmProviderName, llmProviderUrl, promptCount, lastSaved, availableModels, onModelChange, discoveredServices, onProviderChange, appVersion,
+    onToggleSettingsView, onToggleInfoView, onToggleLogger, onOpenCommandPalette, isInfoViewActive, isSettingsViewActive
+}) => {
   const { text, color, tooltip } = statusConfig[status];
   const selectedService = discoveredServices.find(s => s.generateUrl === llmProviderUrl);
 
@@ -109,6 +121,22 @@ const StatusBar: React.FC<StatusBarProps> = ({ status, modelName, llmProviderNam
         <span>Last Saved: <span className="font-semibold text-text-main">{formatTimestamp(lastSaved)}</span></span>
         {appVersion && <div className="h-4 w-px bg-border-color"></div>}
         {appVersion && <span>v{appVersion}</span>}
+        <div className="h-4 w-px bg-border-color"></div>
+        <div className="flex items-center gap-1">
+            <IconButton onClick={onOpenCommandPalette} tooltip="Command Palette (Ctrl+Shift+P)" size="sm" tooltipPosition="top">
+              <CommandIcon className="w-5 h-5" />
+            </IconButton>
+            <IconButton onClick={onToggleInfoView} tooltip="Info" className={isInfoViewActive ? 'bg-primary/10 text-primary' : ''} size="sm" tooltipPosition="top">
+              <InfoIcon className="w-5 h-5" />
+            </IconButton>
+            <IconButton onClick={onToggleLogger} tooltip="Logs" size="sm" tooltipPosition="top">
+              <TerminalIcon className="w-5 h-5" />
+            </IconButton>
+            <ThemeToggleButton size="sm" tooltipPosition="top" />
+            <IconButton onClick={onToggleSettingsView} tooltip="Settings" className={isSettingsViewActive ? 'bg-primary/10 text-primary' : ''} size="sm" tooltipPosition="top">
+              <GearIcon className="w-5 h-5" />
+            </IconButton>
+        </div>
       </div>
     </footer>
   );

@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import ReactDOM from 'react-dom';
 // Hooks
@@ -9,7 +7,6 @@ import { useSettings } from './hooks/useSettings';
 import { useLLMStatus } from './hooks/useLLMStatus';
 import { useLogger } from './hooks/useLogger';
 // Components
-import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import PromptEditor from './components/PromptEditor';
 import TemplateEditor from './components/TemplateEditor';
@@ -542,14 +539,6 @@ const App: React.FC = () => {
     return (
         <IconProvider value={{ iconSet: getSupportedIconSet(settings.iconSet) }}>
             <div className="flex flex-col h-full font-sans bg-background text-text-main antialiased">
-                <Header 
-                    onToggleSettingsView={toggleSettingsView}
-                    isSettingsViewActive={view === 'settings'}
-                    onToggleInfoView={() => setView(v => v === 'info' ? 'editor' : 'info')}
-                    isInfoViewActive={view === 'info'}
-                    onToggleLogger={() => setIsLoggerVisible(v => !v)}
-                    onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-                />
                 <main className="flex-1 flex overflow-hidden">
                     {view === 'editor' && (
                         <>
@@ -601,6 +590,12 @@ const App: React.FC = () => {
                     discoveredServices={discoveredServices}
                     onProviderChange={handleProviderChange}
                     appVersion={appVersion}
+                    onToggleSettingsView={toggleSettingsView}
+                    isSettingsViewActive={view === 'settings'}
+                    onToggleInfoView={() => setView(v => v === 'info' ? 'editor' : 'info')}
+                    isInfoViewActive={view === 'info'}
+                    onToggleLogger={() => setIsLoggerVisible(v => !v)}
+                    onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
                 />
             </div>
             
