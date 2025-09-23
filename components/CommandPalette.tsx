@@ -178,8 +178,6 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
         ref={paletteRef}
         style={style}
         className={`fixed z-50 bg-secondary rounded-xl shadow-2xl border border-border-color flex flex-col overflow-hidden max-h-[60vh] transition-all duration-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
-        role="dialog"
-        aria-modal="true"
       >
         <ul ref={listRef} className="flex-1 overflow-y-auto py-2">
           {filteredCommands.length > 0 ? (
