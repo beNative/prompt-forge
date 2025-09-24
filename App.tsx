@@ -71,6 +71,7 @@ const App: React.FC = () => {
     const isSidebarResizing = useRef(false);
     const isLoggerResizing = useRef(false);
     const commandPaletteTargetRef = useRef<HTMLDivElement>(null);
+    const commandPaletteInputRef = useRef<HTMLInputElement>(null);
 
     const llmStatus = useLLMStatus(settings.llmProviderUrl);
     const { logs, addLog } = useLogger();
@@ -489,6 +490,21 @@ const App: React.FC = () => {
         setIsCommandPaletteOpen(false);
         setCommandPaletteSearch('');
     }, []);
+    
+    const handleToggleCommandPalette = useCallback(() => {
+        setIsCommandPaletteOpen(prev => {
+            const isOpen = !prev;
+            if (isOpen) {
+                setTimeout(() => {
+                    commandPaletteInputRef.current?.focus();
+                    commandPaletteInputRef.current?.select();
+                }, 0);
+            } else {
+                commandPaletteInputRef.current?.blur();
+            }
+            return isOpen;
+        });
+    }, []);
 
     // Keyboard shortcuts
     useEffect(() => {
@@ -502,13 +518,13 @@ const App: React.FC = () => {
             }
             if (isCtrl && e.shiftKey && e.key === 'P') {
                 e.preventDefault();
-                setIsCommandPaletteOpen(p => !p);
+                handleToggleCommandPalette();
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [handleNewPrompt]);
+    }, [handleNewPrompt, handleToggleCommandPalette]);
     
     // Command Palette Commands
     const commands: Command[] = useMemo(() => [
@@ -597,6 +613,7 @@ const App: React.FC = () => {
                         commandPaletteTargetRef={commandPaletteTargetRef}
                         searchTerm={commandPaletteSearch}
                         onSearchTermChange={setCommandPaletteSearch}
+                        commandPaletteInputRef={commandPaletteInputRef}
                     />
                 ) : (
                     <Header {...headerProps} />

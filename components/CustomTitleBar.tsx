@@ -17,19 +17,21 @@ interface CustomTitleBarProps {
   isSettingsViewActive: boolean;
   isEditorViewActive: boolean;
   commandPaletteTargetRef: React.RefObject<HTMLDivElement>;
+  commandPaletteInputRef: React.RefObject<HTMLInputElement>;
   searchTerm: string;
   onSearchTermChange: (term: string) => void;
 }
 
 interface CommandPaletteSearchProps {
     commandPaletteTargetRef: React.RefObject<HTMLDivElement>;
+    inputRef: React.RefObject<HTMLInputElement>;
     searchTerm: string;
     onSearchTermChange: (term: string) => void;
     onOpenCommandPalette: () => void;
 }
 
 const CommandPaletteSearch: React.FC<CommandPaletteSearchProps> = ({ 
-    commandPaletteTargetRef, searchTerm, onSearchTermChange, onOpenCommandPalette 
+    commandPaletteTargetRef, inputRef, searchTerm, onSearchTermChange, onOpenCommandPalette 
 }) => (
     <div 
         ref={commandPaletteTargetRef}
@@ -37,6 +39,7 @@ const CommandPaletteSearch: React.FC<CommandPaletteSearchProps> = ({
     >
         <SearchIcon className="w-4 h-4 text-text-secondary" />
         <input
+            ref={inputRef}
             type="text"
             placeholder="Search commands..."
             value={searchTerm}
@@ -73,7 +76,7 @@ const WindowControls: React.FC<{ platform: string, isMaximized: boolean }> = ({ 
 
 const CustomTitleBar: React.FC<CustomTitleBarProps> = ({ 
     onToggleSettingsView, onToggleInfoView, onShowEditorView, onToggleLogger, onOpenCommandPalette, 
-    isInfoViewActive, isSettingsViewActive, isEditorViewActive, commandPaletteTargetRef, searchTerm, onSearchTermChange
+    isInfoViewActive, isSettingsViewActive, isEditorViewActive, commandPaletteTargetRef, commandPaletteInputRef, searchTerm, onSearchTermChange
 }) => {
     const [platform, setPlatform] = useState('');
     const [isMaximized, setIsMaximized] = useState(false);
@@ -98,6 +101,7 @@ const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
             <div className="flex-1 flex justify-center">
                 <CommandPaletteSearch 
                     commandPaletteTargetRef={commandPaletteTargetRef}
+                    inputRef={commandPaletteInputRef}
                     searchTerm={searchTerm}
                     onSearchTermChange={onSearchTermChange}
                     onOpenCommandPalette={onOpenCommandPalette}
