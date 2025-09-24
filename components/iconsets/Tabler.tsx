@@ -121,3 +121,7 @@ export const MaximizeIcon: React.FC<IconProps> = ({ className }) => (
 export const RestoreIcon: React.FC<IconProps> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 8h10v10h-10z" /><path d="M4 16v-12h12v4" /></svg>
 );
+
+export const WarningIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5.07 19h13.86a2 2 0 0 0 1.73 -3l-6.93 -12a2 2 0 0 0 -3.46 0l-6.93 12a2 2 0 0 0 1.73 3z" /></svg>
+);

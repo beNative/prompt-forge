@@ -22,6 +22,7 @@ import PromptHistoryView from './components/PromptHistoryView';
 import { PlusIcon, FolderPlusIcon, TrashIcon, GearIcon, InfoIcon, TerminalIcon, DocumentDuplicateIcon, PencilIcon } from './components/Icons';
 import Header from './components/Header';
 import CustomTitleBar from './components/CustomTitleBar';
+import ConfirmModal from './components/ConfirmModal';
 // Types
 import type { PromptOrFolder, Command, LogMessage, DiscoveredLLMModel, DiscoveredLLMService, Settings, PromptTemplate } from './types';
 // Context
@@ -67,6 +68,7 @@ const App: React.FC = () => {
     const [isDetecting, setIsDetecting] = useState(false);
     const [appVersion, setAppVersion] = useState('');
     const [updateInfo, setUpdateInfo] = useState<{ ready: boolean; version: string | null }>({ ready: false, version: null });
+    const [confirmAction, setConfirmAction] = useState<{ title: string; message: React.ReactNode; onConfirm: () => void; } | null>(null);
 
     const isSidebarResizing = useRef(false);
     const isLoggerResizing = useRef(false);
@@ -353,50 +355,77 @@ const App: React.FC = () => {
         const itemToDelete = items.find(p => p.id === id);
         if (!itemToDelete) return;
 
-        if (itemToDelete.type === 'folder') {
-            const descendantCount = getDescendantIds(id).size;
-            const message = descendantCount > 0 
-                ? `Are you sure you want to delete the folder "${itemToDelete.title}" and its ${descendantCount} contents?`
-                : `Are you sure you want to delete the empty folder "${itemToDelete.title}"?`;
+        const performDelete = () => {
+            let nextNodeToSelect: PromptOrFolder | null = null;
+            const currentItemIndex = items.findIndex(p => p.id === id);
+
+            if (currentItemIndex !== -1) {
+                const siblings = items.filter(p => p.parentId === itemToDelete.parentId && p.id !== itemToDelete.id);
+                if (siblings.length > 0) {
+                    const siblingIndex = siblings.findIndex(s => items.indexOf(s) > currentItemIndex);
+                    nextNodeToSelect = siblings[siblingIndex] || siblings[siblings.length - 1];
+                } else if (itemToDelete.parentId) {
+                    nextNodeToSelect = items.find(p => p.id === itemToDelete.parentId) || null;
+                }
+            }
             
-            if (!window.confirm(message)) {
-                return;
+            const newItems = deleteItem(id);
+
+            if (activeNodeId === id) {
+                const newActiveId = nextNodeToSelect ? nextNodeToSelect.id : (newItems.length > 0 ? newItems[0].id : null);
+                setActiveNodeId(newActiveId);
+                setSelectedIds(newActiveId ? new Set([newActiveId]) : new Set());
+            } else {
+                // If a non-active item from a selection is deleted, just remove it from the selection.
+                setSelectedIds(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(id);
+                    return newSet;
+                });
             }
+        };
+
+        let title = 'Confirm Deletion';
+        let message: React.ReactNode = '';
+
+        if (itemToDelete.type === 'folder') {
+            title = 'Delete Folder';
+            const descendantCount = getDescendantIds(id).size;
+            message = descendantCount > 0 
+                ? <>Are you sure you want to delete the folder <strong>"{itemToDelete.title}"</strong> and its {descendantCount} contents? This action cannot be undone.</>
+                : <>Are you sure you want to delete the empty folder <strong>"{itemToDelete.title}"</strong>?</>;
+        } else {
+            title = 'Delete Prompt';
+            message = <>Are you sure you want to delete the prompt <strong>"{itemToDelete.title}"</strong>? This action cannot be undone.</>;
         }
 
-        let nextNodeToSelect: PromptOrFolder | null = null;
-        const currentItemIndex = items.findIndex(p => p.id === id);
-
-        if (currentItemIndex !== -1) {
-            const siblings = items.filter(p => p.parentId === itemToDelete.parentId && p.id !== itemToDelete.id);
-            if (siblings.length > 0) {
-                const siblingIndex = siblings.findIndex(s => items.indexOf(s) > currentItemIndex);
-                nextNodeToSelect = siblings[siblingIndex] || siblings[siblings.length - 1];
-            } else if (itemToDelete.parentId) {
-                nextNodeToSelect = items.find(p => p.id === itemToDelete.parentId) || null;
+        setConfirmAction({
+            title,
+            message,
+            onConfirm: () => {
+                performDelete();
+                setConfirmAction(null);
             }
-        }
-        
-        const newItems = deleteItem(id);
+        });
 
-        if (activeNodeId === id) {
-             if (nextNodeToSelect) {
-                 setActiveNodeId(nextNodeToSelect.id);
-             } else {
-                 setActiveNodeId(newItems.length > 0 ? newItems[0].id : null);
-             }
-        }
     }, [items, deleteItem, activeNodeId, getDescendantIds]);
 
     const handleDeleteTemplate = useCallback((id: string) => {
-        if (!window.confirm("Are you sure you want to delete this template?")) {
-            return;
-        }
-        const newTemplates = deleteTemplate(id);
-        if (activeTemplateId === id) {
-            setActiveTemplateId(newTemplates.length > 0 ? newTemplates[0].id : null);
-        }
-    }, [deleteTemplate, activeTemplateId]);
+        const templateToDelete = templates.find(t => t.id === id);
+        if (!templateToDelete) return;
+
+        setConfirmAction({
+            title: 'Delete Template',
+            message: <>Are you sure you want to delete the template <strong>"{templateToDelete.title}"</strong>? This action cannot be undone.</>,
+            onConfirm: () => {
+                const newTemplates = deleteTemplate(id);
+                if (activeTemplateId === id) {
+                    setActiveTemplateId(newTemplates.length > 0 ? newTemplates[0].id : null);
+                }
+                setConfirmAction(null);
+            }
+        });
+    }, [deleteTemplate, activeTemplateId, templates]);
 
     const handleToggleExpand = (id: string) => {
         setExpandedFolderIds(prev => {
@@ -704,6 +733,15 @@ const App: React.FC = () => {
                     version={updateInfo.version!}
                     onInstall={() => window.electronAPI!.quitAndInstallUpdate!()}
                     onClose={() => setUpdateInfo({ ready: false, version: null })}
+                />
+            )}
+
+            {confirmAction && (
+                <ConfirmModal
+                    title={confirmAction.title}
+                    message={confirmAction.message}
+                    onConfirm={confirmAction.onConfirm}
+                    onCancel={() => setConfirmAction(null)}
                 />
             )}
         </IconProvider>

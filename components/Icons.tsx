@@ -376,3 +376,14 @@ export const RestoreIcon: React.FC<IconProps> = (props) => {
 export const CloseIcon: React.FC<IconProps> = (props) => {
     return <XIcon {...props} />;
 };
+
+export const WarningIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    switch (iconSet) {
+        case 'lucide': return <LucideIcons.WarningIcon {...props} />;
+        case 'feather': return <FeatherIcons.WarningIcon {...props} />;
+        case 'tabler': return <TablerIcons.WarningIcon {...props} />;
+        case 'material': return <MaterialIcons.WarningIcon {...props} />;
+        case 'heroicons': default: return <HeroIcons.WarningIcon {...props} />;
+    }
+};

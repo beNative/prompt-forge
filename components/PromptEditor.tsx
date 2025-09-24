@@ -300,14 +300,14 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
                     className="grid h-full"
                     style={{ gridTemplateColumns: `${splitSize}% 0.375rem auto` }}
                 >
-                    <div className="h-full overflow-hidden">
+                    <div className="h-full overflow-hidden min-w-0">
                         <EditorPane {...editorPaneProps} />
                     </div>
                     <div 
                         onMouseDown={handleSplitterMouseDown}
                         className="h-full bg-border-color/50 hover:bg-primary cursor-col-resize transition-colors"
                     />
-                    <div className="h-full overflow-hidden">
+                    <div className="h-full overflow-hidden min-w-0">
                         <PreviewPane {...previewPaneProps} />
                     </div>
                 </div>
@@ -319,14 +319,14 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
                     className="grid w-full h-full"
                     style={{ gridTemplateRows: `${splitSize}% 0.375rem auto` }}
                 >
-                    <div className="w-full overflow-hidden">
+                    <div className="w-full overflow-hidden min-h-0">
                         <EditorPane {...editorPaneProps} />
                     </div>
                     <div
                         onMouseDown={handleSplitterMouseDown}
                         className="w-full bg-border-color/50 hover:bg-primary cursor-row-resize transition-colors"
                     />
-                    <div className="w-full overflow-hidden">
+                    <div className="w-full overflow-hidden min-h-0">
                         <PreviewPane {...previewPaneProps} />
                     </div>
                 </div>
