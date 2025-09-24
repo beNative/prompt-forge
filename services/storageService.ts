@@ -13,11 +13,11 @@ declare global {
       quitAndInstallUpdate?: () => void;
       settingsExport: (content: string) => Promise<{ success: boolean; error?: string }>;
       settingsImport: () => Promise<{ success: boolean; content?: string; error?: string }>;
-      getPlatform?: () => string;
-      minimizeWindow?: () => void;
-      maximizeWindow?: () => void;
-      closeWindow?: () => void;
-      onWindowStateChange?: (callback: (state: { isMaximized: boolean }) => void) => () => void;
+      getPlatform: () => Promise<string>;
+      minimizeWindow: () => void;
+      maximizeWindow: () => void;
+      closeWindow: () => void;
+      onWindowStateChange: (callback: (state: { isMaximized: boolean }) => void) => () => void;
     };
   }
 }

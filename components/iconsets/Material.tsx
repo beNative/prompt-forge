@@ -110,7 +110,7 @@ export const MinimizeIcon: React.FC<IconProps> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M19 13H5v-2h14v2z"/></svg>
 );
 export const MaximizeIcon: React.FC<IconProps> = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M3 3h18v18H3z" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M5 5v14h14V5H5z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M3 3h18v18H3V3zm2 2v14h14V5H5z"/></svg>
 );
 export const RestoreIcon: React.FC<IconProps> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M3 3h10v2H5v8H3V3zm12 0h6v6h-2V5h-4V3zm-2 12H5v6h6v-2h4v2h2v-4h-2v-2zM19 13v6h-6v-2h4v-4h2z"/></svg>

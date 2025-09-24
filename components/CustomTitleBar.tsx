@@ -51,7 +51,7 @@ const WindowControls: React.FC<{ platform: string, isMaximized: boolean }> = ({ 
 
   if (!window.electronAPI) return null;
 
-  const buttonClass = "not-draggable w-12 h-8 flex items-center justify-center transition-colors hover:bg-border-color/50 focus:outline-none focus:ring-0";
+  const buttonClass = "not-draggable w-12 h-8 flex items-center justify-center transition-colors hover:bg-border-color/50 focus:outline-none";
   const closeButtonClass = `${buttonClass} hover:bg-red-500 hover:text-white`;
 
   const controls = (
@@ -76,7 +76,7 @@ const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
 
     useEffect(() => {
         if (window.electronAPI) {
-            setPlatform(window.electronAPI.getPlatform());
+            window.electronAPI.getPlatform().then(setPlatform);
             const cleanup = window.electronAPI.onWindowStateChange((state) => {
                 setIsMaximized(state.isMaximized);
             });

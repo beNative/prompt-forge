@@ -119,5 +119,5 @@ export const MaximizeIcon: React.FC<IconProps> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4h16v16h-16z" /></svg>
 );
 export const RestoreIcon: React.FC<IconProps> = ({ className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M4 16v-10a2 2 0 0 1 2 -2h10" /></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 8h10v10h-10z" /><path d="M4 16v-12h12v4" /></svg>
 );

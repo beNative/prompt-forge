@@ -205,6 +205,6 @@ export const MaximizeIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => 
 
 export const RestoreIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <rect x="8" y="8" width="12" height="12" rx="2" ry="2"></rect><path d="M4 16V4a2 2 0 0 1 2-2h12"></path>
+        <path d="M8 8h10v10H8z"/><path d="M4 16V4h12v4"/>
     </svg>
 );

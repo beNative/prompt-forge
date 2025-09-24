@@ -2,8 +2,8 @@ import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs/promises';
 import { autoUpdater } from 'electron-updater';
-// FIX: Import 'process' to provide type definitions for 'process.platform'.
-import process from 'process';
+// Fix: Import platform from os module to correctly get OS info without TS errors.
+import { platform } from 'os';
 
 declare const __dirname: string;
 
@@ -21,8 +21,8 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    frame: false, // Make window frameless
     autoHideMenuBar: true,
-    frame: false, // Create a frameless window
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -30,14 +30,14 @@ const createWindow = () => {
     },
   });
 
-  // Listen for window state changes and notify the renderer
+  // Listen for window state changes and notify renderer
   mainWindow.on('maximize', () => {
-    mainWindow?.webContents.send('window:state-changed', { isMaximized: true });
-  });
-  mainWindow.on('unmaximize', () => {
-    mainWindow?.webContents.send('window:state-changed', { isMaximized: false });
+    mainWindow?.webContents.send('window:state-change', { isMaximized: true });
   });
 
+  mainWindow.on('unmaximize', () => {
+    mainWindow?.webContents.send('window:state-change', { isMaximized: false });
+  });
 
   mainWindow.loadFile(path.join(__dirname, '../index.html'));
   
@@ -77,22 +77,6 @@ ipcMain.on('updater:quit-and-install', () => {
   autoUpdater.quitAndInstall();
 });
 
-// --- IPC Handlers for Custom Window Controls ---
-ipcMain.on('window:minimize', () => {
-    mainWindow?.minimize();
-});
-ipcMain.on('window:maximize', () => {
-    if (mainWindow?.isMaximized()) {
-        mainWindow.unmaximize();
-    } else {
-        mainWindow?.maximize();
-    }
-});
-ipcMain.on('window:close', () => {
-    mainWindow?.close();
-});
-
-
 app.whenReady().then(async () => {
   // Read settings on startup to configure updater
   let initialSettings: { allowPrerelease?: boolean } = {};
@@ -114,6 +98,29 @@ app.whenReady().then(async () => {
   // --- IPC Handler for App Version ---
   ipcMain.handle('app:get-version', () => {
     return app.getVersion();
+  });
+  
+  // --- IPC Handler for Platform ---
+  ipcMain.handle('app:get-platform', () => {
+    // Fix: Use os.platform() instead of process.platform to avoid TypeScript error.
+    return platform();
+  });
+
+  // --- IPC Handlers for Window Controls ---
+  ipcMain.on('window:minimize', () => {
+    mainWindow?.minimize();
+  });
+
+  ipcMain.on('window:maximize', () => {
+    if (mainWindow?.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow?.maximize();
+    }
+  });
+
+  ipcMain.on('window:close', () => {
+    mainWindow?.close();
   });
 
   // --- IPC Handlers for Storage ---
@@ -259,7 +266,8 @@ app.whenReady().then(async () => {
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+  // Fix: Use os.platform() instead of process.platform to avoid TypeScript error.
+  if (platform() !== 'darwin') {
     app.quit();
   }
 });

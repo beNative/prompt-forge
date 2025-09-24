@@ -57,7 +57,7 @@ const App: React.FC = () => {
     const [promptView, setPromptView] = useState<'editor' | 'history'>('editor');
     const [isLoggerVisible, setIsLoggerVisible] = useState(false);
     const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-    const [commandPaletteSearchTerm, setCommandPaletteSearchTerm] = useState('');
+    const [commandPaletteSearch, setCommandPaletteSearch] = useState('');
     const [isCreateFromTemplateOpen, setCreateFromTemplateOpen] = useState(false);
     const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
     const [loggerPanelHeight, setLoggerPanelHeight] = useState(DEFAULT_LOGGER_HEIGHT);
@@ -456,9 +456,12 @@ const App: React.FC = () => {
     
     const handleOpenCommandPalette = useCallback(() => {
         setIsCommandPaletteOpen(true);
-        setCommandPaletteSearchTerm('');
     }, []);
 
+    const handleCloseCommandPalette = useCallback(() => {
+        setIsCommandPaletteOpen(false);
+        setCommandPaletteSearch('');
+    }, []);
 
     // Keyboard shortcuts
     useEffect(() => {
@@ -561,10 +564,16 @@ const App: React.FC = () => {
     return (
         <IconProvider value={{ iconSet: getSupportedIconSet(settings.iconSet) }}>
             <div className="flex flex-col h-full font-sans bg-background text-text-main antialiased">
-                {isElectron 
-                    ? <CustomTitleBar {...headerProps} commandPaletteTargetRef={commandPaletteTargetRef} searchTerm={commandPaletteSearchTerm} onSearchTermChange={setCommandPaletteSearchTerm} /> 
-                    : <Header {...headerProps} />
-                }
+                {isElectron ? (
+                    <CustomTitleBar
+                        {...headerProps}
+                        commandPaletteTargetRef={commandPaletteTargetRef}
+                        searchTerm={commandPaletteSearch}
+                        onSearchTermChange={setCommandPaletteSearch}
+                    />
+                ) : (
+                    <Header {...headerProps} />
+                )}
                 <main className="flex-1 flex overflow-hidden">
                     {view === 'editor' && (
                         <>
@@ -627,10 +636,14 @@ const App: React.FC = () => {
             />
             <CommandPalette 
                 isOpen={isCommandPaletteOpen} 
-                onClose={() => setIsCommandPaletteOpen(false)} 
+                onClose={handleCloseCommandPalette}
                 commands={commands}
                 targetRef={commandPaletteTargetRef}
-                searchTerm={commandPaletteSearchTerm}
+                searchTerm={commandPaletteSearch}
+                onExecute={() => {
+                    setIsCommandPaletteOpen(false);
+                    setCommandPaletteSearch('');
+                }}
             />
 
             {isCreateFromTemplateOpen && (

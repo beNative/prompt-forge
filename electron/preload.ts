@@ -1,6 +1,4 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
-// FIX: Import 'process' to provide type definitions for 'process.platform'.
-import process from 'process';
 
 contextBridge.exposeInMainWorld('electronAPI', {
   // --- Storage & Docs ---
@@ -14,6 +12,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // --- App Info & Updates ---
   getAppVersion: () => ipcRenderer.invoke('app:get-version'),
+  getPlatform: () => ipcRenderer.invoke('app:get-platform'),
   updaterSetAllowPrerelease: (allow: boolean) => ipcRenderer.send('updater:set-allow-prerelease', allow),
   onUpdateDownloaded: (callback: (version: string) => void) => {
     const handler = (_: IpcRendererEvent, version: string) => callback(version);
@@ -21,15 +20,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => ipcRenderer.removeListener('update:downloaded', handler);
   },
   quitAndInstallUpdate: () => ipcRenderer.send('updater:quit-and-install'),
-
-  // --- Custom Title Bar ---
-  getPlatform: () => process.platform,
+  
+  // --- Window Controls ---
   minimizeWindow: () => ipcRenderer.send('window:minimize'),
   maximizeWindow: () => ipcRenderer.send('window:maximize'),
   closeWindow: () => ipcRenderer.send('window:close'),
   onWindowStateChange: (callback: (state: { isMaximized: boolean }) => void) => {
-      const handler = (_: IpcRendererEvent, state: { isMaximized: boolean }) => callback(state);
-      ipcRenderer.on('window:state-changed', handler);
-      return () => ipcRenderer.removeListener('window:state-changed', handler);
-  }
+    const handler = (_: IpcRendererEvent, state: { isMaximized: boolean }) => callback(state);
+    ipcRenderer.on('window:state-change', handler);
+    return () => ipcRenderer.removeListener('window:state-change', handler);
+  },
 });
