@@ -22,6 +22,31 @@ interface PromptTreeItemProps {
   searchTerm: string;
 }
 
+// Helper function to determine drop position based on mouse coordinates within an element
+const getDropPosition = (
+  e: React.DragEvent,
+  isFolder: boolean,
+  itemEl: HTMLElement | null
+): 'before' | 'after' | 'inside' | null => {
+  if (!itemEl) return null;
+
+  const rect = itemEl.getBoundingClientRect();
+  const y = e.clientY - rect.top;
+  const height = rect.height;
+
+  if (height === 0) return null; // Avoid division by zero
+
+  if (isFolder) {
+    if (y < height * 0.25) return 'before';
+    if (y > height * 0.75) return 'after';
+    return 'inside';
+  } else {
+    if (y < height * 0.5) return 'before';
+    return 'after';
+  }
+};
+
+
 const PromptTreeItem: React.FC<PromptTreeItemProps> = (props) => {
   const {
     node,
@@ -56,7 +81,6 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = (props) => {
     }
   }, [isRenaming]);
   
-  // Close renaming if this item is no longer selected
   useEffect(() => {
     if (isRenaming && !isSelected) {
       setIsRenaming(false);
@@ -90,18 +114,9 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = (props) => {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (itemRef.current) {
-        const rect = itemRef.current.getBoundingClientRect();
-        const y = e.clientY - rect.top;
-        const height = rect.height;
-        if (isFolder) {
-            if (y < height * 0.25) setDropPosition('before');
-            else if (y > height * 0.75) setDropPosition('after');
-            else setDropPosition('inside');
-        } else {
-            if (y < height * 0.5) setDropPosition('before');
-            else setDropPosition('after');
-        }
+    const position = getDropPosition(e, isFolder, itemRef.current);
+    if (position !== dropPosition) {
+        setDropPosition(position);
     }
   };
   
@@ -113,11 +128,19 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = (props) => {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
     const draggedIdsJSON = e.dataTransfer.getData('application/json');
-    if (draggedIdsJSON && dropPosition) {
+    // Recalculate position on drop for accuracy, avoiding state lag.
+    const finalDropPosition = getDropPosition(e, isFolder, itemRef.current);
+    
+    if (draggedIdsJSON && finalDropPosition) {
         const draggedIds = JSON.parse(draggedIdsJSON);
         if (!draggedIds.includes(node.id)) { // Prevent dropping on itself
-            onMoveNode(draggedIds, node.id, dropPosition);
+            onMoveNode(draggedIds, node.id, finalDropPosition);
+            // Auto-expand folder on drop for better UX
+            if (finalDropPosition === 'inside' && isFolder && !isExpanded) {
+                onToggleExpand(node.id);
+            }
         }
     }
     setDropPosition(null);
