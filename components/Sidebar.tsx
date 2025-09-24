@@ -9,11 +9,12 @@ import { PromptNode } from './PromptTreeItem';
 
 interface SidebarProps {
   prompts: PromptOrFolder[];
+  selectedIds: Set<string>;
   activePromptId: string | null;
-  onSelectPrompt: (id: string) => void;
+  onSelectPrompt: (id: string, e: React.MouseEvent) => void;
   onDeletePrompt: (id: string) => void;
   onRenamePrompt: (id: string, newTitle: string) => void;
-  onMovePrompt: (draggedId: string, targetId: string | null, position: 'before' | 'after' | 'inside') => void;
+  onMovePrompt: (draggedIds: string[], targetId: string | null, position: 'before' | 'after' | 'inside') => void;
   onNewPrompt: () => void;
   onNewFolder: () => void;
   onCopyPromptContent: (id: string) => void;
@@ -150,10 +151,11 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
       }
       case 'Enter': {
         if (focusedItemId) {
+          const fakeEvent = {} as React.MouseEvent;
           if (currentItem.type === 'template') {
             props.onSelectTemplate(focusedItemId);
           } else {
-            props.onSelectPrompt(focusedItemId);
+            props.onSelectPrompt(focusedItemId, fakeEvent);
           }
         }
         break;
@@ -203,22 +205,20 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
             </IconButton>
             </div>
         </header>
-        <div className="px-2">
-            <PromptList 
-                tree={promptTree}
-                prompts={props.prompts}
-                activeNodeId={props.activePromptId}
-                focusedItemId={focusedItemId}
-                onSelectNode={props.onSelectPrompt}
-                onDeleteNode={props.onDeletePrompt}
-                onRenameNode={props.onRenamePrompt}
-                onMoveNode={props.onMovePrompt}
-                onCopyNodeContent={props.onCopyPromptContent}
-                searchTerm={searchTerm}
-                expandedIds={props.expandedFolderIds}
-                onToggleExpand={props.onToggleExpand}
-            />
-        </div>
+        <PromptList 
+            tree={promptTree}
+            prompts={props.prompts}
+            selectedIds={props.selectedIds}
+            focusedItemId={focusedItemId}
+            onSelectNode={props.onSelectPrompt}
+            onDeleteNode={props.onDeletePrompt}
+            onRenameNode={props.onRenamePrompt}
+            onMoveNode={props.onMovePrompt}
+            onCopyNodeContent={props.onCopyPromptContent}
+            searchTerm={searchTerm}
+            expandedIds={props.expandedFolderIds}
+            onToggleExpand={props.onToggleExpand}
+        />
 
         {/* --- Templates Section --- */}
         <header className="flex items-center justify-between p-2 mt-4 pt-4 border-t border-border-color flex-shrink-0">

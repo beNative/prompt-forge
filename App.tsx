@@ -44,11 +44,12 @@ const isElectron = !!window.electronAPI;
 const App: React.FC = () => {
     // State Hooks
     const { settings, saveSettings, loaded: settingsLoaded } = useSettings();
-    const { items, addPrompt, addFolder, updateItem, deleteItem, moveItem, getDescendantIds } = usePrompts();
+    const { items, addPrompt, addFolder, updateItem, deleteItem, moveItems, getDescendantIds } = usePrompts();
     const { templates, addTemplate, updateTemplate, deleteTemplate } = useTemplates();
     
     // Active Item State
     const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
+    const [selectedIds, setSelectedIds] = useState(new Set<string>());
     const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
     const [expandedFolderIds, setExpandedFolderIds] = useState(new Set<string>());
 
@@ -137,9 +138,12 @@ const App: React.FC = () => {
     // Select the first item on load or when items change
     useEffect(() => {
         if (items.length > 0 && activeNodeId === null && activeTemplateId === null) {
-            setActiveNodeId(items[0].id);
+            const firstId = items[0].id;
+            setActiveNodeId(firstId);
+            setSelectedIds(new Set([firstId]));
         } else if (items.length === 0 && activeNodeId) {
             setActiveNodeId(null);
+            setSelectedIds(new Set());
         }
     }, [items, activeNodeId, activeTemplateId]);
 
@@ -215,6 +219,7 @@ const App: React.FC = () => {
         const parentId = getParentIdForNewItem();
         const newPrompt = addPrompt(parentId);
         setActiveNodeId(newPrompt.id);
+        setSelectedIds(new Set([newPrompt.id]));
         setActiveTemplateId(null);
         setPromptView('editor');
         setView('editor');
@@ -223,6 +228,7 @@ const App: React.FC = () => {
     const handleNewFolder = useCallback(() => {
         const newFolder = addFolder(null); // Always create at root
         setActiveNodeId(newFolder.id);
+        setSelectedIds(new Set([newFolder.id]));
         setActiveTemplateId(null);
         setPromptView('editor');
         setView('editor');
@@ -232,6 +238,7 @@ const App: React.FC = () => {
         const newTemplate = addTemplate();
         setActiveTemplateId(newTemplate.id);
         setActiveNodeId(null);
+        setSelectedIds(new Set());
         setView('editor');
     }, [addTemplate]);
 
@@ -239,15 +246,34 @@ const App: React.FC = () => {
         const newPrompt = addPrompt(null); // Create at root
         updateItem(newPrompt.id, { title, content });
         setActiveNodeId(newPrompt.id);
+        setSelectedIds(new Set([newPrompt.id]));
         setActiveTemplateId(null);
         setPromptView('editor');
         setView('editor');
     }, [addPrompt, updateItem]);
 
-    const handleSelectNode = (id: string) => {
+    const handleSelectNode = (id: string, e: React.MouseEvent) => {
         if (activeNodeId !== id) {
             setPromptView('editor');
         }
+        
+        const isCtrl = e.ctrlKey || e.metaKey;
+        // Shift key selection would be complex here, so we'll stick to Ctrl/Cmd for multi-select.
+        
+        if (isCtrl) {
+            setSelectedIds(prev => {
+                const newSet = new Set(prev);
+                if (newSet.has(id)) {
+                    newSet.delete(id);
+                } else {
+                    newSet.add(id);
+                }
+                return newSet;
+            });
+        } else {
+            setSelectedIds(new Set([id]));
+        }
+
         setActiveNodeId(id);
         setActiveTemplateId(null);
         setView('editor');
@@ -256,6 +282,7 @@ const App: React.FC = () => {
     const handleSelectTemplate = (id: string) => {
         setActiveTemplateId(id);
         setActiveNodeId(null);
+        setSelectedIds(new Set()); // Clear prompt selection
         setView('editor');
     };
 
@@ -583,11 +610,12 @@ const App: React.FC = () => {
                             >
                                 <Sidebar 
                                     prompts={items}
+                                    selectedIds={selectedIds}
                                     activePromptId={activeNodeId}
                                     onSelectPrompt={handleSelectNode}
                                     onDeletePrompt={handleDeleteNode}
                                     onRenamePrompt={handleRenameNode}
-                                    onMovePrompt={moveItem}
+                                    onMovePrompt={moveItems}
                                     onNewPrompt={handleNewPrompt}
                                     onNewFolder={handleNewFolder}
                                     onCopyPromptContent={handleCopyNodeContent}

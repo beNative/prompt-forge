@@ -107,60 +107,70 @@ export const usePrompts = () => {
     return newItems;
   }, [items, persistItems, addLog, getDescendantIds]);
   
-  const moveItem = useCallback((draggedId: string, targetId: string | null, position: 'before' | 'after' | 'inside') => {
-    let newItems = [...items];
-    const draggedItem = newItems.find(p => p.id === draggedId);
-    if (!draggedItem) return;
+  const moveItems = useCallback((draggedIds: string[], targetId: string | null, position: 'before' | 'after' | 'inside') => {
+    const draggedItems = items.filter(p => draggedIds.includes(p.id));
+    if (draggedItems.length === 0) return;
 
-    const targetItem = targetId ? newItems.find(p => p.id === targetId) : null;
+    // Prevent dragging a folder into its own descendant
+    for (const draggedItem of draggedItems) {
+        if (draggedItem.type === 'folder') {
+            const descendantIds = getDescendantIds(draggedItem.id);
+            if (targetId && descendantIds.has(targetId)) {
+                addLog('WARNING', 'Cannot move a folder into one of its own children.');
+                return;
+            }
+        }
+    }
     
-    if (position === 'inside' && targetItem?.type === 'prompt') {
-        addLog('WARNING', 'Cannot move an item inside a prompt.');
-        return; // Can't drop inside a prompt
-    }
-
-    // Prevent dragging a parent into its own descendant
-    let currentParentId = targetId;
-    while (currentParentId) {
-        if (currentParentId === draggedId) {
-            addLog('WARNING', 'Cannot move a folder into one of its own children.');
-            return;
-        }
-        currentParentId = newItems.find(p => p.id === currentParentId)?.parentId ?? null;
-    }
-
-    newItems = newItems.filter(p => p.id !== draggedId);
-
+    // Create a new array of items without the ones we're moving.
+    let newItems = items.filter(p => !draggedIds.includes(p.id));
+    
+    const targetItem = targetId ? items.find(p => p.id === targetId) : null;
+    
+    // Determine the new parentId for the dragged items.
+    let newParentId: string | null = null;
     if (position === 'inside') {
-        draggedItem.parentId = targetId;
-        const parent = newItems.find(p => p.id === targetId);
-        const siblings = newItems.filter(p => p.parentId === targetId);
-        if (siblings.length > 0) {
-            const lastSiblingIndex = newItems.findIndex(p => p.id === siblings[siblings.length - 1].id);
-            newItems.splice(lastSiblingIndex + 1, 0, draggedItem);
-        } else if (parent) {
-            const parentIndex = newItems.findIndex(p => p.id === targetId);
-            newItems.splice(parentIndex + 1, 0, draggedItem);
-        } else { 
-             draggedItem.parentId = null; // Dropped into empty root
-             newItems.push(draggedItem);
+        if (targetItem?.type === 'prompt') {
+             addLog('WARNING', 'Cannot move an item inside a prompt.');
+             return; // Can't drop inside a prompt
         }
+        newParentId = targetId;
     } else {
-        draggedItem.parentId = targetItem ? targetItem.parentId : null;
-        const targetIndex = newItems.findIndex(p => p.id === targetId);
-        
-        if (targetIndex === -1) { // Dropping into root area, not on a specific item
-             draggedItem.parentId = null;
-             newItems.push(draggedItem);
+        newParentId = targetItem ? targetItem.parentId : null;
+    }
+
+    const updatedDraggedItems = draggedItems.map(item => ({ ...item, parentId: newParentId }));
+
+    // Find the correct index to insert the items.
+    let insertionIndex = -1;
+    if (targetId) {
+        const targetIndexInNewArray = newItems.findIndex(p => p.id === targetId);
+
+        if (position === 'inside') {
+            // Find last child of the target folder to insert after
+            const childrenOfTarget = newItems.filter(p => p.parentId === targetId).reverse();
+            if (childrenOfTarget.length > 0) {
+                const lastChildId = childrenOfTarget[0].id;
+                insertionIndex = newItems.findIndex(p => p.id === lastChildId) + 1;
+            } else {
+                insertionIndex = targetIndexInNewArray + 1; // Insert after the empty folder itself
+            }
         } else {
-            const insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
-            newItems.splice(insertIndex, 0, draggedItem);
+             insertionIndex = position === 'before' ? targetIndexInNewArray : targetIndexInNewArray + 1;
         }
+    }
+
+    if (insertionIndex !== -1) {
+        newItems.splice(insertionIndex, 0, ...updatedDraggedItems);
+    } else {
+        // If no targetId or insertionIndex found, add to the end of the root.
+        newItems.push(...updatedDraggedItems);
     }
 
     persistItems(newItems);
-    addLog('INFO', `Moved item ${draggedId}`);
-}, [items, persistItems, addLog]);
+    addLog('INFO', `Moved ${draggedIds.length} item(s).`);
+}, [items, persistItems, addLog, getDescendantIds]);
 
-  return { items, addPrompt, addFolder, updateItem, deleteItem, moveItem, getDescendantIds };
+
+  return { items, addPrompt, addFolder, updateItem, deleteItem, moveItems, getDescendantIds };
 };

@@ -1,18 +1,18 @@
 
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { PromptOrFolder } from '../types';
 import PromptTreeItem, { PromptNode } from './PromptTreeItem';
 
 interface PromptListProps {
   tree: PromptNode[];
   prompts: PromptOrFolder[]; // needed for the empty state check
-  activeNodeId: string | null;
+  selectedIds: Set<string>;
   focusedItemId: string | null;
-  onSelectNode: (id: string) => void;
+  onSelectNode: (id: string, e: React.MouseEvent) => void;
   onDeleteNode: (id: string) => void;
   onRenameNode: (id: string, newTitle: string) => void;
-  onMoveNode: (draggedId: string, targetId: string | null, position: 'before' | 'after' | 'inside') => void;
+  onMoveNode: (draggedIds: string[], targetId: string | null, position: 'before' | 'after' | 'inside') => void;
   onCopyNodeContent: (id: string) => void;
   searchTerm: string;
   expandedIds: Set<string>;
@@ -20,27 +20,42 @@ interface PromptListProps {
 }
 
 const PromptList: React.FC<PromptListProps> = ({ 
-  tree, prompts, activeNodeId, focusedItemId, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onCopyNodeContent, searchTerm, expandedIds, onToggleExpand
+  tree, prompts, selectedIds, focusedItemId, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onCopyNodeContent, searchTerm, expandedIds, onToggleExpand
 }) => {
+  const [isRootDropping, setIsRootDropping] = useState(false);
+  
   const handleRootDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const draggedId = e.dataTransfer.getData('text/plain');
-    const targetItem = e.target as HTMLElement;
-
-    if (targetItem.closest('li[draggable="true"]')) {
-        return;
+    setIsRootDropping(false);
+    
+    // Ensure we don't handle drops that were meant for a child item.
+    const target = e.target as HTMLElement;
+    if (target.closest('li[draggable="true"]')) {
+      return;
     }
-
-    if (draggedId) {
-        onMoveNode(draggedId, null, 'inside');
+    
+    const draggedIdsJSON = e.dataTransfer.getData('application/json');
+    if (draggedIdsJSON) {
+        const draggedIds = JSON.parse(draggedIdsJSON);
+        // Dropping in the root area means targetId is null and position is 'inside' the root.
+        onMoveNode(draggedIds, null, 'inside');
     }
   };
 
   const handleRootDragOver = (e: React.DragEvent) => {
       e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
+      const target = e.target as HTMLElement;
+      if (!target.closest('li[draggable="true"]')) {
+        e.dataTransfer.dropEffect = 'move';
+        setIsRootDropping(true);
+      }
   };
+
+  const handleRootDragLeave = () => {
+    setIsRootDropping(false);
+  };
+
 
   const displayExpandedIds = searchTerm.trim() 
       ? new Set(prompts.filter(i => i.type === 'folder').map(i => i.id)) 
@@ -48,17 +63,18 @@ const PromptList: React.FC<PromptListProps> = ({
 
   return (
     <div 
-        className="relative"
+        className="relative flex-1"
         onDrop={handleRootDrop}
         onDragOver={handleRootDragOver}
+        onDragLeave={handleRootDragLeave}
     >
-        <ul className="space-y-0.5">
+        <ul className="space-y-0.5 p-2">
         {tree.map((node) => (
             <PromptTreeItem
                 key={node.id}
                 node={node}
                 level={0}
-                activeNodeId={activeNodeId}
+                selectedIds={selectedIds}
                 focusedItemId={focusedItemId}
                 expandedIds={displayExpandedIds}
                 onSelectNode={onSelectNode}
@@ -81,6 +97,11 @@ const PromptList: React.FC<PromptListProps> = ({
             </li>
         )}
         </ul>
+        {isRootDropping && (
+          <div className="absolute inset-2 bg-primary/10 border-2 border-dashed border-primary rounded-md pointer-events-none flex items-center justify-center">
+             <span className="text-sm font-semibold text-primary">Move to Root</span>
+          </div>
+        )}
     </div>
   );
 };
