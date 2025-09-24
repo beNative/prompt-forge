@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useMemo } from 'react';
 
 // Let TypeScript know that 'marked' is available globally from the script tag in index.html
@@ -84,9 +83,9 @@ const InfoView: React.FC = () => {
   }, [documents, activeTab]);
 
   return (
-    <div className="flex-1 flex flex-col p-6 bg-background overflow-hidden h-full">
-      <h1 className="text-2xl font-semibold text-text-main mb-4">Application Information</h1>
-      <div className="flex border-b border-border-color mb-4">
+    <div className="flex-1 flex flex-col bg-background overflow-hidden h-full">
+      <h1 className="text-2xl font-semibold text-text-main mb-4 px-6 pt-6">Application Information</h1>
+      <div className="flex border-b border-border-color mb-4 px-6">
         {(Object.keys(docFiles) as DocTab[]).map(tab => (
           <button
             key={tab}
@@ -101,9 +100,9 @@ const InfoView: React.FC = () => {
           </button>
         ))}
       </div>
-      {error && <div className="mb-4 text-destructive-text p-3 bg-destructive-bg rounded-md">{error}</div>}
-      <div className="flex-1 bg-secondary p-6 rounded-md overflow-y-auto markdown-content text-text-secondary">
-        <div dangerouslySetInnerHTML={{ __html: renderedHtml }} />
+      {error && <div className="mx-6 mb-4 text-destructive-text p-3 bg-destructive-bg rounded-md">{error}</div>}
+      <div className="flex-1 bg-secondary overflow-y-auto markdown-content text-text-secondary">
+        <div className="p-6" dangerouslySetInnerHTML={{ __html: renderedHtml }} />
       </div>
     </div>
   );
