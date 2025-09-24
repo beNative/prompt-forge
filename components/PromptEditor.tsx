@@ -298,7 +298,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
                 <div 
                     ref={splitContainerRef} 
                     className="grid h-full"
-                    style={{ gridTemplateColumns: `minmax(0, ${splitSize}fr) 0.375rem minmax(0, ${100 - splitSize}fr)` }}
+                    style={{ gridTemplateColumns: `${splitSize}fr 0.375rem ${100 - splitSize}fr` }}
                 >
                     <div className="h-full overflow-hidden min-w-0">
                         <EditorPane {...editorPaneProps} />
@@ -317,7 +317,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
                 <div 
                     ref={splitContainerRef} 
                     className="grid w-full h-full"
-                    style={{ gridTemplateRows: `minmax(0, ${splitSize}fr) 0.375rem minmax(0, ${100 - splitSize}fr)` }}
+                    style={{ gridTemplateRows: `${splitSize}fr 0.375rem ${100 - splitSize}fr` }}
                 >
                     <div className="w-full overflow-hidden min-h-0">
                         <EditorPane {...editorPaneProps} />
