@@ -101,8 +101,8 @@ const InfoView: React.FC = () => {
         ))}
       </div>
       {error && <div className="mx-6 mb-4 text-destructive-text p-3 bg-destructive-bg rounded-md">{error}</div>}
-      <div className="flex-1 bg-secondary overflow-y-auto markdown-content text-text-secondary">
-        <div className="p-6" dangerouslySetInnerHTML={{ __html: renderedHtml }} />
+      <div className="flex-1 bg-secondary overflow-y-auto p-6">
+        <div className="markdown-content text-text-secondary" dangerouslySetInnerHTML={{ __html: renderedHtml }} />
       </div>
     </div>
   );
