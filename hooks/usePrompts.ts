@@ -115,7 +115,7 @@ export const usePrompts = () => {
     for (const draggedItem of draggedItems) {
         if (draggedItem.type === 'folder') {
             const descendantIds = getDescendantIds(draggedItem.id);
-            if (targetId && descendantIds.has(targetId)) {
+            if (targetId && (descendantIds.has(targetId) || draggedIds.includes(targetId))) {
                 addLog('WARNING', 'Cannot move a folder into one of its own children.');
                 return;
             }
@@ -144,18 +144,47 @@ export const usePrompts = () => {
     // Find the correct index to insert the items.
     let insertionIndex = -1;
     if (targetId) {
-        const targetIndexInNewArray = newItems.findIndex(p => p.id === targetId);
-
         if (position === 'inside') {
-            // Find last child of the target folder to insert after
-            const childrenOfTarget = newItems.filter(p => p.parentId === targetId).reverse();
-            if (childrenOfTarget.length > 0) {
-                const lastChildId = childrenOfTarget[0].id;
-                insertionIndex = newItems.findIndex(p => p.id === lastChildId) + 1;
+            const targetIndexInNewArray = newItems.findIndex(p => p.id === targetId);
+            if (targetIndexInNewArray === -1) return; // Guard
+
+            // We need to find the last item that is a descendant of the target folder
+            // to ensure the new items are placed at the end of the entire folder block.
+            let lastDescendantIndex = -1;
+
+            // Create a map for efficient parent-child lookup within the current state of `newItems`.
+            const parentMap = new Map<string, string | null>();
+            newItems.forEach(item => parentMap.set(item.id, item.parentId));
+
+            // Iterate backwards from the end of the array to find the last descendant.
+            for (let i = newItems.length - 1; i > targetIndexInNewArray; i--) {
+                let currentId = newItems[i].id;
+                let parentId = parentMap.get(currentId);
+                
+                let isDescendant = false;
+                while (parentId) {
+                    if (parentId === targetId) {
+                        isDescendant = true;
+                        break;
+                    }
+                    parentId = parentMap.get(parentId);
+                }
+
+                if (isDescendant) {
+                    lastDescendantIndex = i;
+                    break; // Found the last one, we can stop.
+                }
+            }
+            
+            if (lastDescendantIndex !== -1) {
+                // Found descendants, insert after the last one.
+                insertionIndex = lastDescendantIndex + 1;
             } else {
-                insertionIndex = targetIndexInNewArray + 1; // Insert after the empty folder itself
+                // No descendants found (folder is empty), insert right after the folder itself.
+                insertionIndex = targetIndexInNewArray + 1;
             }
         } else {
+             const targetIndexInNewArray = newItems.findIndex(p => p.id === targetId);
              insertionIndex = position === 'before' ? targetIndexInNewArray : targetIndexInNewArray + 1;
         }
     }
@@ -163,7 +192,7 @@ export const usePrompts = () => {
     if (insertionIndex !== -1) {
         newItems.splice(insertionIndex, 0, ...updatedDraggedItems);
     } else {
-        // If no targetId or insertionIndex found, add to the end of the root.
+        // If no targetId (dropping on root), add to the end.
         newItems.push(...updatedDraggedItems);
     }
 

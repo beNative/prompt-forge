@@ -1,5 +1,3 @@
-
-
 import React, { useState, useRef, useEffect } from 'react';
 import type { PromptOrFolder } from '../types';
 import IconButton from './IconButton';
@@ -159,6 +157,9 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = ({
             default: return;
         }
         onMoveNode(draggedIds, node.id, position);
+        if (isFolder && position === 'inside' && !isExpanded) {
+            onToggleExpand(node.id);
+        }
     }
     setDropIndicator(null);
   };
