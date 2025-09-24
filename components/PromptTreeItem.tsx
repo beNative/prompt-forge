@@ -1,31 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { PromptOrFolder } from '../types';
 import IconButton from './IconButton';
-import { TrashIcon, ChevronDownIcon, ChevronRightIcon, FileIcon, FolderIcon, FolderOpenIcon, CopyIcon, CheckIcon } from './Icons';
+import { FileIcon, FolderIcon, FolderOpenIcon, TrashIcon, ChevronRightIcon, ChevronDownIcon, CopyIcon } from './Icons';
 
-export type PromptNode = PromptOrFolder & { children: PromptNode[] };
-type DropIndicator = 'top' | 'bottom' | 'over' | null;
-
-const HighlightedText: React.FC<{ text: string; highlight: string }> = ({ text, highlight }) => {
-    if (!highlight.trim()) {
-        return <>{text}</>;
-    }
-    const regex = new RegExp(`(${highlight})`, 'gi');
-    const parts = text.split(regex);
-    return (
-        <>
-            {parts.map((part, i) =>
-                part.toLowerCase() === highlight.toLowerCase() ? (
-                    <span key={i} className="bg-primary/20 text-primary font-semibold rounded">
-                        {part}
-                    </span>
-                ) : (
-                    part
-                )
-            )}
-        </>
-    );
-};
+export interface PromptNode extends PromptOrFolder {
+  children: PromptNode[];
+}
 
 interface PromptTreeItemProps {
   node: PromptNode;
@@ -42,217 +22,183 @@ interface PromptTreeItemProps {
   searchTerm: string;
 }
 
-const PromptTreeItem: React.FC<PromptTreeItemProps> = ({ 
-  node, level, selectedIds, focusedItemId, expandedIds, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onToggleExpand, onCopyNodeContent, searchTerm
-}) => {
-  const [renamingId, setRenamingId] = useState<string | null>(null);
-  const [renameValue, setRenameValue] = useState('');
-  const [isCopied, setIsCopied] = useState(false);
-  const [dropIndicator, setDropIndicator] = useState<DropIndicator>(null);
-  const renameInputRef = useRef<HTMLInputElement>(null);
-
-  const isExpanded = expandedIds.has(node.id);
-  const hasChildren = node.children.length > 0;
-  const isFolder = node.type === 'folder';
-  const isFocused = focusedItemId === node.id;
-  const isSelected = selectedIds.has(node.id);
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDeleteNode(node.id);
-  };
+const PromptTreeItem: React.FC<PromptTreeItemProps> = (props) => {
+  const {
+    node,
+    level,
+    selectedIds,
+    focusedItemId,
+    expandedIds,
+    onSelectNode,
+    onDeleteNode,
+    onRenameNode,
+    onMoveNode,
+    onToggleExpand,
+    onCopyNodeContent,
+  } = props;
   
-  const handleCopy = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onCopyNodeContent(node.id);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
-  };
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState(node.title);
+  const [dropPosition, setDropPosition] = useState<'before' | 'after' | 'inside' | null>(null);
 
-  const handleRenameStart = () => {
-    setRenamingId(node.id);
-    setRenameValue(node.title);
+  const renameInputRef = useRef<HTMLInputElement>(null);
+  const itemRef = useRef<HTMLLIElement>(null);
+
+  const isSelected = selectedIds.has(node.id);
+  const isFocused = focusedItemId === node.id;
+  const isExpanded = expandedIds.has(node.id);
+  const isFolder = node.type === 'folder';
+
+  useEffect(() => {
+    if (isRenaming) {
+      renameInputRef.current?.focus();
+      renameInputRef.current?.select();
+    }
+  }, [isRenaming]);
+  
+  // Close renaming if this item is no longer selected
+  useEffect(() => {
+    if (isRenaming && !isSelected) {
+      setIsRenaming(false);
+    }
+  }, [isSelected, isRenaming]);
+
+  const handleRenameStart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsRenaming(true);
   };
 
   const handleRenameSubmit = () => {
-    if (renamingId && renameValue.trim()) {
-      onRenameNode(renamingId, renameValue.trim());
+    if (renameValue.trim() && renameValue.trim() !== node.title) {
+      onRenameNode(node.id, renameValue.trim());
     }
-    setRenamingId(null);
+    setIsRenaming(false);
   };
 
   const handleRenameKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleRenameSubmit();
-    else if (e.key === 'Escape') setRenamingId(null);
+    else if (e.key === 'Escape') setIsRenaming(false);
   };
-
-  useEffect(() => {
-    if (renamingId) {
-      renameInputRef.current?.focus();
-      renameInputRef.current?.select();
-    }
-  }, [renamingId]);
 
   const handleDragStart = (e: React.DragEvent) => {
     e.stopPropagation();
-    const idsToDrag = selectedIds.has(node.id) ? Array.from(selectedIds) : [node.id];
-    e.dataTransfer.setData('application/json', JSON.stringify(idsToDrag));
+    const draggedIds = Array.from(selectedIds.has(node.id) ? selectedIds : new Set([node.id]));
+    e.dataTransfer.setData('application/json', JSON.stringify(draggedIds));
     e.dataTransfer.effectAllowed = 'move';
-    
-    // Custom drag image
-    const dragGhost = document.createElement('div');
-    dragGhost.style.position = 'absolute';
-    dragGhost.style.top = '-1000px';
-    dragGhost.style.padding = '4px 8px';
-    dragGhost.style.backgroundColor = 'rgb(var(--color-accent))';
-    dragGhost.style.color = 'rgb(var(--color-accent-text))';
-    dragGhost.style.borderRadius = '6px';
-    dragGhost.style.fontSize = '12px';
-    dragGhost.style.fontWeight = '600';
-    dragGhost.textContent = `Moving ${idsToDrag.length} item(s)`;
-    document.body.appendChild(dragGhost);
-    e.dataTransfer.setDragImage(dragGhost, 0, 0);
-    setTimeout(() => document.body.removeChild(dragGhost), 0);
   };
-
+  
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const draggedIds = JSON.parse(e.dataTransfer.getData('application/json') || '[]');
-    if (draggedIds.includes(node.id)) {
-        setDropIndicator(null);
-        return;
-    }
-    
-    const rect = (e.currentTarget as HTMLLIElement).getBoundingClientRect();
-    const y = e.clientY - rect.top;
-
-    if (y < rect.height * 0.33) {
-        setDropIndicator('top');
-    } else if (y > rect.height * 0.66) {
-        setDropIndicator('bottom');
-    } else {
-        setDropIndicator(isFolder ? 'over' : 'bottom');
+    if (itemRef.current) {
+        const rect = itemRef.current.getBoundingClientRect();
+        const y = e.clientY - rect.top;
+        const height = rect.height;
+        if (isFolder) {
+            if (y < height * 0.25) setDropPosition('before');
+            else if (y > height * 0.75) setDropPosition('after');
+            else setDropPosition('inside');
+        } else {
+            if (y < height * 0.5) setDropPosition('before');
+            else setDropPosition('after');
+        }
     }
   };
-
+  
   const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
     e.stopPropagation();
-    setDropIndicator(null);
+    setDropPosition(null);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
     const draggedIdsJSON = e.dataTransfer.getData('application/json');
-    if (draggedIdsJSON) {
+    if (draggedIdsJSON && dropPosition) {
         const draggedIds = JSON.parse(draggedIdsJSON);
-        let position: 'before' | 'after' | 'inside';
-        switch(dropIndicator) {
-            case 'top': position = 'before'; break;
-            case 'bottom': position = 'after'; break;
-            case 'over': position = 'inside'; break;
-            default: return;
-        }
-        onMoveNode(draggedIds, node.id, position);
-        if (isFolder && position === 'inside' && !isExpanded) {
-            onToggleExpand(node.id);
+        if (!draggedIds.includes(node.id)) { // Prevent dropping on itself
+            onMoveNode(draggedIds, node.id, dropPosition);
         }
     }
-    setDropIndicator(null);
+    setDropPosition(null);
   };
   
-  const renderIcon = () => {
-      if (isFolder) {
-          return isExpanded ? <FolderOpenIcon className="w-4 h-4 text-primary" /> : <FolderIcon className="w-4 h-4 text-primary" />;
-      }
-      return <FileIcon className="w-4 h-4" />;
-  };
-
   return (
-    <li 
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        draggable={renamingId !== node.id}
-        className="relative"
-        data-item-id={node.id}
+    <li
+      ref={itemRef}
+      draggable={!isRenaming}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      style={{ paddingLeft: `${level * 16}px` }}
+      className="relative"
+      data-item-id={node.id}
     >
-      {dropIndicator === 'top' && <div className="absolute top-0 left-4 right-0 h-[3px] bg-primary z-10 pointer-events-none rounded-full" />}
-      <div style={{ paddingLeft: `${level * 1.25}rem` }} className="relative z-0">
-        {renamingId === node.id ? (
-          <div className="p-1 flex items-center gap-1">
-            <span onClick={(e) => { e.stopPropagation(); (hasChildren || isFolder) && onToggleExpand(node.id); }} className="p-1">
-                {(hasChildren || isFolder) ? <ChevronRightIcon className="w-4 h-4 flex-shrink-0 opacity-0" /> : <span className="w-4 h-4 block" />}
-            </span>
-             {renderIcon()}
-            <input
-              ref={renameInputRef} type="text" value={renameValue}
-              onChange={(e) => setRenameValue(e.target.value)}
-              onBlur={handleRenameSubmit} onKeyDown={handleRenameKeyDown}
-              className="w-full text-left text-sm p-1.5 rounded-md bg-background text-text-main ring-2 ring-primary focus:outline-none"
-            />
-          </div>
-        ) : (
-          <button
-            onClick={(e) => onSelectNode(node.id, e)}
-            onDoubleClick={handleRenameStart}
-            title="" // Disable native tooltip for truncated text
+        <div
+            onClick={(e) => !isRenaming && onSelectNode(node.id, e)}
+            onDoubleClick={(e) => !isRenaming && handleRenameStart(e)}
             className={`w-full text-left p-1.5 rounded-md group flex justify-between items-center transition-colors duration-150 text-sm relative focus:outline-none ${
-              isSelected
-                ? 'bg-primary/20 text-text-main'
-                : 'hover:bg-border-color/30 text-text-secondary hover:text-text-main'
-            } ${isFocused && !isSelected ? 'ring-1 ring-primary/50' : ''} ${dropIndicator === 'over' ? 'bg-primary/20' : ''}`}
-          >
-            <div className="flex items-center gap-1 flex-1 truncate">
-               <span onClick={(e) => { e.stopPropagation(); (hasChildren || isFolder) && onToggleExpand(node.id); }} className="p-1 cursor-pointer">
-                {(hasChildren || isFolder) ? (
-                    isExpanded ? <ChevronDownIcon className="w-4 h-4 flex-shrink-0" /> : <ChevronRightIcon className="w-4 h-4 flex-shrink-0" />
-                ) : <span className="w-4 h-4 block" /> }
-               </span>
-               <span className="flex-shrink-0">{renderIcon()}</span>
-              <span className="truncate flex-1 px-1">
-                <HighlightedText text={node.title} highlight={searchTerm} />
-              </span>
+                isSelected ? 'bg-background text-text-main' : 'hover:bg-border-color/30 text-text-secondary hover:text-text-main'
+            } ${isFocused ? 'ring-2 ring-primary ring-offset-[-2px] ring-offset-secondary' : ''}`}
+        >
+            <div className="flex items-center gap-2 flex-1 truncate">
+                {isFolder && node.children.length > 0 ? (
+                    <button onClick={(e) => { e.stopPropagation(); onToggleExpand(node.id); }} className="-ml-1 p-0.5 rounded hover:bg-border-color">
+                        {isExpanded ? <ChevronDownIcon className="w-4 h-4" /> : <ChevronRightIcon className="w-4 h-4" />}
+                    </button>
+                ) : (
+                    <div className="w-5" /> // Spacer for alignment
+                )}
+
+                {isFolder ? (
+                    isExpanded ? <FolderOpenIcon className="w-4 h-4 flex-shrink-0" /> : <FolderIcon className="w-4 h-4 flex-shrink-0" />
+                ) : (
+                    <FileIcon className="w-4 h-4 flex-shrink-0" />
+                )}
+
+                {isRenaming ? (
+                    <input
+                        ref={renameInputRef}
+                        type="text"
+                        value={renameValue}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                        onBlur={handleRenameSubmit}
+                        onKeyDown={handleRenameKeyDown}
+                        className="w-full text-left text-sm px-1 rounded bg-background text-text-main ring-1 ring-primary focus:outline-none"
+                    />
+                ) : (
+                    <span className="truncate flex-1 px-1">{node.title}</span>
+                )}
             </div>
-            <div className={`transition-opacity pr-1 flex items-center ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-              {!isFolder && (
-                  <IconButton onClick={handleCopy} tooltip={isCopied ? 'Copied!' : 'Copy'} size="sm" variant="ghost">
-                      {isCopied ? <CheckIcon className="w-4 h-4 text-success" /> : <CopyIcon className="w-4 h-4" />}
-                  </IconButton>
-              )}
-              <IconButton onClick={handleDelete} tooltip="Delete" size="sm" variant="destructive">
-                <TrashIcon className="w-4 h-4" />
-              </IconButton>
-            </div>
-          </button>
+
+            {!isRenaming && (
+                <div className={`transition-opacity pr-1 flex items-center ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                    {!isFolder && (
+                        <IconButton onClick={(e) => { e.stopPropagation(); onCopyNodeContent(node.id); }} tooltip="Copy Content" size="sm" variant="ghost">
+                            <CopyIcon className="w-4 h-4" />
+                        </IconButton>
+                    )}
+                    <IconButton onClick={(e) => { e.stopPropagation(); onDeleteNode(node.id); }} tooltip="Delete" size="sm" variant="destructive">
+                        <TrashIcon className="w-4 h-4" />
+                    </IconButton>
+                </div>
+            )}
+        </div>
+        
+        {dropPosition && <div className={`absolute left-0 right-0 h-0.5 bg-primary pointer-events-none ${
+            dropPosition === 'before' ? 'top-0' : dropPosition === 'after' ? 'bottom-0' : ''
+        }`} />}
+        {dropPosition === 'inside' && <div className="absolute inset-0 border-2 border-primary rounded-md pointer-events-none bg-primary/10" />}
+
+        {isFolder && isExpanded && (
+            <ul>
+                {node.children.map((childNode) => (
+                    <PromptTreeItem key={childNode.id} {...props} node={childNode} level={level + 1} />
+                ))}
+            </ul>
         )}
-      </div>
-      {dropIndicator === 'bottom' && <div className="absolute bottom-0 left-4 right-0 h-[3px] bg-primary z-10 pointer-events-none rounded-full" />}
-      {isExpanded && hasChildren && (
-        <ul>
-          {node.children.map((childNode) => (
-            <PromptTreeItem
-              key={childNode.id}
-              node={childNode}
-              level={level + 1}
-              selectedIds={selectedIds}
-              focusedItemId={focusedItemId}
-              expandedIds={expandedIds}
-              onSelectNode={onSelectNode}
-              onDeleteNode={onDeleteNode}
-              onRenameNode={onRenameNode}
-              onMoveNode={onMoveNode}
-              onToggleExpand={onToggleExpand}
-              onCopyNodeContent={onCopyNodeContent}
-              searchTerm={searchTerm}
-            />
-          ))}
-        </ul>
-      )}
     </li>
   );
 };
