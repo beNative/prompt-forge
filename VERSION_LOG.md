@@ -1,18 +1,31 @@
 # Version Log
 
-## v0.2.0 - The "Modern UI" Update
+## v0.2.1
 *(In Development)*
+
+### ✨ New Features & Major Improvements
+
+### 🐛 Bug Fixes & Minor Enhancements
+
+---
+
+## v0.2.0 - The "Modern UI" Update
 
 ### ✨ New Features & Major Improvements
 - **New Custom Title Bar:** Implemented a frameless window with a custom, VS Code-style title bar for a modern, desktop-integrated feel (Electron version only).
 - **Integrated Command Palette:** The command palette search is now built directly into the title bar, appearing as a seamless dropdown for quick access to all functions.
 - **Consolidated UI:** Relocated all global actions (Settings, Info, Logs, etc.) to the new title bar, removing the old header and streamlining the status bar to maximize vertical space.
+- **Custom Confirmation Dialogs:** Replaced all native OS confirmation dialogs with a custom, styled modal to ensure a cohesive design across all platforms.
 - **Window Controls:** Added custom, platform-aware window controls (minimize, maximize, close) to the title bar.
+- **Enhanced Drag & Drop:** Overhauled the sidebar's drag-and-drop system to be more intuitive and robust, supporting multi-select, dropping into empty folders, and providing clearer visual indicators.
 
 ### 🐛 Bug Fixes & Minor Enhancements
-- **Focus Management:** Resolved a critical and persistent focus-loss bug with the command palette search input, allowing for uninterrupted typing.
-- **UI Scaling:** Fixed tooltip positioning problems at different UI scales, ensuring hints appear correctly regardless of zoom level.
+- **Focus Management:** Resolved critical focus-loss bugs with the command palette search input and the prompt editor, ensuring a smooth keyboard-driven workflow.
+- **UI Scaling:** Fixed positioning problems for the command palette and tooltips at different UI scales, ensuring they appear correctly regardless of zoom level.
+- **Splitter Reliability:** Completely resolved issues where the vertical and horizontal splitters would get "stuck", ensuring smooth and full-range resizing.
+- **Markdown Rendering:** Corrected an issue where a large whitespace would appear above the first line of rendered Markdown content.
 - **Build System Hardening:** Fixed several critical build and packaging errors related to dependencies and application icons, resulting in a stable and reliable build process.
+- **UI Polish:** Removed distracting blue focus rings from all buttons in the header and title bar area for a cleaner look.
 
 ## v0.1.11
 ### ✨ New Features & Major Improvements

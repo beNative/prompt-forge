@@ -103,7 +103,9 @@ The prompt editor is a powerful Markdown-aware text editor.
 
 ### Organizing with Drag and Drop
 
-You can organize your prompts and folders by dragging and dropping them in the sidebar. You can drop an item:
+You can organize your prompts and folders by dragging and dropping them in the sidebar. You can select multiple items using `Ctrl+Click` (or `Cmd+Click` on macOS) and drag them all at once.
+
+You can drop an item (or a group of items):
 - **Before** another item to place it above.
 - **After** another item to place it below.
 - **Inside** a folder to move it into that folder.
