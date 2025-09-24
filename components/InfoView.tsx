@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 
 // Let TypeScript know that 'marked' is available globally from the script tag in index.html
@@ -84,25 +82,27 @@ const InfoView: React.FC = () => {
   }, [documents, activeTab]);
 
   return (
-    <div className="flex-1 flex flex-col p-6 bg-background overflow-hidden h-full">
-      <h1 className="text-2xl font-semibold text-text-main mb-4">Application Information</h1>
-      <div className="flex border-b border-border-color mb-4">
-        {(Object.keys(docFiles) as DocTab[]).map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
-              activeTab === tab
-                ? 'border-primary text-primary'
-                : 'border-transparent text-text-secondary hover:text-text-main'
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
+    <div className="flex-1 flex flex-col bg-background overflow-hidden h-full">
+      <div className="px-6 pt-6 flex-shrink-0">
+          <h1 className="text-2xl font-semibold text-text-main mb-4">Application Information</h1>
+          <div className="flex border-b border-border-color">
+            {(Object.keys(docFiles) as DocTab[]).map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
+                  activeTab === tab
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-text-secondary hover:text-text-main'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
       </div>
-      {error && <div className="mb-4 text-destructive-text p-3 bg-destructive-bg rounded-md">{error}</div>}
-      <div className="flex-1 bg-secondary p-6 rounded-md overflow-y-auto markdown-content text-text-secondary">
+      {error && <div className="mx-6 my-4 text-destructive-text p-3 bg-destructive-bg rounded-md">{error}</div>}
+      <div className="flex-1 px-6 pb-6 pt-4 overflow-y-auto markdown-content text-text-secondary">
         <div dangerouslySetInnerHTML={{ __html: renderedHtml }} />
       </div>
     </div>

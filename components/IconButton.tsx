@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useLayoutEffect } from 'react';
 import ReactDOM from 'react-dom';
 
 interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -18,37 +18,18 @@ const Tooltip: React.FC<{
   const [style, setStyle] = useState<React.CSSProperties>({ opacity: 0 });
 
   const calculatePosition = useCallback(() => {
-    if (targetRef.current && tooltipRef.current && targetRef.current.offsetWidth > 0) {
-      const zoomFactorString = (getComputedStyle(document.documentElement) as any).zoom || '1';
-      const zoomFactor = parseFloat(zoomFactorString);
+    if (targetRef.current && tooltipRef.current) {
+      const targetRect = targetRef.current.getBoundingClientRect();
+      const tooltipRect = tooltipRef.current.getBoundingClientRect();
 
-      const scaledTargetRect = targetRef.current.getBoundingClientRect();
-      const scaledTooltipRect = tooltipRef.current.getBoundingClientRect();
-
-      // Convert all visual (scaled) coordinates and dimensions back to layout coordinates.
-      const targetRect = {
-        top: scaledTargetRect.top / zoomFactor,
-        left: scaledTargetRect.left / zoomFactor,
-        width: scaledTargetRect.width / zoomFactor,
-        height: scaledTargetRect.height / zoomFactor,
-        bottom: scaledTargetRect.bottom / zoomFactor,
-        right: scaledTargetRect.right / zoomFactor,
-      };
-
-      const tooltipRect = {
-        width: scaledTooltipRect.width / zoomFactor,
-        height: scaledTooltipRect.height / zoomFactor,
-      };
-
-      // `window.innerWidth/Height` are already in layout pixels.
       const { innerWidth, innerHeight } = window;
       const margin = 8;
 
       let top, left;
 
-      // Vertical position logic (in layout pixels)
+      // Vertical position logic
       const spaceAbove = targetRect.top;
-      const spaceBelow = innerHeight - targetRect.bottom;
+      const spaceBelow = window.innerHeight - targetRect.bottom;
 
       if (position === 'bottom') {
         if (spaceBelow > tooltipRect.height + margin || spaceAbove < tooltipRect.height + margin) {
@@ -64,7 +45,7 @@ const Tooltip: React.FC<{
         }
       }
 
-      // Horizontal position and clamping logic (in layout pixels)
+      // Horizontal position and clamping logic
       left = targetRect.left + targetRect.width / 2 - tooltipRect.width / 2;
       
       if (left < margin) left = margin;
@@ -72,17 +53,17 @@ const Tooltip: React.FC<{
       if (top < margin) top = margin;
       if (top + tooltipRect.height > innerHeight - margin) top = innerHeight - tooltipRect.height - margin;
       
-      // Set the final style using layout pixel values. The browser's zoom will render it correctly.
       setStyle({
         position: 'fixed',
         top: `${top}px`,
         left: `${left}px`,
         opacity: 1,
+        transform: 'translateZ(0)', // Promote to its own layer to handle scaling issues
       });
     }
   }, [targetRef, position]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     calculatePosition();
     window.addEventListener('resize', calculatePosition);
     document.addEventListener('scroll', calculatePosition, true);
