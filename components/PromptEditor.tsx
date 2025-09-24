@@ -23,6 +23,82 @@ interface PromptEditorProps {
   onShowHistory: () => void;
 }
 
+// =================================================================================
+// Sub-components moved outside to prevent re-mounting and focus loss on re-render
+// =================================================================================
+
+interface EditorPaneProps {
+    content: string;
+    setContent: (newState: string | ((prevState: string) => string)) => void;
+    undo: () => void;
+    redo: () => void;
+}
+
+const EditorPane: React.FC<EditorPaneProps> = ({ content, setContent, undo, redo }) => {
+    const editorRef = useRef<HTMLTextAreaElement>(null);
+    const preRef = useRef<HTMLPreElement>(null);
+
+    const highlightedContent = useMemo(() => {
+        if (typeof Prism === 'undefined' || !Prism.languages.markdown) {
+            return content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+        return Prism.highlight(content + '\n', Prism.languages.markdown, 'markdown');
+    }, [content]);
+
+    const syncScroll = () => {
+        if (editorRef.current && preRef.current) {
+            preRef.current.scrollTop = editorRef.current.scrollTop;
+            preRef.current.scrollLeft = editorRef.current.scrollLeft;
+        }
+    };
+
+    const handleContentKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        const isUndo = (isMac ? e.metaKey : e.ctrlKey) && !e.shiftKey && e.key === 'z';
+        const isRedo = (isMac ? e.metaKey && e.shiftKey && e.key === 'z' : e.ctrlKey && e.key === 'y');
+
+        if (isUndo) { e.preventDefault(); undo(); }
+        if (isRedo) { e.preventDefault(); redo(); }
+    };
+    
+    return (
+        <div 
+            className="editor-container relative w-full h-full focus-within:ring-2 focus-within:ring-primary"
+            data-placeholder={!content ? "Enter your prompt here..." : ""}
+        >
+            <textarea
+                ref={editorRef}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onKeyDown={handleContentKeyDown}
+                onScroll={syncScroll}
+                spellCheck="false"
+                className="absolute inset-0 p-6 w-full h-full bg-transparent text-transparent caret-primary resize-none font-mono text-base focus:outline-none z-10 whitespace-pre-wrap break-words"
+            />
+            <pre 
+                ref={preRef}
+                aria-hidden="true" 
+                className="absolute inset-0 p-6 w-full h-full overflow-auto pointer-events-none font-mono text-base whitespace-pre-wrap break-words"
+            >
+                <code className="language-markdown" dangerouslySetInnerHTML={{ __html: highlightedContent }} />
+            </pre>
+        </div>
+    );
+};
+
+const PreviewPane: React.FC<{ renderedPreviewHtml: string }> = React.memo(({ renderedPreviewHtml }) => (
+    <div className="w-full h-full p-6 overflow-y-auto">
+        <div 
+            className="markdown-content text-text-secondary" 
+            dangerouslySetInnerHTML={{ __html: renderedPreviewHtml }}
+        />
+    </div>
+));
+
+// =================================================================================
+// Main PromptEditor Component
+// =================================================================================
+
 const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, settings, onShowHistory }) => {
   const [title, setTitle] = useState(prompt.title);
   const { state: content, setState: setContent, undo, redo, canUndo, canRedo } = useHistoryState(prompt.content || '');
@@ -34,13 +110,17 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
   const [isAutoNaming, setIsAutoNaming] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('edit');
+  const [splitSize, setSplitSize] = useState(50); // For resizable panes, in percentage
   const { addLog } = useLogger();
   
   const autoNameTimeoutRef = useRef<number | null>(null);
+  const isResizing = useRef(false);
+  const splitContainerRef = useRef<HTMLDivElement>(null);
 
-  // Switch back to edit mode if prompt changes
+  // Switch back to edit mode and reset split if prompt changes
   useEffect(() => {
     setViewMode('edit');
+    setSplitSize(50);
   }, [prompt.id]);
   
   // Effect to detect unsaved changes
@@ -115,6 +195,50 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
     return marked.parse(content);
   }, [content]);
 
+  // --- Resizable Splitter Logic ---
+  const handleSplitterMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizing.current = true;
+    document.body.style.userSelect = 'none';
+    if (viewMode === 'split-vertical') {
+        document.body.style.cursor = 'col-resize';
+    } else {
+        document.body.style.cursor = 'row-resize';
+    }
+  };
+
+  const handleGlobalMouseUp = useCallback(() => {
+    isResizing.current = false;
+    document.body.style.userSelect = 'auto';
+    document.body.style.cursor = 'default';
+  }, []);
+
+  const handleGlobalMouseMove = useCallback((e: MouseEvent) => {
+    if (!isResizing.current || !splitContainerRef.current) return;
+    
+    const container = splitContainerRef.current;
+    const rect = container.getBoundingClientRect();
+
+    if (viewMode === 'split-vertical') {
+        const newSize = ((e.clientX - rect.left) / rect.width) * 100;
+        setSplitSize(Math.max(10, Math.min(90, newSize))); // Clamp between 10% and 90%
+    } else if (viewMode === 'split-horizontal') {
+        const newSize = ((e.clientY - rect.top) / rect.height) * 100;
+        setSplitSize(Math.max(10, Math.min(90, newSize)));
+    }
+  }, [viewMode]);
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+
+    return () => {
+        window.removeEventListener('mousemove', handleGlobalMouseMove);
+        window.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, [handleGlobalMouseMove, handleGlobalMouseUp]);
+
+  // --- Action Handlers ---
   const handleRefine = async () => {
     setIsRefining(true);
     setError(null);
@@ -160,87 +284,43 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
     }
   };
   
-  const EditorPane = useCallback(() => {
-    const editorRef = useRef<HTMLTextAreaElement>(null);
-    const preRef = useRef<HTMLPreElement>(null);
-
-    const highlightedContent = useMemo(() => {
-        if (typeof Prism === 'undefined' || !Prism.languages.markdown) {
-            return content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-        return Prism.highlight(content + '\n', Prism.languages.markdown, 'markdown');
-    }, [content]);
-
-    const syncScroll = () => {
-        if (editorRef.current && preRef.current) {
-            preRef.current.scrollTop = editorRef.current.scrollTop;
-            preRef.current.scrollLeft = editorRef.current.scrollLeft;
-        }
-    };
-
-    const handleContentKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-        const isUndo = (isMac ? e.metaKey : e.ctrlKey) && !e.shiftKey && e.key === 'z';
-        const isRedo = (isMac ? e.metaKey && e.shiftKey && e.key === 'z' : e.ctrlKey && e.key === 'y');
-
-        if (isUndo) { e.preventDefault(); undo(); }
-        if (isRedo) { e.preventDefault(); redo(); }
-    };
-    
-    return (
-        <div 
-            className="editor-container relative w-full h-full focus-within:ring-2 focus-within:ring-primary"
-            data-placeholder={!content ? "Enter your prompt here..." : ""}
-        >
-            <textarea
-                ref={editorRef}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                onKeyDown={handleContentKeyDown}
-                onScroll={syncScroll}
-                spellCheck="false"
-                className="absolute inset-0 p-6 w-full h-full bg-transparent text-transparent caret-primary resize-none font-mono text-base focus:outline-none z-10 whitespace-pre-wrap break-words"
-            />
-            <pre 
-                ref={preRef}
-                aria-hidden="true" 
-                className="absolute inset-0 p-6 w-full h-full overflow-auto pointer-events-none font-mono text-base whitespace-pre-wrap break-words"
-            >
-                <code className="language-markdown" dangerouslySetInnerHTML={{ __html: highlightedContent }} />
-            </pre>
-        </div>
-    );
-  }, [content, setContent, undo, redo]);
-  
-  const PreviewPane = useCallback(() => (
-    <div className="w-full h-full p-6 overflow-y-auto">
-        <div 
-            className="markdown-content text-text-secondary" 
-            dangerouslySetInnerHTML={{ __html: renderedPreviewHtml }}
-        />
-    </div>
-  ), [renderedPreviewHtml]);
-
   const renderContent = () => {
+    const editorPaneProps = { content, setContent, undo, redo };
+    const previewPaneProps = { renderedPreviewHtml };
+    
     switch(viewMode) {
         case 'edit':
-            return <EditorPane />;
+            return <EditorPane {...editorPaneProps} />;
         case 'preview':
-            return <PreviewPane />;
+            return <PreviewPane {...previewPaneProps} />;
         case 'split-vertical':
             return (
-                <div className="flex flex-row h-full">
-                    <div className="w-1/2 h-full"><EditorPane /></div>
-                    <div className="w-px bg-border-color" />
-                    <div className="w-1/2 h-full"><PreviewPane /></div>
+                <div ref={splitContainerRef} className="flex flex-row h-full">
+                    <div style={{ width: `${splitSize}%` }} className="h-full flex-shrink-0">
+                        <EditorPane {...editorPaneProps} />
+                    </div>
+                    <div 
+                        onMouseDown={handleSplitterMouseDown}
+                        className="w-1.5 h-full bg-border-color/50 hover:bg-primary cursor-col-resize transition-colors flex-shrink-0"
+                    />
+                    <div className="h-full flex-1 w-0">
+                        <PreviewPane {...previewPaneProps} />
+                    </div>
                 </div>
             );
         case 'split-horizontal':
             return (
-                <div className="flex flex-col h-full">
-                    <div className="h-1/2 w-full"><EditorPane /></div>
-                    <div className="h-px bg-border-color" />
-                    <div className="h-1/2 w-full"><PreviewPane /></div>
+                <div ref={splitContainerRef} className="flex flex-col h-full">
+                    <div style={{ height: `${splitSize}%` }} className="w-full flex-shrink-0">
+                        <EditorPane {...editorPaneProps} />
+                    </div>
+                    <div
+                        onMouseDown={handleSplitterMouseDown}
+                        className="h-1.5 w-full bg-border-color/50 hover:bg-primary cursor-row-resize transition-colors flex-shrink-0"
+                    />
+                    <div className="w-full flex-1 h-0">
+                        <PreviewPane {...previewPaneProps} />
+                    </div>
                 </div>
             );
     }
