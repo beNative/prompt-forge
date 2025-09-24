@@ -13,7 +13,7 @@ interface CommandPaletteProps {
 
 const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, commands, targetRef, searchTerm, onExecute }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
-
+  const [style, setStyle] = useState<React.CSSProperties>({ opacity: 0 });
   const paletteRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
@@ -34,6 +34,28 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
   useEffect(() => {
     setSelectedIndex(0);
   }, [searchTerm]);
+
+  // Calculate position when opening
+  useEffect(() => {
+    if (isOpen && targetRef.current) {
+      const zoomFactorString = (getComputedStyle(document.documentElement) as any).zoom || '1';
+      const zoomFactor = parseFloat(zoomFactorString);
+      const targetRect = targetRef.current.getBoundingClientRect(); // This is in VISUAL pixels
+
+      // Correct back to LAYOUT pixels for CSS `position: fixed`
+      const top = (targetRect.bottom / zoomFactor) + 4;
+      const left = targetRect.left / zoomFactor;
+      const width = targetRect.width / zoomFactor;
+
+      setStyle({
+        position: 'fixed',
+        top: `${top}px`,
+        left: `${left}px`,
+        width: `${width}px`,
+      });
+    }
+  }, [isOpen, targetRef]);
+
 
   // Scroll the selected item into view
   useEffect(() => {
@@ -144,14 +166,6 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
   if (!isOpen || !targetRef.current) {
     return null;
   }
-  
-  const targetRect = targetRef.current.getBoundingClientRect();
-  const style: React.CSSProperties = {
-      position: 'fixed',
-      top: `${targetRect.bottom + 4}px`,
-      left: `${targetRect.left}px`,
-      width: `${targetRect.width}px`,
-  };
 
   const paletteContent = (
     <div

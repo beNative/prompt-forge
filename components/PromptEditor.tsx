@@ -295,30 +295,38 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
             return <PreviewPane {...previewPaneProps} />;
         case 'split-vertical':
             return (
-                <div ref={splitContainerRef} className="flex flex-row h-full">
-                    <div style={{ width: `${splitSize}%` }} className="h-full flex-shrink-0">
+                <div 
+                    ref={splitContainerRef} 
+                    className="grid h-full"
+                    style={{ gridTemplateColumns: `${splitSize}% 0.375rem auto` }}
+                >
+                    <div className="h-full overflow-hidden">
                         <EditorPane {...editorPaneProps} />
                     </div>
                     <div 
                         onMouseDown={handleSplitterMouseDown}
-                        className="w-1.5 h-full bg-border-color/50 hover:bg-primary cursor-col-resize transition-colors flex-shrink-0"
+                        className="h-full bg-border-color/50 hover:bg-primary cursor-col-resize transition-colors"
                     />
-                    <div className="h-full flex-1 w-0">
+                    <div className="h-full overflow-hidden">
                         <PreviewPane {...previewPaneProps} />
                     </div>
                 </div>
             );
         case 'split-horizontal':
             return (
-                <div ref={splitContainerRef} className="flex flex-col h-full">
-                    <div style={{ height: `${splitSize}%` }} className="w-full flex-shrink-0">
+                <div 
+                    ref={splitContainerRef} 
+                    className="grid w-full h-full"
+                    style={{ gridTemplateRows: `${splitSize}% 0.375rem auto` }}
+                >
+                    <div className="w-full overflow-hidden">
                         <EditorPane {...editorPaneProps} />
                     </div>
                     <div
                         onMouseDown={handleSplitterMouseDown}
-                        className="h-1.5 w-full bg-border-color/50 hover:bg-primary cursor-row-resize transition-colors flex-shrink-0"
+                        className="w-full bg-border-color/50 hover:bg-primary cursor-row-resize transition-colors"
                     />
-                    <div className="w-full flex-1 h-0">
+                    <div className="w-full overflow-hidden">
                         <PreviewPane {...previewPaneProps} />
                     </div>
                 </div>
