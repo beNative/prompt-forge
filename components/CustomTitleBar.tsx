@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import IconButton from './IconButton';
-import { GearIcon, InfoIcon, CommandIcon, TerminalIcon, SearchIcon, MinimizeIcon, MaximizeIcon, RestoreIcon, CloseIcon } from './Icons';
+import { GearIcon, InfoIcon, CommandIcon, TerminalIcon, SearchIcon, MinimizeIcon, MaximizeIcon, RestoreIcon, CloseIcon, PencilIcon } from './Icons';
 import ThemeToggleButton from './ThemeToggleButton';
 
 interface CustomTitleBarProps {
   onToggleSettingsView: () => void;
   onToggleInfoView: () => void;
+  onShowEditorView: () => void;
   onToggleLogger: () => void;
   onOpenCommandPalette: () => void;
   isInfoViewActive: boolean;
   isSettingsViewActive: boolean;
+  isEditorViewActive: boolean;
   commandPaletteTargetRef: React.RefObject<HTMLDivElement>;
   searchTerm: string;
   onSearchTermChange: (term: string) => void;
@@ -49,7 +51,7 @@ const WindowControls: React.FC<{ platform: string, isMaximized: boolean }> = ({ 
 
   if (!window.electronAPI) return null;
 
-  const buttonClass = "not-draggable w-12 h-8 flex items-center justify-center transition-colors hover:bg-border-color/50";
+  const buttonClass = "not-draggable w-12 h-8 flex items-center justify-center transition-colors hover:bg-border-color/50 focus:outline-none";
   const closeButtonClass = `${buttonClass} hover:bg-red-500 hover:text-white`;
 
   const controls = (
@@ -66,8 +68,8 @@ const WindowControls: React.FC<{ platform: string, isMaximized: boolean }> = ({ 
 };
 
 const CustomTitleBar: React.FC<CustomTitleBarProps> = ({ 
-    onToggleSettingsView, onToggleInfoView, onToggleLogger, onOpenCommandPalette, 
-    isInfoViewActive, isSettingsViewActive, commandPaletteTargetRef, searchTerm, onSearchTermChange
+    onToggleSettingsView, onToggleInfoView, onShowEditorView, onToggleLogger, onOpenCommandPalette, 
+    isInfoViewActive, isSettingsViewActive, isEditorViewActive, commandPaletteTargetRef, searchTerm, onSearchTermChange
 }) => {
     const [platform, setPlatform] = useState('');
     const [isMaximized, setIsMaximized] = useState(false);
@@ -99,15 +101,18 @@ const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
             </div>
 
             <div className="flex items-center gap-1 flex-1 justify-end">
-                <IconButton onClick={onToggleInfoView} tooltip="Info" size="sm" className={`not-draggable ${isInfoViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
-                <InfoIcon className="w-5 h-5" />
+                <IconButton onClick={onShowEditorView} tooltip="Editor" size="sm" className={`not-draggable focus:ring-0 ${isEditorViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
+                    <PencilIcon className="w-5 h-5" />
                 </IconButton>
-                <IconButton onClick={onToggleLogger} tooltip="Logs" size="sm" className="not-draggable" tooltipPosition="bottom">
-                <TerminalIcon className="w-5 h-5" />
+                <IconButton onClick={onToggleInfoView} tooltip="Info" size="sm" className={`not-draggable focus:ring-0 ${isInfoViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
+                    <InfoIcon className="w-5 h-5" />
                 </IconButton>
-                <ThemeToggleButton size="sm" tooltipPosition="bottom" className="not-draggable" />
-                <IconButton onClick={onToggleSettingsView} tooltip="Settings" size="sm" className={`not-draggable ${isSettingsViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
-                <GearIcon className="w-5 h-5" />
+                <IconButton onClick={onToggleLogger} tooltip="Logs" size="sm" className="not-draggable focus:ring-0" tooltipPosition="bottom">
+                    <TerminalIcon className="w-5 h-5" />
+                </IconButton>
+                <ThemeToggleButton size="sm" tooltipPosition="bottom" className="not-draggable focus:ring-0" />
+                <IconButton onClick={onToggleSettingsView} tooltip="Settings" size="sm" className={`not-draggable focus:ring-0 ${isSettingsViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
+                    <GearIcon className="w-5 h-5" />
                 </IconButton>
             </div>
             

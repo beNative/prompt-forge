@@ -116,8 +116,8 @@ export const MinimizeIcon: React.FC<IconProps> = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><line x1="5" y1="12" x2="19" y2="12"></line></svg>
 );
 export const MaximizeIcon: React.FC<IconProps> = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M4 4h16v16H4z"/></svg>
 );
 export const RestoreIcon: React.FC<IconProps> = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" {...iconProps(className)}><path d="M8 8h10v10H8z"/><path d="M4 16V4h12v4"/></svg>
 );

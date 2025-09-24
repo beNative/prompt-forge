@@ -2,19 +2,30 @@
 
 import React from 'react';
 import IconButton from './IconButton';
-import { GearIcon, InfoIcon, CommandIcon, TerminalIcon } from './Icons';
+import { GearIcon, InfoIcon, CommandIcon, TerminalIcon, PencilIcon } from './Icons';
 import ThemeToggleButton from './ThemeToggleButton';
 
 interface HeaderProps {
   onToggleSettingsView: () => void;
   onToggleInfoView: () => void;
+  onShowEditorView: () => void;
   onToggleLogger: () => void;
   onOpenCommandPalette: () => void;
   isInfoViewActive: boolean;
   isSettingsViewActive: boolean;
+  isEditorViewActive: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ onToggleSettingsView, onToggleInfoView, onToggleLogger, onOpenCommandPalette, isInfoViewActive, isSettingsViewActive }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  onToggleSettingsView, 
+  onToggleInfoView, 
+  onShowEditorView,
+  onToggleLogger, 
+  onOpenCommandPalette, 
+  isInfoViewActive, 
+  isSettingsViewActive,
+  isEditorViewActive
+}) => {
   return (
     <header className="flex items-center justify-between px-3 h-14 flex-shrink-0 bg-secondary border-b border-border-color z-30">
       <div className="flex items-center gap-3">
@@ -24,6 +35,9 @@ const Header: React.FC<HeaderProps> = ({ onToggleSettingsView, onToggleInfoView,
       <div className="flex items-center gap-1">
         <IconButton onClick={onOpenCommandPalette} tooltip="Command Palette (Ctrl+Shift+P)" tooltipPosition="bottom">
           <CommandIcon />
+        </IconButton>
+        <IconButton onClick={onShowEditorView} tooltip="Editor" className={isEditorViewActive ? 'bg-primary/10 text-primary' : ''} tooltipPosition="bottom">
+          <PencilIcon />
         </IconButton>
         <IconButton onClick={onToggleInfoView} tooltip="Info" className={isInfoViewActive ? 'bg-primary/10 text-primary' : ''} tooltipPosition="bottom">
           <InfoIcon />

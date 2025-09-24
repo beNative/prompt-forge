@@ -1,8 +1,8 @@
 
+
 import React, { useState, useEffect } from 'react';
 import type { Settings, DiscoveredLLMService, DiscoveredLLMModel } from '../types';
 import { llmDiscoveryService } from '../services/llmDiscoveryService';
-// FIX: Replaced non-existent 'FileCodeIcon' with 'FileIcon' as it is not exported from './Icons'.
 import { SparklesIcon, FileIcon, SunIcon, GearIcon } from './Icons';
 import * as HeroIcons from './iconsets/Heroicons';
 import * as LucideIcons from './iconsets/Lucide';
@@ -30,7 +30,6 @@ const categories: { id: SettingsCategory; label: string; icon: React.FC<{classNa
   { id: 'provider', label: 'LLM Provider', icon: SparklesIcon },
   { id: 'appearance', label: 'Appearance', icon: SunIcon },
   { id: 'general', label: 'General', icon: GearIcon },
-  // FIX: Replaced non-existent 'FileCodeIcon' with 'FileIcon'. 'FileIcon' is suitable as the advanced settings involve editing a settings file.
   { id: 'advanced', label: 'Advanced', icon: FileIcon },
 ];
 

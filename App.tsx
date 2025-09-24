@@ -19,7 +19,7 @@ import InfoView from './components/InfoView';
 import UpdateNotification from './components/UpdateNotification';
 import CreateFromTemplateModal from './components/CreateFromTemplateModal';
 import PromptHistoryView from './components/PromptHistoryView';
-import { PlusIcon, FolderPlusIcon, TrashIcon, GearIcon, InfoIcon, TerminalIcon, DocumentDuplicateIcon } from './components/Icons';
+import { PlusIcon, FolderPlusIcon, TrashIcon, GearIcon, InfoIcon, TerminalIcon, DocumentDuplicateIcon, PencilIcon } from './components/Icons';
 import Header from './components/Header';
 import CustomTitleBar from './components/CustomTitleBar';
 // Types
@@ -490,6 +490,7 @@ const App: React.FC = () => {
             if (activeTemplateId) handleDeleteTemplate(activeTemplateId);
             else if (activeNodeId) handleDeleteNode(activeNodeId);
         }, category: 'File', icon: TrashIcon, keywords: 'remove discard' },
+        { id: 'toggle-editor', name: 'Switch to Editor View', action: () => setView('editor'), category: 'View', icon: PencilIcon, keywords: 'main prompt' },
         { id: 'toggle-settings', name: 'Toggle Settings View', action: toggleSettingsView, category: 'View', icon: GearIcon, keywords: 'configure options' },
         { id: 'toggle-info', name: 'Toggle Info View', action: () => setView(v => v === 'info' ? 'editor' : 'info'), category: 'View', icon: InfoIcon, keywords: 'help docs readme' },
         { id: 'toggle-logs', name: 'Toggle Logs Panel', action: () => setIsLoggerVisible(v => !v), category: 'View', icon: TerminalIcon, keywords: 'debug console' },
@@ -549,10 +550,12 @@ const App: React.FC = () => {
     const headerProps = {
         onToggleSettingsView: toggleSettingsView,
         onToggleInfoView: () => setView(v => v === 'info' ? 'editor' : 'info'),
+        onShowEditorView: () => setView('editor'),
         onToggleLogger: () => setIsLoggerVisible(v => !v),
         onOpenCommandPalette: handleOpenCommandPalette,
         isInfoViewActive: view === 'info',
         isSettingsViewActive: view === 'settings',
+        isEditorViewActive: view === 'editor',
     };
 
     return (

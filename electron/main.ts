@@ -2,6 +2,8 @@ import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs/promises';
 import { autoUpdater } from 'electron-updater';
+// FIX: Import 'process' to provide type definitions for 'process.platform'.
+import process from 'process';
 
 declare const __dirname: string;
 
@@ -257,9 +259,7 @@ app.whenReady().then(async () => {
 });
 
 app.on('window-all-closed', () => {
-  // FIX: Cast `process` to `any` to access the 'platform' property.
-  // This is necessary because the TypeScript type definition for `process` in this context is incomplete.
-  if ((process as any).platform !== 'darwin') {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });

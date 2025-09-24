@@ -1,4 +1,6 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+// FIX: Import 'process' to provide type definitions for 'process.platform'.
+import process from 'process';
 
 contextBridge.exposeInMainWorld('electronAPI', {
   // --- Storage & Docs ---
@@ -21,9 +23,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   quitAndInstallUpdate: () => ipcRenderer.send('updater:quit-and-install'),
 
   // --- Custom Title Bar ---
-  // FIX: Cast `process` to `any` to access the 'platform' property.
-  // This is necessary because the default TypeScript type definition for `process` in the renderer context is incomplete.
-  getPlatform: () => (process as any).platform,
+  getPlatform: () => process.platform,
   minimizeWindow: () => ipcRenderer.send('window:minimize'),
   maximizeWindow: () => ipcRenderer.send('window:maximize'),
   closeWindow: () => ipcRenderer.send('window:close'),

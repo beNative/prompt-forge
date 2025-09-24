@@ -42,7 +42,6 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
     if (searchTerm.trim()) {
         const lowerCaseSearchTerm = searchTerm.toLowerCase();
         const visibleIds = new Set<string>();
-        // FIX: Explicitly type the Map to ensure `get` returns a typed value, preventing downstream inference issues.
         const originalItemsById: Map<string, PromptOrFolder> = new Map(props.prompts.map(i => [i.id, i]));
         const getAncestors = (itemId: string) => {
             let current = originalItemsById.get(itemId);

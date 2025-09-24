@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 
 interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -19,9 +19,6 @@ const Tooltip: React.FC<{
 
   const calculatePosition = useCallback(() => {
     if (targetRef.current && tooltipRef.current && targetRef.current.offsetWidth > 0) {
-      // FIX: Read zoom directly from document styles for accuracy. Calculating it from
-      // element dimensions was prone to floating-point and rounding errors that caused drift.
-      // FIX: Cast to `any` to access the non-standard `zoom` property which is available in Electron/Chromium.
       const zoomFactorString = (getComputedStyle(document.documentElement) as any).zoom || '1';
       const zoomFactor = parseFloat(zoomFactorString);
 
@@ -85,7 +82,7 @@ const Tooltip: React.FC<{
     }
   }, [targetRef, position]);
 
-  React.useLayoutEffect(() => {
+  useEffect(() => {
     calculatePosition();
     window.addEventListener('resize', calculatePosition);
     document.addEventListener('scroll', calculatePosition, true);
