@@ -3,6 +3,8 @@ import IconButton from './IconButton';
 import { GearIcon, InfoIcon, CommandIcon, TerminalIcon, SearchIcon, MinimizeIcon, MaximizeIcon, RestoreIcon, CloseIcon, PencilIcon } from './Icons';
 import ThemeToggleButton from './ThemeToggleButton';
 
+// info
+
 interface CustomTitleBarProps {
   onToggleSettingsView: () => void;
   onToggleInfoView: () => void;
