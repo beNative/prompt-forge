@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import PromptList from './PromptList';
 import TemplateList from './TemplateList';
-import type { PromptOrFolder, PromptTemplate } from '../types';
+import type { PromptOrFolder, PromptTemplate, LogLevel } from '../types';
 import IconButton from './IconButton';
 import { FolderPlusIcon, PlusIcon, SearchIcon, DocumentDuplicateIcon } from './Icons';
 import Button from './Button';
@@ -28,6 +28,7 @@ interface SidebarProps {
   onRenameTemplate: (id: string, newTitle: string) => void;
   onNewTemplate: () => void;
   onNewFromTemplate: () => void;
+  addLog: (level: LogLevel, message: string) => void;
 }
 
 type NavigableItem = { id: string; type: 'prompt' | 'folder' | 'template'; parentId: string | null; };
@@ -138,45 +139,64 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
     }
     
     e.preventDefault();
+    props.addLog('DEBUG', `[NAV] Keydown: ${key}`);
 
     const currentItem = navigableItems.find(item => item.id === focusedItemId);
 
     if (!currentItem) {
       if (navigableItems.length > 0) {
-        setFocusedItemId(navigableItems[0].id);
+        const firstItemId = navigableItems[0].id;
+        props.addLog('DEBUG', `[NAV] No current item found. Focusing first item: ${firstItemId}`);
+        setFocusedItemId(firstItemId);
+      } else {
+        props.addLog('DEBUG', `[NAV] No current item and no navigable items. Bailing.`);
       }
       return;
     }
 
     const currentIndex = navigableItems.indexOf(currentItem);
+    props.addLog('DEBUG', `[NAV] Current item: ID=${currentItem.id}, Index=${currentIndex}, Type=${currentItem.type}`);
+
 
     switch (key) {
       case 'ArrowUp': {
         const prevIndex = Math.max(0, currentIndex - 1);
-        setFocusedItemId(navigableItems[prevIndex].id);
+        const newItem = navigableItems[prevIndex];
+        props.addLog('DEBUG', `[NAV] ArrowUp: New index=${prevIndex}. Focusing item ID=${newItem.id}`);
+        setFocusedItemId(newItem.id);
         break;
       }
       case 'ArrowDown': {
         const nextIndex = Math.min(navigableItems.length - 1, currentIndex + 1);
-        setFocusedItemId(navigableItems[nextIndex].id);
+        const newItem = navigableItems[nextIndex];
+        props.addLog('DEBUG', `[NAV] ArrowDown: New index=${nextIndex}. Focusing item ID=${newItem.id}`);
+        setFocusedItemId(newItem.id);
         break;
       }
       case 'ArrowRight': {
         if (currentItem.type === 'folder' && !props.expandedFolderIds.has(currentItem.id)) {
+          props.addLog('DEBUG', `[NAV] ArrowRight: Expanding folder ID=${currentItem.id}`);
           props.onToggleExpand(currentItem.id);
+        } else {
+          props.addLog('DEBUG', `[NAV] ArrowRight: No action taken (not a collapsed folder).`);
         }
         break;
       }
       case 'ArrowLeft': {
         if (currentItem.type === 'folder' && props.expandedFolderIds.has(currentItem.id)) {
+          props.addLog('DEBUG', `[NAV] ArrowLeft: Collapsing folder ID=${currentItem.id}`);
           props.onToggleExpand(currentItem.id);
         } else if (currentItem.parentId) {
+          props.addLog('DEBUG', `[NAV] ArrowLeft: Moving focus to parent ID=${currentItem.parentId}`);
           setFocusedItemId(currentItem.parentId);
+        } else {
+          props.addLog('DEBUG', `[NAV] ArrowLeft: No action taken (not an expanded folder or has no parent).`);
         }
         break;
       }
       case 'Enter': {
-        const fakeEvent = {} as React.MouseEvent;
+        props.addLog('DEBUG', `[NAV] Enter: Selecting item ID=${currentItem.id}`);
+        const fakeEvent = {} as React.MouseEvent; // The handler needs a mouse event, but we don't have one
         if (currentItem.type === 'template') {
           props.onSelectTemplate(currentItem.id);
         } else {

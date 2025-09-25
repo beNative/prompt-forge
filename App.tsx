@@ -676,6 +676,7 @@ const App: React.FC = () => {
                                     onRenameTemplate={handleRenameTemplate}
                                     onNewTemplate={handleNewTemplate}
                                     onNewFromTemplate={() => setCreateFromTemplateOpen(true)}
+                                    addLog={addLog}
                                 />
                             </aside>
                             <div 
