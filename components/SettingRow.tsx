@@ -10,14 +10,16 @@ interface SettingRowProps {
 
 const SettingRow: React.FC<SettingRowProps> = ({ label, description, children, htmlFor }) => {
   return (
-    <div className="flex items-center justify-between py-4 border-b border-border-color last:border-b-0">
-      <div className="pr-8">
-        <label htmlFor={htmlFor} className="font-medium text-text-main cursor-pointer">
+    <div className="grid grid-cols-1 md:grid-cols-3 items-start gap-x-8 gap-y-3">
+      <div className="md:col-span-1">
+        <label htmlFor={htmlFor} className="font-semibold text-text-main leading-tight cursor-pointer">
           {label}
         </label>
-        <p className="text-sm text-text-secondary">{description}</p>
+        <p className="text-sm text-text-secondary mt-1">{description}</p>
       </div>
-      <div className="flex-shrink-0">{children}</div>
+      <div className="md:col-span-2 flex justify-start md:justify-end items-center w-full">
+        {children}
+      </div>
     </div>
   );
 };

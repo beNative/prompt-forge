@@ -1,6 +1,5 @@
 
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Settings, DiscoveredLLMService, DiscoveredLLMModel } from '../types';
 import { llmDiscoveryService } from '../services/llmDiscoveryService';
 import { SparklesIcon, FileIcon, SunIcon, GearIcon } from './Icons';
@@ -36,29 +35,55 @@ const categories: { id: SettingsCategory; label: string; icon: React.FC<{classNa
 const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discoveredServices, onDetectServices, isDetecting }) => {
   const [currentSettings, setCurrentSettings] = useState<Settings>(settings);
   const [isDirty, setIsDirty] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<SettingsCategory>('provider');
-  
+  const [visibleCategory, setVisibleCategory] = useState<SettingsCategory>('provider');
+
+  const sectionRefs = useRef<Record<SettingsCategory, HTMLDivElement | null>>({});
+  const mainPanelRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    setCurrentSettings(settings);
+  }, [settings]);
+
   useEffect(() => {
     setIsDirty(JSON.stringify(settings) !== JSON.stringify(currentSettings));
   }, [settings, currentSettings]);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleCategory(entry.target.id as SettingsCategory);
+          }
+        });
+      },
+      {
+        root: mainPanelRef.current,
+        rootMargin: '-40% 0px -60% 0px',
+        threshold: 0,
+      }
+    );
+
+    const refs = sectionRefs.current;
+    Object.values(refs).forEach((ref) => {
+      // Fix: Use `instanceof Element` to satisfy TypeScript's type checker, as Object.values can have vague return types.
+      if (ref instanceof Element) observer.observe(ref);
+    });
+
+    return () => {
+      Object.values(refs).forEach((ref) => {
+        // Fix: Use `instanceof Element` to satisfy TypeScript's type checker, as Object.values can have vague return types.
+        if (ref instanceof Element) observer.unobserve(ref);
+      });
+    };
+  }, []);
+
   const handleSave = () => {
     onSave(currentSettings);
   };
-
-  const renderContent = () => {
-    switch (activeCategory) {
-      case 'provider':
-        return <ProviderSettingsPanel {...{ settings: currentSettings, setCurrentSettings, discoveredServices, onDetectServices, isDetecting }} />;
-      case 'appearance':
-        return <AppearanceSettingsPanel {...{ settings: currentSettings, setCurrentSettings }} />;
-      case 'general':
-        return <GeneralSettingsPanel {...{ settings: currentSettings, setCurrentSettings }} />;
-      case 'advanced':
-        return <AdvancedSettingsPanel {...{ settings: currentSettings, setCurrentSettings }} />;
-      default:
-        return null;
-    }
+  
+  const handleNavClick = (id: SettingsCategory) => {
+    sectionRefs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (
@@ -67,7 +92,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
         <h1 className="text-2xl font-semibold text-text-main">Settings</h1>
         <Button
             onClick={handleSave}
-            disabled={!isDirty || !currentSettings.llmProviderUrl || !currentSettings.llmModelName}
+            disabled={!isDirty}
             variant="primary"
           >
             {isDirty ? 'Save Changes' : 'Saved'}
@@ -79,9 +104,9 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
             {categories.map(({ id, label, icon: Icon }) => (
               <li key={id}>
                 <button
-                  onClick={() => setActiveCategory(id)}
+                  onClick={() => handleNavClick(id)}
                   className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    activeCategory === id
+                    visibleCategory === id
                       ? 'bg-primary/10 text-primary'
                       : 'text-text-secondary hover:bg-border-color/50 hover:text-text-main'
                   }`}
@@ -93,8 +118,13 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
             ))}
           </ul>
         </nav>
-        <main className="flex-1 p-8 overflow-y-auto">
-          {renderContent()}
+        <main ref={mainPanelRef} className="flex-1 overflow-y-auto">
+          <div className="max-w-4xl mx-auto px-12 divide-y divide-border-color/50">
+            <ProviderSettingsSection {...{ settings: currentSettings, setCurrentSettings, discoveredServices, onDetectServices, isDetecting, sectionRef: el => sectionRefs.current.provider = el }} />
+            <AppearanceSettingsSection {...{ settings: currentSettings, setCurrentSettings, sectionRef: el => sectionRefs.current.appearance = el }} />
+            <GeneralSettingsSection {...{ settings: currentSettings, setCurrentSettings, sectionRef: el => sectionRefs.current.general = el }} />
+            <AdvancedSettingsSection {...{ settings: currentSettings, setCurrentSettings, sectionRef: el => sectionRefs.current.advanced = el }} />
+          </div>
         </main>
       </div>
     </div>
@@ -102,14 +132,15 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, discovere
 };
 
 
-// --- SETTINGS PANELS ---
+// --- SETTINGS SECTIONS ---
 
-interface PanelProps {
+interface SectionProps {
     settings: Settings;
     setCurrentSettings: React.Dispatch<React.SetStateAction<Settings>>;
+    sectionRef: (el: HTMLDivElement | null) => void;
 }
 
-const ProviderSettingsPanel: React.FC<PanelProps & { discoveredServices: DiscoveredLLMService[], onDetectServices: () => void, isDetecting: boolean }> = ({ settings, setCurrentSettings, discoveredServices, onDetectServices, isDetecting }) => {
+const ProviderSettingsSection: React.FC<SectionProps & { discoveredServices: DiscoveredLLMService[], onDetectServices: () => void, isDetecting: boolean }> = ({ settings, setCurrentSettings, discoveredServices, onDetectServices, isDetecting, sectionRef }) => {
     const [availableModels, setAvailableModels] = useState<DiscoveredLLMModel[]>([]);
     const [isFetchingModels, setIsFetchingModels] = useState(false);
     const [detectionError, setDetectionError] = useState<string | null>(null);
@@ -127,24 +158,25 @@ const ProviderSettingsPanel: React.FC<PanelProps & { discoveredServices: Discove
     }, [isDetecting, discoveredServices]);
 
     useEffect(() => {
-        const preSelectService = async () => {
-            const savedService = discoveredServices.find(s => s.generateUrl === settings.llmProviderUrl);
-            if (savedService && availableModels.length === 0) {
+        const fetchModelsForCurrentService = async () => {
+            const currentService = discoveredServices.find(s => s.generateUrl === settings.llmProviderUrl);
+            if (currentService) {
                 setIsFetchingModels(true);
                 try {
-                    const models = await llmDiscoveryService.fetchModels(savedService);
+                    const models = await llmDiscoveryService.fetchModels(currentService);
                     setAvailableModels(models);
                 } catch (error) {
-                    console.error("Failed to pre-fetch models:", error);
+                    console.error("Failed to fetch models for current service:", error);
+                    setAvailableModels([]);
                 } finally {
                     setIsFetchingModels(false);
                 }
+            } else {
+                setAvailableModels([]);
             }
         }
-        if (discoveredServices.length > 0) {
-            preSelectService();
-        }
-    }, [discoveredServices, settings.llmProviderUrl, availableModels.length]);
+        fetchModelsForCurrentService();
+    }, [discoveredServices, settings.llmProviderUrl]);
 
 
     const handleServiceChange = async (serviceId: string) => {
@@ -158,153 +190,131 @@ const ProviderSettingsPanel: React.FC<PanelProps & { discoveredServices: Discove
             apiType: selectedService.apiType, 
             llmModelName: '' 
         }));
-        setAvailableModels([]);
-        setIsFetchingModels(true);
-        try {
-          const models = await llmDiscoveryService.fetchModels(selectedService);
-          setAvailableModels(models);
-        } catch (error) {
-          console.error("Failed to fetch models:", error);
-        } finally {
-          setIsFetchingModels(false);
-        }
     };
     
     const selectedService = discoveredServices.find(s => s.generateUrl === settings.llmProviderUrl);
 
     return (
-        <div className="max-w-2xl mx-auto space-y-8">
-            <section className="p-6 bg-secondary rounded-lg border border-border-color">
-                <h2 className="text-xl font-semibold text-text-main mb-4">Connection</h2>
-                 <Button onClick={onDetectServices} disabled={isDetecting} variant="secondary" isLoading={isDetecting} className="w-full">
-                    {!isDetecting && <SparklesIcon className="w-5 h-5 mr-2" />}
-                    {isDetecting ? 'Detecting...' : 'Re-Detect Services'}
-                </Button>
-                {detectionError && <p className="text-center text-sm text-destructive-text mt-4">{detectionError}</p>}
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                    <div>
-                        <label htmlFor="llmService" className="block text-sm font-medium text-text-secondary mb-1">Detected Service</label>
-                         <select
-                            id="llmService"
-                            value={selectedService?.id || ''}
-                            onChange={(e) => handleServiceChange(e.target.value)}
-                            disabled={discoveredServices.length === 0}
+        <div id="provider" ref={sectionRef} className="py-10">
+            <h2 className="text-xl font-semibold text-text-main mb-6">LLM Provider</h2>
+            <div className="space-y-6">
+                <SettingRow label="Detect Services" description="Scan for locally running LLM services like Ollama and LM Studio.">
+                    <div className="w-60">
+                        <Button onClick={onDetectServices} disabled={isDetecting} variant="secondary" isLoading={isDetecting} className="w-full">
+                            {isDetecting ? 'Detecting...' : 'Re-Detect Services'}
+                        </Button>
+                        {detectionError && <p className="text-center text-xs text-destructive-text mt-2">{detectionError}</p>}
+                    </div>
+                </SettingRow>
+                <SettingRow label="Detected Service" description="Choose a running service to connect to for AI features.">
+                    <select
+                        id="llmService"
+                        value={selectedService?.id || ''}
+                        onChange={(e) => handleServiceChange(e.target.value)}
+                        disabled={discoveredServices.length === 0}
+                        className="w-60 p-2 rounded-md bg-background text-text-main border border-border-color focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50"
+                    >
+                        <option value="" disabled>{discoveredServices.length > 0 ? 'Select a service' : 'No services detected'}</option>
+                        {discoveredServices.map(service => (
+                            <option key={service.id} value={service.id}>{service.name}</option>
+                        ))}
+                    </select>
+                </SettingRow>
+                <SettingRow label="Model Name" description="Select which model to use for generating titles and refining prompts.">
+                     <div className="relative w-60">
+                       <select
+                            id="llmModelName"
+                            value={settings.llmModelName}
+                            onChange={(e) => setCurrentSettings(prev => ({ ...prev, llmModelName: e.target.value }))}
+                            disabled={!selectedService || availableModels.length === 0}
                             className="w-full p-2 rounded-md bg-background text-text-main border border-border-color focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50"
                         >
-                            <option value="" disabled>{discoveredServices.length > 0 ? 'Select a service' : 'No services detected'}</option>
-                            {discoveredServices.map(service => (
-                                <option key={service.id} value={service.id}>{service.name}</option>
+                            <option value="" disabled>{!selectedService ? 'Select service first' : 'Select a model'}</option>
+                            {availableModels.map(model => (
+                            <option key={model.id} value={model.id}>{model.name}</option>
                             ))}
                         </select>
+                        {isFetchingModels && <div className="absolute right-3 top-1/2 -translate-y-1/2"><Spinner /></div>}
                     </div>
-                     <div>
-                        <label htmlFor="llmModelName" className="block text-sm font-medium text-text-secondary mb-1">Model Name</label>
-                        <div className="relative">
-                           <select
-                                id="llmModelName"
-                                value={settings.llmModelName}
-                                onChange={(e) => setCurrentSettings(prev => ({ ...prev, llmModelName: e.target.value }))}
-                                disabled={!selectedService || availableModels.length === 0}
-                                className="w-full p-2 rounded-md bg-background text-text-main border border-border-color focus:ring-2 focus:ring-primary focus:border-primary disabled:opacity-50"
-                            >
-                                <option value="" disabled>{!selectedService ? 'Select a service first' : 'Select a model'}</option>
-                                {availableModels.map(model => (
-                                <option key={model.id} value={model.id}>{model.name}</option>
-                                ))}
-                            </select>
-                            {isFetchingModels && <div className="absolute right-3 top-1/2 -translate-y-1/2"><Spinner /></div>}
-                        </div>
-                    </div>
-                </div>
-            </section>
+                </SettingRow>
+            </div>
         </div>
     );
 };
 
-const AppearanceSettingsPanel: React.FC<PanelProps> = ({ settings, setCurrentSettings }) => {
-    const CardButton: React.FC<{name: string, description: string, value: any, children: React.ReactNode, onClick: (value: any) => void, isSelected: boolean}> = ({ name, description, value, children, onClick, isSelected }) => (
+const AppearanceSettingsSection: React.FC<SectionProps> = ({ settings, setCurrentSettings, sectionRef }) => {
+    const CardButton: React.FC<{name: string, value: any, children: React.ReactNode, onClick: (value: any) => void, isSelected: boolean}> = ({ name, value, children, onClick, isSelected }) => (
         <button
             onClick={() => onClick(value)}
-            className={`p-4 rounded-lg border-2 text-left transition-all w-full ${ isSelected ? 'border-primary bg-primary/5' : 'border-border-color bg-secondary hover:border-primary/50' }`}
+            className={`p-3 rounded-lg border-2 text-center transition-all w-full flex-1 ${ isSelected ? 'border-primary bg-primary/5' : 'border-border-color bg-secondary hover:border-primary/50' }`}
         >
-            <h4 className="font-semibold text-text-main">{name}</h4>
-            <p className="text-xs text-text-secondary mb-3">{description}</p>
-            <div className="flex items-center justify-around text-text-secondary p-2 bg-background rounded-md">
+            <div className="flex items-center justify-around text-text-secondary p-2 bg-background rounded-md mb-2">
                 {children}
             </div>
+            <h4 className="font-semibold text-text-main text-sm">{name}</h4>
         </button>
     );
 
     return (
-        <div className="max-w-2xl mx-auto space-y-8">
-            <section className="p-6 bg-secondary rounded-lg border border-border-color">
-                <h2 className="text-xl font-semibold text-text-main mb-4">Interface Scale</h2>
-                 <div className="flex items-center justify-between">
-                    <p className="text-sm text-text-secondary">Adjust the size of the entire interface.</p>
-                    <span className="font-semibold text-text-main tabular-nums min-w-[50px] text-right">{settings.uiScale}%</span>
-                </div>
-                <div className="mt-3">
-                    <input
-                        id="uiScale"
-                        type="range"
-                        min="50"
-                        max="200"
-                        step="10"
-                        value={settings.uiScale}
-                        onChange={(e) => setCurrentSettings(prev => ({ ...prev, uiScale: Number(e.target.value) }))}
-                        className="w-full h-2 bg-border-color rounded-lg appearance-none cursor-pointer range-slider"
-                    />
-                     <div className="flex justify-between text-xs text-text-secondary mt-1">
-                        <span>50%</span>
-                        <button onClick={() => setCurrentSettings(prev => ({ ...prev, uiScale: 100 }))} className="text-xs text-text-secondary hover:text-primary">
-                            Reset
-                        </button>
-                        <span>200%</span>
+        <div id="appearance" ref={sectionRef} className="py-10">
+            <h2 className="text-xl font-semibold text-text-main mb-6">Appearance</h2>
+            <div className="space-y-6">
+                <SettingRow label="Interface Scale" description="Adjust the size of all UI elements in the application.">
+                    <div className="flex items-center gap-4 w-60">
+                        <input
+                            id="uiScale"
+                            type="range"
+                            min="50"
+                            max="200"
+                            step="10"
+                            value={settings.uiScale}
+                            onChange={(e) => setCurrentSettings(prev => ({ ...prev, uiScale: Number(e.target.value) }))}
+                            className="w-full h-2 bg-border-color rounded-lg appearance-none cursor-pointer range-slider"
+                        />
+                        <span className="font-semibold text-text-main tabular-nums min-w-[50px] text-right">{settings.uiScale}%</span>
                     </div>
-                </div>
-            </section>
-
-             <section className="p-6 bg-secondary rounded-lg border border-border-color">
-                <h2 className="text-xl font-semibold text-text-main mb-4">Icon Set</h2>
-                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <CardButton name="Heroicons" description="A classic, solid set." value="heroicons" isSelected={settings.iconSet === 'heroicons'} onClick={(v) => setCurrentSettings(s => ({...s, iconSet: v}))}>
-                        <HeroIcons.PlusIcon className="w-5 h-5" /> <HeroIcons.SparklesIcon className="w-5 h-5" /> <HeroIcons.FolderIcon className="w-5 h-5" />
-                    </CardButton>
-                    <CardButton name="Lucide" description="A modern, clean set." value="lucide" isSelected={settings.iconSet === 'lucide'} onClick={(v) => setCurrentSettings(s => ({...s, iconSet: v}))}>
-                        <LucideIcons.PlusIcon className="w-5 h-5" /> <LucideIcons.SparklesIcon className="w-5 h-5" /> <LucideIcons.FolderIcon className="w-5 h-5" />
-                    </CardButton>
-                    <CardButton name="Feather" description="Simply beautiful icons." value="feather" isSelected={settings.iconSet === 'feather'} onClick={(v) => setCurrentSettings(s => ({...s, iconSet: v}))}>
-                        <FeatherIcons.PlusIcon className="w-5 h-5" /> <FeatherIcons.SparklesIcon className="w-5 h-5" /> <FeatherIcons.FolderIcon className="w-5 h-5" />
-                    </CardButton>
-                    <CardButton name="Tabler" description="Pixel-perfect icons." value="tabler" isSelected={settings.iconSet === 'tabler'} onClick={(v) => setCurrentSettings(s => ({...s, iconSet: v}))}>
-                        <TablerIcons.PlusIcon className="w-5 h-5" /> <TablerIcons.SparklesIcon className="w-5 h-5" /> <TablerIcons.FolderIcon className="w-5 h-5" />
-                    </CardButton>
-                    <CardButton name="Material" description="Google's design icons." value="material" isSelected={settings.iconSet === 'material'} onClick={(v) => setCurrentSettings(s => ({...s, iconSet: v}))}>
-                         <MaterialIcons.PlusIcon className="w-5 h-5" /> <MaterialIcons.SparklesIcon className="w-5 h-5" /> <MaterialIcons.FolderIcon className="w-5 h-5" />
-                    </CardButton>
-                </div>
-            </section>
+                </SettingRow>
+                <SettingRow label="Icon Set" description="Customize the look of icons throughout the application.">
+                    <div className="grid grid-cols-3 gap-3 w-80">
+                         <CardButton name="Heroicons" value="heroicons" isSelected={settings.iconSet === 'heroicons'} onClick={(v) => setCurrentSettings(s => ({...s, iconSet: v}))}>
+                            <HeroIcons.PlusIcon className="w-5 h-5" /> <HeroIcons.SparklesIcon className="w-5 h-5" /> <HeroIcons.FolderIcon className="w-5 h-5" />
+                        </CardButton>
+                        <CardButton name="Lucide" value="lucide" isSelected={settings.iconSet === 'lucide'} onClick={(v) => setCurrentSettings(s => ({...s, iconSet: v}))}>
+                            <LucideIcons.PlusIcon className="w-5 h-5" /> <LucideIcons.SparklesIcon className="w-5 h-5" /> <LucideIcons.FolderIcon className="w-5 h-5" />
+                        </CardButton>
+                        <CardButton name="Feather" value="feather" isSelected={settings.iconSet === 'feather'} onClick={(v) => setCurrentSettings(s => ({...s, iconSet: v}))}>
+                            <FeatherIcons.PlusIcon className="w-5 h-5" /> <FeatherIcons.SparklesIcon className="w-5 h-5" /> <FeatherIcons.FolderIcon className="w-5 h-5" />
+                        </CardButton>
+                        <CardButton name="Tabler" value="tabler" isSelected={settings.iconSet === 'tabler'} onClick={(v) => setCurrentSettings(s => ({...s, iconSet: v}))}>
+                            <TablerIcons.PlusIcon className="w-5 h-5" /> <TablerIcons.SparklesIcon className="w-5 h-5" /> <TablerIcons.FolderIcon className="w-5 h-5" />
+                        </CardButton>
+                        <CardButton name="Material" value="material" isSelected={settings.iconSet === 'material'} onClick={(v) => setCurrentSettings(s => ({...s, iconSet: v}))}>
+                             <MaterialIcons.PlusIcon className="w-5 h-5" /> <MaterialIcons.SparklesIcon className="w-5 h-5" /> <MaterialIcons.FolderIcon className="w-5 h-5" />
+                        </CardButton>
+                    </div>
+                </SettingRow>
+            </div>
         </div>
     );
 };
 
-const GeneralSettingsPanel: React.FC<PanelProps> = ({ settings, setCurrentSettings }) => {
+const GeneralSettingsSection: React.FC<SectionProps> = ({ settings, setCurrentSettings, sectionRef }) => {
     return (
-         <div className="max-w-2xl mx-auto space-y-8">
-            <section className="p-6 bg-secondary rounded-lg border border-border-color divide-y divide-border-color">
+         <div id="general" ref={sectionRef} className="py-10">
+            <h2 className="text-xl font-semibold text-text-main mb-6">General</h2>
+            <div className="space-y-6">
                  <SettingRow htmlFor="allowPrerelease" label="Receive Pre-releases" description="Get notified about new beta versions and test features early.">
                     <ToggleSwitch id="allowPrerelease" checked={settings.allowPrerelease} onChange={(val) => setCurrentSettings(s => ({...s, allowPrerelease: val}))} />
                 </SettingRow>
-                 <SettingRow htmlFor="autoSaveLogs" label="Auto-save Logs" description="Automatically save all logs to a daily file on your computer.">
+                 <SettingRow htmlFor="autoSaveLogs" label="Auto-save Logs" description="Automatically save all logs to a daily file on your computer for debugging.">
                     <ToggleSwitch id="autoSaveLogs" checked={settings.autoSaveLogs} onChange={(val) => setCurrentSettings(s => ({...s, autoSaveLogs: val}))} />
                 </SettingRow>
-            </section>
+            </div>
         </div>
     );
 };
 
-const AdvancedSettingsPanel: React.FC<PanelProps> = ({ settings, setCurrentSettings }) => {
+const AdvancedSettingsSection: React.FC<SectionProps> = ({ settings, setCurrentSettings, sectionRef }) => {
     const [jsonString, setJsonString] = useState(() => JSON.stringify(settings, null, 2));
     const [jsonError, setJsonError] = useState<string | null>(null);
 
@@ -350,19 +360,22 @@ const AdvancedSettingsPanel: React.FC<PanelProps> = ({ settings, setCurrentSetti
     };
 
     return (
-        <div className="max-w-2xl mx-auto space-y-6">
-            <section className="p-6 bg-secondary rounded-lg border border-border-color space-y-4">
-                <h2 className="text-xl font-semibold text-text-main">JSON Configuration</h2>
-                <p className="text-sm text-text-secondary">
-                    Directly view and edit the settings file. Be careful, as incorrect values may cause issues.
-                </p>
-                <JsonEditor value={jsonString} onChange={handleJsonChange} />
-                {jsonError && <p className="text-sm text-destructive-text p-2 bg-destructive-bg/50 rounded-md">{jsonError}</p>}
-                <div className="flex gap-4 pt-2">
-                    <Button onClick={handleImport} variant="secondary">Import from File...</Button>
-                    <Button onClick={handleExport} variant="secondary">Export to File...</Button>
-                </div>
-            </section>
+        <div id="advanced" ref={sectionRef} className="py-10">
+            <h2 className="text-xl font-semibold text-text-main mb-6">Advanced</h2>
+            <div className="space-y-6">
+                <SettingRow label="Import / Export" description="Save your settings to a file or load a configuration from one.">
+                    <div className="flex gap-4">
+                        <Button onClick={handleImport} variant="secondary">Import...</Button>
+                        <Button onClick={handleExport} variant="secondary">Export...</Button>
+                    </div>
+                </SettingRow>
+                <SettingRow label="JSON Configuration" description="Directly edit the raw settings file. Be careful, as incorrect values may cause issues.">
+                    <div className="w-full">
+                        <JsonEditor value={jsonString} onChange={handleJsonChange} />
+                        {jsonError && <p className="text-sm text-destructive-text mt-2">{jsonError}</p>}
+                    </div>
+                </SettingRow>
+            </div>
         </div>
     );
 };
