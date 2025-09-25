@@ -1,5 +1,10 @@
 # Version Log
 
+## v0.2.4
+
+### 🐛 Bug Fixes & Minor Enhancements
+- **Keyboard Navigation:** Fixed a critical bug in the sidebar's keyboard navigation where the visual focus and editor content would not update correctly when using arrow keys. Navigation is now reliable and behaves as expected.
+
 ## v0.2.3
 
 ### ✨ New Features & Major Improvements
