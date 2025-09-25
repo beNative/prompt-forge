@@ -120,7 +120,7 @@ const IconButton: React.FC<IconButtonProps> = ({ children, tooltip, className, v
         setIsHovered(false);
     }, []);
 
-    const baseClasses = "flex items-center justify-center rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-primary transition-colors";
+    const baseClasses = "flex items-center justify-center rounded-md focus:outline-none transition-colors";
   
     const variantClasses = {
       primary: 'text-text-secondary hover:bg-border-color hover:text-text-main',

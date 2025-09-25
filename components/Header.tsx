@@ -33,20 +33,20 @@ const Header: React.FC<HeaderProps> = ({
         <h1 className="text-lg font-semibold text-text-main tracking-wide">PromptForge</h1>
       </div>
       <div className="flex items-center gap-1">
-        <IconButton onClick={onOpenCommandPalette} tooltip="Command Palette (Ctrl+Shift+P)" tooltipPosition="bottom" className="focus:ring-0 focus:ring-offset-0">
+        <IconButton onClick={onOpenCommandPalette} tooltip="Command Palette (Ctrl+Shift+P)" tooltipPosition="bottom">
           <CommandIcon />
         </IconButton>
-        <IconButton onClick={onShowEditorView} tooltip="Editor" className={`focus:ring-0 focus:ring-offset-0 ${isEditorViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
+        <IconButton onClick={onShowEditorView} tooltip="Editor" className={`${isEditorViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
           <PencilIcon />
         </IconButton>
-        <IconButton onClick={onToggleInfoView} tooltip="Info" className={`focus:ring-0 focus:ring-offset-0 ${isInfoViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
+        <IconButton onClick={onToggleInfoView} tooltip="Info" className={`${isInfoViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
           <InfoIcon />
         </IconButton>
-        <IconButton onClick={onToggleLogger} tooltip="Logs" tooltipPosition="bottom" className="focus:ring-0 focus:ring-offset-0">
+        <IconButton onClick={onToggleLogger} tooltip="Logs" tooltipPosition="bottom">
           <TerminalIcon />
         </IconButton>
-        <ThemeToggleButton className="focus:ring-0 focus:ring-offset-0" />
-        <IconButton onClick={onToggleSettingsView} tooltip="Settings" className={`focus:ring-0 focus:ring-offset-0 ${isSettingsViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
+        <ThemeToggleButton />
+        <IconButton onClick={onToggleSettingsView} tooltip="Settings" className={`${isSettingsViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
           <GearIcon />
         </IconButton>
       </div>

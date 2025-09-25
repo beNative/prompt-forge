@@ -109,17 +109,17 @@ const CustomTitleBar: React.FC<CustomTitleBarProps> = ({
             </div>
 
             <div className="flex items-center gap-1 flex-1 justify-end">
-                <IconButton onClick={onShowEditorView} tooltip="Editor" size="sm" className={`not-draggable focus:ring-0 focus:ring-offset-0 ${isEditorViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
+                <IconButton onClick={onShowEditorView} tooltip="Editor" size="sm" className={`not-draggable ${isEditorViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
                     <PencilIcon className="w-5 h-5" />
                 </IconButton>
-                <IconButton onClick={onToggleInfoView} tooltip="Info" size="sm" className={`not-draggable focus:ring-0 focus:ring-offset-0 ${isInfoViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
+                <IconButton onClick={onToggleInfoView} tooltip="Info" size="sm" className={`not-draggable ${isInfoViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
                     <InfoIcon className="w-5 h-5" />
                 </IconButton>
-                <IconButton onClick={onToggleLogger} tooltip="Logs" size="sm" className="not-draggable focus:ring-0 focus:ring-offset-0" tooltipPosition="bottom">
+                <IconButton onClick={onToggleLogger} tooltip="Logs" size="sm" className="not-draggable" tooltipPosition="bottom">
                     <TerminalIcon className="w-5 h-5" />
                 </IconButton>
-                <ThemeToggleButton size="sm" tooltipPosition="bottom" className="not-draggable focus:ring-0 focus:ring-offset-0" />
-                <IconButton onClick={onToggleSettingsView} tooltip="Settings" size="sm" className={`not-draggable focus:ring-0 focus:ring-offset-0 ${isSettingsViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
+                <ThemeToggleButton size="sm" tooltipPosition="bottom" className="not-draggable" />
+                <IconButton onClick={onToggleSettingsView} tooltip="Settings" size="sm" className={`not-draggable ${isSettingsViewActive ? 'bg-primary/10 text-primary' : ''}`} tooltipPosition="bottom">
                     <GearIcon className="w-5 h-5" />
                 </IconButton>
             </div>
