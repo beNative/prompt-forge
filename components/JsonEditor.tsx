@@ -18,15 +18,10 @@ const JsonEditor: React.FC<JsonEditorProps> = ({ value, onChange, readOnly = fal
       // Fallback for when Prism isn't loaded yet
       return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
-    // Append a newline to prevent issues with highlighting the last line
-    try {
-      // Make sure it's valid JSON before highlighting for better results.
-      // If not, just highlight as plain text which shows errors better.
-      JSON.parse(value);
-      return Prism.highlight(value + '\n', Prism.languages.json, 'json');
-    } catch (e) {
-      return Prism.highlight(value + '\n', Prism.languages.clike, 'clike');
-    }
+    // Always use the JSON highlighter. It's robust enough to handle incomplete JSON
+    // without crashing and prevents the language switching that caused cursor jumps.
+    // A newline is appended to prevent issues with highlighting the last line.
+    return Prism.highlight(value + '\n', Prism.languages.json, 'json');
   }, [value]);
 
   const syncScroll = () => {
