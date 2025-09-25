@@ -230,13 +230,8 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
     
     const clampedSize = Math.max(10, Math.min(90, newSize));
 
-    // Add detailed logging as requested by the user for debugging.
-    addLog('DEBUG', `[SplitterMove] Mouse: { x: ${e.clientX.toFixed(0)}, y: ${e.clientY.toFixed(0)} }`);
-    addLog('DEBUG', `[SplitterMove] Container Rect: { left: ${rect.left.toFixed(0)}, top: ${rect.top.toFixed(0)}, width: ${rect.width.toFixed(0)}, height: ${rect.height.toFixed(0)} }`);
-    addLog('DEBUG', `[SplitterMove] Calculated raw size: ${newSize.toFixed(2)}% -> Clamped to: ${clampedSize.toFixed(2)}%`);
-
     setSplitSize(clampedSize);
-  }, [viewMode, addLog]);
+  }, [viewMode]);
 
   useEffect(() => {
     window.addEventListener('mousemove', handleGlobalMouseMove);

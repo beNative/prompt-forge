@@ -1,5 +1,11 @@
 # Version Log
 
+## v0.2.2
+
+### 🐛 Bug Fixes & Minor Enhancements
+- **Editor Splitter:** Fixed an issue where the horizontal and vertical splitters in the prompt editor could become unresponsive or "stuck" during resizing, ensuring smooth and reliable layout adjustments. This also removes verbose debug logging for splitter movements.
+- **UI Polish:** Adjusted tooltip positioning logic to be closer to the window edges and better account for different UI scales.
+
 ## v0.2.1
 
 ### ✨ New Features & Major Improvements

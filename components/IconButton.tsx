@@ -42,7 +42,7 @@ const Tooltip: React.FC<{
 
       // `window.innerWidth/Height` are already in layout pixels.
       const { innerWidth, innerHeight } = window;
-      const margin = 8;
+      const margin = 4;
 
       let top, left;
 
