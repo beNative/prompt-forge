@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import PromptList from './PromptList';
 import TemplateList from './TemplateList';
@@ -157,20 +158,31 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
     const currentIndex = navigableItems.indexOf(currentItem);
     props.addLog('DEBUG', `[NAV] Current item: ID=${currentItem.id}, Index=${currentIndex}, Type=${currentItem.type}`);
 
+    const selectItem = (item: NavigableItem) => {
+        if (item.type === 'template') {
+            props.onSelectTemplate(item.id);
+        } else {
+            // Pass a fake event that won't trigger multi-select.
+            // This is needed because the handler in App.tsx checks for Ctrl/Meta keys.
+            props.onSelectPrompt(item.id, {} as React.MouseEvent);
+        }
+    };
 
     switch (key) {
       case 'ArrowUp': {
         const prevIndex = Math.max(0, currentIndex - 1);
         const newItem = navigableItems[prevIndex];
-        props.addLog('DEBUG', `[NAV] ArrowUp: New index=${prevIndex}. Focusing item ID=${newItem.id}`);
+        props.addLog('DEBUG', `[NAV] ArrowUp: New index=${prevIndex}. Focusing and selecting item ID=${newItem.id}`);
         setFocusedItemId(newItem.id);
+        selectItem(newItem);
         break;
       }
       case 'ArrowDown': {
         const nextIndex = Math.min(navigableItems.length - 1, currentIndex + 1);
         const newItem = navigableItems[nextIndex];
-        props.addLog('DEBUG', `[NAV] ArrowDown: New index=${nextIndex}. Focusing item ID=${newItem.id}`);
+        props.addLog('DEBUG', `[NAV] ArrowDown: New index=${nextIndex}. Focusing and selecting item ID=${newItem.id}`);
         setFocusedItemId(newItem.id);
+        selectItem(newItem);
         break;
       }
       case 'ArrowRight': {
@@ -187,8 +199,12 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
           props.addLog('DEBUG', `[NAV] ArrowLeft: Collapsing folder ID=${currentItem.id}`);
           props.onToggleExpand(currentItem.id);
         } else if (currentItem.parentId) {
-          props.addLog('DEBUG', `[NAV] ArrowLeft: Moving focus to parent ID=${currentItem.parentId}`);
-          setFocusedItemId(currentItem.parentId);
+          const parentItem = navigableItems.find(item => item.id === currentItem.parentId);
+          if (parentItem) {
+            props.addLog('DEBUG', `[NAV] ArrowLeft: Moving focus to parent ID=${currentItem.parentId}`);
+            setFocusedItemId(parentItem.id);
+            selectItem(parentItem);
+          }
         } else {
           props.addLog('DEBUG', `[NAV] ArrowLeft: No action taken (not an expanded folder or has no parent).`);
         }
@@ -196,12 +212,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
       }
       case 'Enter': {
         props.addLog('DEBUG', `[NAV] Enter: Selecting item ID=${currentItem.id}`);
-        const fakeEvent = {} as React.MouseEvent; // The handler needs a mouse event, but we don't have one
-        if (currentItem.type === 'template') {
-          props.onSelectTemplate(currentItem.id);
-        } else {
-          props.onSelectPrompt(currentItem.id, fakeEvent);
-        }
+        selectItem(currentItem);
         break;
       }
     }
