@@ -131,46 +131,56 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (navigableItems.length === 0) return;
-    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown' && e.key !== 'Enter' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const key = e.key;
+
+    if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'].includes(key)) {
+        return;
+    }
     
     e.preventDefault();
 
-    const currentIndex = navigableItems.findIndex(item => item.id === focusedItemId);
-    const currentItem = navigableItems[currentIndex];
+    const currentItem = navigableItems.find(item => item.id === focusedItemId);
 
-    switch (e.key) {
-      case 'ArrowDown': {
-        const nextIndex = currentIndex >= 0 ? Math.min(currentIndex + 1, navigableItems.length - 1) : 0;
-        setFocusedItemId(navigableItems[nextIndex].id);
-        break;
+    if (!currentItem) {
+      if (navigableItems.length > 0) {
+        setFocusedItemId(navigableItems[0].id);
       }
+      return;
+    }
+
+    const currentIndex = navigableItems.indexOf(currentItem);
+
+    switch (key) {
       case 'ArrowUp': {
-        const prevIndex = currentIndex > 0 ? currentIndex - 1 : 0;
+        const prevIndex = Math.max(0, currentIndex - 1);
         setFocusedItemId(navigableItems[prevIndex].id);
         break;
       }
-      case 'Enter': {
-        if (focusedItemId) {
-          const fakeEvent = {} as React.MouseEvent;
-          if (currentItem.type === 'template') {
-            props.onSelectTemplate(focusedItemId);
-          } else {
-            props.onSelectPrompt(focusedItemId, fakeEvent);
-          }
-        }
+      case 'ArrowDown': {
+        const nextIndex = Math.min(navigableItems.length - 1, currentIndex + 1);
+        setFocusedItemId(navigableItems[nextIndex].id);
         break;
       }
       case 'ArrowRight': {
-        if (currentItem?.type === 'folder' && !props.expandedFolderIds.has(currentItem.id)) {
+        if (currentItem.type === 'folder' && !props.expandedFolderIds.has(currentItem.id)) {
           props.onToggleExpand(currentItem.id);
         }
         break;
       }
       case 'ArrowLeft': {
-        if (currentItem?.type === 'folder' && props.expandedFolderIds.has(currentItem.id)) {
+        if (currentItem.type === 'folder' && props.expandedFolderIds.has(currentItem.id)) {
           props.onToggleExpand(currentItem.id);
-        } else if (currentItem?.parentId) {
-            setFocusedItemId(currentItem.parentId);
+        } else if (currentItem.parentId) {
+          setFocusedItemId(currentItem.parentId);
+        }
+        break;
+      }
+      case 'Enter': {
+        const fakeEvent = {} as React.MouseEvent;
+        if (currentItem.type === 'template') {
+          props.onSelectTemplate(currentItem.id);
+        } else {
+          props.onSelectPrompt(currentItem.id, fakeEvent);
         }
         break;
       }
