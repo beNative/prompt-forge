@@ -55,6 +55,8 @@ The resizable left panel is your main navigation and organization area.
     - **New Template:** A button at the top of the templates list.
     - **New from Template...:** A button at the very bottom of the sidebar to create a new prompt using an existing template.
 
+The entire list of prompts and templates can be navigated using your keyboard's arrow keys. Use `Up`/`Down` to move between items, `Right` to expand a folder, `Left` to collapse a folder (or move to its parent), and `Enter` to open the selected item.
+
 ### The Main Content Area
 
 This is the largest part of the application and displays the active content.

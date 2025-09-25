@@ -9,6 +9,7 @@ PromptForge is a desktop application designed to streamline the process of creat
 - **Modern, Draggable Title Bar:** A sleek, VS Code-style custom title bar maximizes screen space and integrates essential functions (Electron version only).
 - **Integrated Command Palette:** Quickly access all core functions from a central search bar built directly into the title bar.
 - **Hierarchical Prompt Organization:** Organize your prompts and ideas in a familiar folder structure. Use drag-and-drop to rearrange your workspace.
+- **Full Keyboard Navigation:** Navigate the prompt and template sidebar using only the keyboard for a faster workflow.
 - **AI-Powered Refinement:** Use your connected local LLM to automatically refine and improve your prompts with a single click.
 - **Prompt Templating:** Create reusable prompt templates with variables to quickly generate new prompts for recurring tasks.
 - **Side-by-side Markdown Preview:** Write your prompts in Markdown and see a live, rendered preview in real-time, either next to or below your editor.

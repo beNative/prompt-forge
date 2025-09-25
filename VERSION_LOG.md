@@ -1,5 +1,14 @@
 # Version Log
 
+## v0.2.3
+
+### ✨ New Features & Major Improvements
+- **Keyboard Navigation:** Implemented full keyboard navigation for the sidebar. Users can now use arrow keys to navigate through prompts, templates, and folders, expand/collapse folders, and select items without using the mouse.
+
+### 🐛 Bug Fixes & Minor Enhancements
+- **JSON Editor:** Fixed a bug where typing a space in the JSON settings editor would cause the cursor to jump to the end of the file.
+- **UI Scaling:** Resolved an issue where tooltips and the command palette could be misaligned when the application's UI scale was set to a value other than 100%.
+
 ## v0.2.2
 
 ### 🐛 Bug Fixes & Minor Enhancements
