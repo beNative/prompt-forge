@@ -1,11 +1,15 @@
 # Version Log
 
 ## v0.2.1
-*(In Development)*
 
 ### ✨ New Features & Major Improvements
+- **Settings Redesign:** Overhauled the Settings panel with a modern, space-efficient, single-page layout. It now features scroll-spy navigation on the left that tracks your position as you scroll through the categories on the right, making it easier and faster to configure the application.
 
 ### 🐛 Bug Fixes & Minor Enhancements
+- **Splitter Reliability:** Resolved an issue with the sidebar splitter having limited travel; it can now be resized freely across the full width of the application window.
+- **Template Creation:** Fixed a critical bug where creating a new prompt from a template would fail to apply the template's content and title.
+- **UI Polish:** Removed distracting blue focus rectangles from all buttons in the custom title bar for a cleaner, more professional aesthetic.
+- **TypeScript:** Corrected minor TypeScript errors in the Settings view that could occur due to incorrect type inference in a React hook.
 
 ---
 

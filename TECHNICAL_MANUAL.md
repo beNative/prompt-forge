@@ -110,5 +110,6 @@ This module handles all communication with the external Large Language Model.
 -   **`Header.tsx`:** A fallback header component used for the web version of the application, which does not support a custom frameless title bar.
 -   **`Sidebar.tsx`:** Manages the display of prompts and templates in a hierarchical list. It handles search/filtering, drag-and-drop logic, and keyboard navigation.
 -   **`PromptEditor.tsx`:** The main editor component. It manages its own internal state for the prompt content (title, body) and uses a debounced effect to trigger saves. It also handles the logic for AI refinement and Markdown previews.
+-   **`SettingsView.tsx`:** Manages all application settings. It features a two-column layout with navigation on the left and scroll-linked content sections on the right. It handles LLM provider configuration, appearance settings, and advanced options like JSON editing.
 -   **`CommandPalette.tsx`:** A dropdown component that displays a filterable list of available commands. It is positioned relative to the search input in the title bar and handles keyboard navigation for selecting and executing actions.
 -   **`StatusBar.tsx`:** The bottom bar of the application. Its role is now focused on displaying the LLM connection status and providing dropdowns for selecting the LLM provider and model.
