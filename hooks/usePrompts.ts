@@ -29,19 +29,20 @@ export const usePrompts = () => {
       addLog('DEBUG', `${newItems.length} items saved to storage.`);
   }, [addLog]);
 
-  const addPrompt = useCallback((parentId: string | null = null) => {
+  const addPrompt = useCallback((options: { parentId?: string | null; title?: string; content?: string; } = {}) => {
+    const { parentId = null, title = 'Untitled Prompt', content = '' } = options;
     const newPrompt: PromptOrFolder = {
       id: crypto.randomUUID(),
       type: 'prompt',
-      title: 'Untitled Prompt',
-      content: '',
+      title,
+      content,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       parentId,
     };
     const newItems = [newPrompt, ...items];
     persistItems(newItems);
-    addLog('INFO', `New prompt created with ID: ${newPrompt.id}`);
+    addLog('INFO', `New prompt created with ID: ${newPrompt.id} and title: "${title}"`);
     return newPrompt;
   }, [items, persistItems, addLog]);
   

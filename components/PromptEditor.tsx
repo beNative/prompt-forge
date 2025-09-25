@@ -408,7 +408,7 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col bg-secondary overflow-auto">
+      <div className="flex-1 flex flex-col bg-secondary overflow-hidden">
         {renderContent()}
         {error && <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-destructive-text p-3 bg-destructive-bg rounded-md text-sm shadow-lg z-20">{error}</div>}
       </div>

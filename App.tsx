@@ -220,7 +220,7 @@ const App: React.FC = () => {
 
     const handleNewPrompt = useCallback(() => {
         const parentId = getParentIdForNewItem();
-        const newPrompt = addPrompt(parentId);
+        const newPrompt = addPrompt({ parentId });
         setActiveNodeId(newPrompt.id);
         setSelectedIds(new Set([newPrompt.id]));
         setActiveTemplateId(null);
@@ -246,14 +246,13 @@ const App: React.FC = () => {
     }, [addTemplate]);
 
     const handleCreateFromTemplate = useCallback((title: string, content: string) => {
-        const newPrompt = addPrompt(null); // Create at root
-        updateItem(newPrompt.id, { title, content });
+        const newPrompt = addPrompt({ parentId: null, title, content });
         setActiveNodeId(newPrompt.id);
         setSelectedIds(new Set([newPrompt.id]));
         setActiveTemplateId(null);
         setPromptView('editor');
         setView('editor');
-    }, [addPrompt, updateItem]);
+    }, [addPrompt]);
 
     const handleSelectNode = (id: string, e: React.MouseEvent) => {
         if (activeNodeId !== id) {
