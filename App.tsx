@@ -34,11 +34,9 @@ import { LOCAL_STORAGE_KEYS } from './constants';
 
 const DEFAULT_SIDEBAR_WIDTH = 288;
 const MIN_SIDEBAR_WIDTH = 200;
-const MAX_SIDEBAR_WIDTH = 500;
 
 const DEFAULT_LOGGER_HEIGHT = 288;
 const MIN_LOGGER_HEIGHT = 100;
-const MAX_LOGGER_HEIGHT = 600;
 
 const isElectron = !!window.electronAPI;
 
@@ -471,16 +469,20 @@ const App: React.FC = () => {
         const zoomFactor = settings.uiScale / 100;
 
         if (isSidebarResizing.current) {
-          const newWidth = e.clientX / zoomFactor;
-          if (newWidth >= MIN_SIDEBAR_WIDTH && newWidth <= MAX_SIDEBAR_WIDTH) {
-            setSidebarWidth(newWidth);
-          }
+            const mainContentMinWidth = 300; // Keep at least 300px for the editor
+            const newWidth = e.clientX / zoomFactor;
+            const calculatedMaxWidth = (window.innerWidth / zoomFactor) - mainContentMinWidth;
+            
+            const clampedWidth = Math.max(MIN_SIDEBAR_WIDTH, Math.min(newWidth, calculatedMaxWidth));
+            setSidebarWidth(clampedWidth);
         }
         if (isLoggerResizing.current) {
-          const newHeight = (window.innerHeight - e.clientY) / zoomFactor;
-          if (newHeight >= MIN_LOGGER_HEIGHT && newHeight <= MAX_LOGGER_HEIGHT) {
-            setLoggerPanelHeight(newHeight);
-          }
+            const mainContentMinHeight = 200; // Keep at least 200px for the main content area
+            const newHeight = (window.innerHeight - e.clientY) / zoomFactor;
+            const calculatedMaxHeight = (window.innerHeight / zoomFactor) - mainContentMinHeight;
+            
+            const clampedHeight = Math.max(MIN_LOGGER_HEIGHT, Math.min(newHeight, calculatedMaxHeight));
+            setLoggerPanelHeight(clampedHeight);
         }
     }, [settings.uiScale]);
 
