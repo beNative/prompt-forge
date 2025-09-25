@@ -38,14 +38,17 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, comman
   // Calculate position when opening
   useEffect(() => {
     if (isOpen && targetRef.current) {
-      const zoomFactorString = (getComputedStyle(document.documentElement) as any).zoom || '1';
-      const zoomFactor = parseFloat(zoomFactorString);
-      const targetRect = targetRef.current.getBoundingClientRect(); // This is in VISUAL pixels
-
-      // Correct back to LAYOUT pixels for CSS `position: fixed`
-      const top = (targetRect.bottom / zoomFactor) + 4;
-      const left = targetRect.left / zoomFactor;
-      const width = targetRect.width / zoomFactor;
+      const zoomFactor = parseFloat((getComputedStyle(document.documentElement) as any).zoom || '1');
+      const targetEl = targetRef.current;
+      
+      // Use a hybrid approach for robustness under CSS zoom.
+      // getBoundingClientRect for position (is scaled by zoom).
+      // offsetWidth for dimensions (is true layout value, not scaled).
+      const scaledTargetRect = targetEl.getBoundingClientRect();
+      
+      const top = (scaledTargetRect.bottom / zoomFactor) + 4;
+      const left = scaledTargetRect.left / zoomFactor;
+      const width = targetEl.offsetWidth;
 
       setStyle({
         position: 'fixed',

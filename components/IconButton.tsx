@@ -19,29 +19,26 @@ const Tooltip: React.FC<{
 
   const calculatePosition = useCallback(() => {
     if (targetRef.current && tooltipRef.current && targetRef.current.offsetWidth > 0) {
-      const zoomFactorString = (getComputedStyle(document.documentElement) as any).zoom || '1';
-      const zoomFactor = parseFloat(zoomFactorString);
-
-      const scaledTargetRect = targetRef.current.getBoundingClientRect();
-      const scaledTooltipRect = tooltipRef.current.getBoundingClientRect();
-
-      // Convert all visual (scaled) coordinates and dimensions back to layout coordinates.
+      const zoomFactor = parseFloat((getComputedStyle(document.documentElement) as any).zoom || '1');
+      const targetEl = targetRef.current;
+      const tooltipEl = tooltipRef.current;
+      
+      const scaledTargetRect = targetEl.getBoundingClientRect();
+      
       const targetRect = {
         top: scaledTargetRect.top / zoomFactor,
         left: scaledTargetRect.left / zoomFactor,
-        width: scaledTargetRect.width / zoomFactor,
-        height: scaledTargetRect.height / zoomFactor,
         bottom: scaledTargetRect.bottom / zoomFactor,
-        right: scaledTargetRect.right / zoomFactor,
+        width: targetEl.offsetWidth, // Use offsetWidth for reliable layout width
+        height: targetEl.offsetHeight, // Use offsetHeight for reliable layout height
       };
-
+      
       const tooltipRect = {
-        width: scaledTooltipRect.width / zoomFactor,
-        height: scaledTooltipRect.height / zoomFactor,
+          width: tooltipEl.offsetWidth,
+          height: tooltipEl.offsetHeight,
       };
 
-      // `window.innerWidth/Height` are already in layout pixels.
-      const { innerWidth, innerHeight } = window;
+      const { innerWidth, innerHeight } = window; // Already in layout pixels
       const margin = 4;
 
       let top, left;
@@ -63,7 +60,7 @@ const Tooltip: React.FC<{
           top = targetRect.bottom + margin;
         }
       }
-
+      
       // Horizontal position and clamping logic (in layout pixels)
       left = targetRect.left + targetRect.width / 2 - tooltipRect.width / 2;
       
