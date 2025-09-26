@@ -296,6 +296,28 @@ export const ArrowLeftIcon: React.FC<IconProps> = (props) => {
     }
 };
 
+export const ArrowUpIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    switch (iconSet) {
+        case 'lucide': return <LucideIcons.ArrowUpIcon {...props} />;
+        case 'feather': return <FeatherIcons.ArrowUpIcon {...props} />;
+        case 'tabler': return <TablerIcons.ArrowUpIcon {...props} />;
+        case 'material': return <MaterialIcons.ArrowUpIcon {...props} />;
+        case 'heroicons': default: return <HeroIcons.ArrowUpIcon {...props} />;
+    }
+};
+
+export const ArrowDownIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    switch (iconSet) {
+        case 'lucide': return <LucideIcons.ArrowDownIcon {...props} />;
+        case 'feather': return <FeatherIcons.ArrowDownIcon {...props} />;
+        case 'tabler': return <TablerIcons.ArrowDownIcon {...props} />;
+        case 'material': return <MaterialIcons.ArrowDownIcon {...props} />;
+        case 'heroicons': default: return <HeroIcons.ArrowDownIcon {...props} />;
+    }
+};
+
 export const EyeIcon: React.FC<IconProps> = (props) => {
     const { iconSet } = useIconSet();
     switch (iconSet) {

@@ -17,10 +17,12 @@ interface PromptListProps {
   searchTerm: string;
   expandedIds: Set<string>;
   onToggleExpand: (id: string) => void;
+  onMoveUp: (id: string) => void;
+  onMoveDown: (id: string) => void;
 }
 
 const PromptList: React.FC<PromptListProps> = ({ 
-  tree, prompts, selectedIds, focusedItemId, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onCopyNodeContent, searchTerm, expandedIds, onToggleExpand
+  tree, prompts, selectedIds, focusedItemId, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onCopyNodeContent, searchTerm, expandedIds, onToggleExpand, onMoveUp, onMoveDown
 }) => {
   const [isRootDropping, setIsRootDropping] = useState(false);
   
@@ -69,7 +71,7 @@ const PromptList: React.FC<PromptListProps> = ({
         onDragLeave={handleRootDragLeave}
     >
         <ul className="space-y-0.5 p-2">
-        {tree.map((node) => (
+        {tree.map((node, index) => (
             <PromptTreeItem
                 key={node.id}
                 node={node}
@@ -84,6 +86,10 @@ const PromptList: React.FC<PromptListProps> = ({
                 onToggleExpand={onToggleExpand}
                 onCopyNodeContent={onCopyNodeContent}
                 searchTerm={searchTerm}
+                onMoveUp={onMoveUp}
+                onMoveDown={onMoveDown}
+                canMoveUp={index > 0}
+                canMoveDown={index < tree.length - 1}
             />
         ))}
         {prompts.length === 0 && (

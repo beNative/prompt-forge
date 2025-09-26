@@ -161,6 +161,18 @@ export const ArrowLeftIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) =>
   </svg>
 );
 
+export const ArrowUpIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+  </svg>
+);
+
+export const ArrowDownIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+  </svg>
+);
+
 export const EyeIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639l4.418-5.571a.998.998 0 0 1 1.486-.252l2.115 1.586a.998.998 0 0 0 1.258 0l2.115-1.586a.998.998 0 0 1 1.486.252l4.418 5.571a1.012 1.012 0 0 1 0 .639l-4.418 5.571a.998.998 0 0 1-1.486.252l-2.115-1.586a.998.998 0 0 0-1.258 0l-2.115-1.586a.998.998 0 0 1-1.486-.252L2.036 12.322z" />

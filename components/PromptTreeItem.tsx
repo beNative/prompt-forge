@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { PromptOrFolder } from '../types';
 import IconButton from './IconButton';
-import { FileIcon, FolderIcon, FolderOpenIcon, TrashIcon, ChevronRightIcon, ChevronDownIcon, CopyIcon } from './Icons';
+import { FileIcon, FolderIcon, FolderOpenIcon, TrashIcon, ChevronRightIcon, ChevronDownIcon, CopyIcon, ArrowUpIcon, ArrowDownIcon } from './Icons';
 
 export interface PromptNode extends PromptOrFolder {
   children: PromptNode[];
@@ -20,6 +20,10 @@ interface PromptTreeItemProps {
   onToggleExpand: (id: string) => void;
   onCopyNodeContent: (id: string) => void;
   searchTerm: string;
+  onMoveUp: (id: string) => void;
+  onMoveDown: (id: string) => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
 }
 
 // Helper function to determine drop position based on mouse coordinates within an element
@@ -60,6 +64,10 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = (props) => {
     onMoveNode,
     onToggleExpand,
     onCopyNodeContent,
+    onMoveUp,
+    onMoveDown,
+    canMoveUp,
+    canMoveDown,
   } = props;
   
   const [isRenaming, setIsRenaming] = useState(false);
@@ -198,6 +206,12 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = (props) => {
 
             {!isRenaming && (
                 <div className={`transition-opacity pr-1 flex items-center ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                    <IconButton onClick={(e) => { e.stopPropagation(); onMoveUp(node.id); }} tooltip="Move Up" size="sm" variant="ghost" disabled={!canMoveUp}>
+                        <ArrowUpIcon className="w-4 h-4" />
+                    </IconButton>
+                    <IconButton onClick={(e) => { e.stopPropagation(); onMoveDown(node.id); }} tooltip="Move Down" size="sm" variant="ghost" disabled={!canMoveDown}>
+                        <ArrowDownIcon className="w-4 h-4" />
+                    </IconButton>
                     {!isFolder && (
                         <IconButton onClick={(e) => { e.stopPropagation(); onCopyNodeContent(node.id); }} tooltip="Copy Content" size="sm" variant="ghost">
                             <CopyIcon className="w-4 h-4" />
@@ -217,8 +231,15 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = (props) => {
 
         {isFolder && isExpanded && (
             <ul>
-                {node.children.map((childNode) => (
-                    <PromptTreeItem key={childNode.id} {...props} node={childNode} level={level + 1} />
+                {node.children.map((childNode, index) => (
+                    <PromptTreeItem 
+                        key={childNode.id} 
+                        {...props} 
+                        node={childNode} 
+                        level={level + 1}
+                        canMoveUp={index > 0}
+                        canMoveDown={index < node.children.length - 1}
+                    />
                 ))}
             </ul>
         )}

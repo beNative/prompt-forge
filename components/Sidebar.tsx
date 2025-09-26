@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import PromptList from './PromptList';
 import TemplateList from './TemplateList';
 import type { PromptOrFolder, PromptTemplate } from '../types';
@@ -31,6 +31,20 @@ interface SidebarProps {
 }
 
 type NavigableItem = { id: string; type: 'prompt' | 'folder' | 'template'; parentId: string | null; };
+
+// Helper function to find a node and its siblings in a tree structure
+const findNodeAndSiblings = (nodes: PromptNode[], id: string): {node: PromptNode, siblings: PromptNode[]} | null => {
+    for (const node of nodes) {
+        if (node.id === id) {
+            return { node, siblings: nodes };
+        }
+        if (node.type === 'folder' && node.children.length > 0) {
+            const found = findNodeAndSiblings(node.children, id);
+            if (found) return found;
+        }
+    }
+    return null;
+};
 
 const Sidebar: React.FC<SidebarProps> = (props) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -128,6 +142,32 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
         element?.scrollIntoView({ block: 'nearest' });
     }
   }, [focusedItemId]);
+
+  const handleMoveUp = useCallback((id: string) => {
+      const result = findNodeAndSiblings(promptTree, id);
+      if (!result) return;
+      
+      const { siblings } = result;
+      const index = siblings.findIndex(s => s.id === id);
+      
+      if (index > 0) {
+          const targetSiblingId = siblings[index - 1].id;
+          props.onMovePrompt([id], targetSiblingId, 'before');
+      }
+  }, [promptTree, props.onMovePrompt]);
+  
+  const handleMoveDown = useCallback((id: string) => {
+      const result = findNodeAndSiblings(promptTree, id);
+      if (!result) return;
+      
+      const { siblings } = result;
+      const index = siblings.findIndex(s => s.id === id);
+      
+      if (index < siblings.length - 1) {
+          const targetSiblingId = siblings[index + 1].id;
+          props.onMovePrompt([id], targetSiblingId, 'after');
+      }
+  }, [promptTree, props.onMovePrompt]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (navigableItems.length === 0) return;
@@ -240,6 +280,8 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
             searchTerm={searchTerm}
             expandedIds={props.expandedFolderIds}
             onToggleExpand={props.onToggleExpand}
+            onMoveUp={handleMoveUp}
+            onMoveDown={handleMoveDown}
         />
 
         {/* --- Templates Section --- */}
