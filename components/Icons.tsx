@@ -318,6 +318,17 @@ export const PencilIcon: React.FC<IconProps> = (props) => {
     }
 };
 
+export const RefreshIcon: React.FC<IconProps> = (props) => {
+    const { iconSet } = useIconSet();
+    switch (iconSet) {
+        case 'lucide': return <LucideIcons.RefreshIcon {...props} />;
+        case 'feather': return <FeatherIcons.RefreshIcon {...props} />;
+        case 'tabler': return <TablerIcons.RefreshIcon {...props} />;
+        case 'material': return <MaterialIcons.RefreshIcon {...props} />;
+        case 'heroicons': default: return <HeroIcons.RefreshIcon {...props} />;
+    }
+};
+
 export const LayoutHorizontalIcon: React.FC<IconProps> = (props) => {
     const { iconSet } = useIconSet();
     switch (iconSet) {

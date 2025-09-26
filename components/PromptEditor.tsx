@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import type { PromptOrFolder, Settings } from '../types';
 import { llmService } from '../services/llmService';
-import { SparklesIcon, TrashIcon, UndoIcon, RedoIcon, CopyIcon, CheckIcon, HistoryIcon, EyeIcon, PencilIcon, LayoutHorizontalIcon, LayoutVerticalIcon } from './Icons';
+import { SparklesIcon, TrashIcon, UndoIcon, RedoIcon, CopyIcon, CheckIcon, HistoryIcon, EyeIcon, PencilIcon, LayoutHorizontalIcon, LayoutVerticalIcon, RefreshIcon } from './Icons';
 import Spinner from './Spinner';
 import Modal from './Modal';
 import { useLogger } from '../hooks/useLogger';
@@ -107,13 +107,12 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
   const [error, setError] = useState<string | null>(null);
   const [refinedContent, setRefinedContent] = useState<string | null>(null);
   const [isDirty, setIsDirty] = useState(false);
-  const [isAutoNaming, setIsAutoNaming] = useState(false);
+  const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('edit');
   const [splitSize, setSplitSize] = useState(50); // For resizable panes, in percentage
   const { addLog } = useLogger();
   
-  const autoNameTimeoutRef = useRef<number | null>(null);
   const isResizing = useRef(false);
   const splitContainerRef = useRef<HTMLDivElement>(null);
 
@@ -141,52 +140,6 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
 
     return () => clearTimeout(handler);
   }, [title, content, isDirty, onSave, prompt]);
-
-  // Effect for auto-naming untitled prompts
-  useEffect(() => {
-    if (prompt.type !== 'prompt') return;
-
-    const isUntitled = prompt.title === 'Untitled Prompt';
-    const hasEnoughContent = content.trim().length >= 50;
-
-    if (!isUntitled || !hasEnoughContent || isAutoNaming) {
-      return;
-    }
-
-    if (autoNameTimeoutRef.current) {
-      clearTimeout(autoNameTimeoutRef.current);
-    }
-
-    autoNameTimeoutRef.current = window.setTimeout(async () => {
-      if (!settings.llmProviderUrl || !settings.llmModelName) {
-        addLog('DEBUG', 'Skipping auto-name because LLM is not configured.');
-        return;
-      }
-      
-      setIsAutoNaming(true);
-      addLog('INFO', 'Attempting to auto-name prompt based on content.');
-      try {
-        const newTitle = await llmService.generateTitle(content, settings, addLog);
-        if (newTitle) {
-          setTitle(newTitle);
-          addLog('INFO', `Successfully auto-named prompt to: "${newTitle}"`);
-        } else {
-          addLog('WARNING', 'Auto-name returned an empty title.');
-        }
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unknown error';
-        addLog('WARNING', `Could not auto-name prompt: ${message}`);
-      } finally {
-        setIsAutoNaming(false);
-      }
-    }, 1500);
-
-    return () => {
-      if (autoNameTimeoutRef.current) {
-        clearTimeout(autoNameTimeoutRef.current);
-      }
-    };
-  }, [content, prompt.title, prompt.type, settings, addLog, isAutoNaming]);
   
   const renderedPreviewHtml = useMemo(() => {
     if (typeof marked === 'undefined' || !content) {
@@ -261,6 +214,32 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
       }
     } finally {
       setIsRefining(false);
+    }
+  };
+  
+  const handleGenerateTitle = async () => {
+    if (!settings.llmProviderUrl || !settings.llmModelName || !content.trim()) {
+      addLog('WARNING', 'Cannot generate title because LLM is not configured or content is empty.');
+      return;
+    }
+    
+    setIsGeneratingTitle(true);
+    setError(null);
+    addLog('INFO', 'Attempting to generate title based on content.');
+    try {
+      const newTitle = await llmService.generateTitle(content, settings, addLog);
+      if (newTitle) {
+        setTitle(newTitle);
+        addLog('INFO', `Successfully generated title: "${newTitle}"`);
+      } else {
+        addLog('WARNING', 'AI returned an empty title.');
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setError(`Could not generate title: ${message}`);
+      addLog('ERROR', `Could not generate title: ${message}`);
+    } finally {
+      setIsGeneratingTitle(false);
     }
   };
 
@@ -347,12 +326,21 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ prompt, onSave, onDelete, s
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={isAutoNaming ? "Generating title..." : "Prompt Title"}
-              disabled={isAutoNaming}
+              placeholder={isGeneratingTitle ? "Generating title..." : "Prompt Title"}
+              disabled={isGeneratingTitle}
               className="bg-transparent text-2xl font-semibold text-text-main focus:outline-none w-full truncate placeholder:text-text-secondary disabled:opacity-70"
             />
-            {isAutoNaming && <Spinner />}
-            {isDirty && !isAutoNaming && (
+            <IconButton
+              onClick={handleGenerateTitle}
+              disabled={isGeneratingTitle || !content.trim() || !settings.llmProviderUrl || !settings.llmModelName}
+              tooltip="Regenerate Title with AI"
+              size="sm"
+              variant="ghost"
+              className="flex-shrink-0"
+            >
+              {isGeneratingTitle ? <Spinner /> : <RefreshIcon className="w-5 h-5 text-primary" />}
+            </IconButton>
+            {isDirty && !isGeneratingTitle && (
                 <div className="relative group flex-shrink-0">
                     <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                     <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 w-max px-2 py-1 text-xs font-semibold text-tooltip-text bg-tooltip-bg rounded-md opacity-0 group-hover:opacity-100 transition-opacity delay-500 pointer-events-none">
