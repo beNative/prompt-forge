@@ -1,5 +1,11 @@
 # Version Log
 
+## v0.2.5
+
+### 🛠 Maintenance & Documentation
+- **Release Documentation:** Added explicit release workflow guidance to the technical manual so that maintainers can confidently package and publish new versions without missing required steps.
+- **Project Overview Refresh:** Clarified the README with a new release workflow section that links to the primary documentation set for quicker onboarding ahead of the 0.2.5 release.
+
 ## v0.2.4
 
 ### 🐛 Bug Fixes & Minor Enhancements

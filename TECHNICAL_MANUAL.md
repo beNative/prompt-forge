@@ -14,6 +14,7 @@ This document provides a technical overview of the PromptForge application's arc
     -   [Storage Service](#storage-service)
     -   [LLM Service](#llm-service)
     -   [Component Breakdown](#component-breakdown)
+5.  [Build and Release Process](#build-and-release-process)
 
 ---
 
@@ -114,3 +115,17 @@ This module handles all communication with the external Large Language Model.
 -   **`SettingsView.tsx`:** Manages all application settings. It features a two-column layout with navigation on the left and scroll-linked content sections on the right. It handles LLM provider configuration, appearance settings, and advanced options like JSON editing.
 -   **`CommandPalette.tsx`:** A dropdown component that displays a filterable list of available commands. It is positioned relative to the search input in the title bar and handles keyboard navigation for selecting and executing actions.
 -   **`StatusBar.tsx`:** The bottom bar of the application. Its role is now focused on displaying the LLM connection status and providing dropdowns for selecting the LLM provider and model.
+
+---
+
+## 5. Build and Release Process
+
+PromptForge ships via GitHub Releases using `electron-builder`. Follow this checklist when preparing a new public version:
+
+1. **Version Bump:** Update `package.json` with the new semantic version and document the highlights in [`VERSION_LOG.md`](./VERSION_LOG.md).
+2. **Dependency Install:** Run `npm install` to ensure all dependencies (including Electron) are present before building.
+3. **Build Renderer Bundle:** Execute `npm run build` to compile the renderer assets into the `dist/` directory.
+4. **Package Artifacts:** Run `npm run release` to build platform-specific installers inside the `release/` directory. This command automatically invokes `electron-builder --publish always` so CI or local environments can upload assets.
+5. **Validate Output:** Before drafting the GitHub release, smoke test the generated binaries and confirm they include the updated manuals referenced in `extraResources`.
+
+Documenting this process ensures the release workflow stays reproducible for contributors and maintainers alike.
