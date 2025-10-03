@@ -14,6 +14,8 @@ This document provides a technical overview of the PromptForge application's arc
     -   [Storage Service](#storage-service)
     -   [LLM Service](#llm-service)
     -   [Component Breakdown](#component-breakdown)
+5.  [Build and Packaging Process](#build-and-packaging-process)
+    -   [Icon Pipeline](#icon-pipeline)
 
 ---
 
@@ -114,3 +116,19 @@ This module handles all communication with the external Large Language Model.
 -   **`SettingsView.tsx`:** Manages all application settings. It features a two-column layout with navigation on the left and scroll-linked content sections on the right. It handles LLM provider configuration, appearance settings, and advanced options like JSON editing.
 -   **`CommandPalette.tsx`:** A dropdown component that displays a filterable list of available commands. It is positioned relative to the search input in the title bar and handles keyboard navigation for selecting and executing actions.
 -   **`StatusBar.tsx`:** The bottom bar of the application. Its role is now focused on displaying the LLM connection status and providing dropdowns for selecting the LLM provider and model.
+
+---
+
+## 5. Build and Packaging Process
+
+### Icon Pipeline
+
+-   **Source format:** The canonical application artwork lives in `assets/icon.svg`. The asset is designed for high contrast across light and dark backgrounds and includes accessible metadata (`<title>` and `<desc>` elements).
+-   **Automation entry point:** `npm run generate:icons` executes `scripts/generate-icons.js` before every packaging or release command. The script scans the `assets/` directory for a preferred SVG (`app-icon.svg` or `icon.svg`) and validates its structure using lightweight static checks (e.g., verifying the `<svg>` root and rejecting inline scripts).
+-   **Rasterisation:** When a valid SVG is located (or the bundled fallback is used), the script relies on a bundled software rasteriser in `scripts/generate-icons.js` to convert the vector artwork into a stack of PNG files (`1024` down to `16` pixels). The renderer supports gradients, rounded rectangles, and circles so no additional system libraries are required.
+-   **Platform targets:**
+    -   **Windows:** The generated PNGs are embedded directly into a multi-resolution `icon.ico` file.
+    -   **macOS:** The same PNG set is wrapped into an `icon.icns` container with the appropriate type headers for each size slot.
+    -   **Linux:** The largest PNG (`1024x1024`) is copied to `build/icons/icon.png` for desktop environments that consume standard PNG icons.
+-   **Fallback handling:** If no SVG exists or validation fails, the generator falls back to a bundled SVG definition so the build never produces a package without icons. The script exits with a non-zero status if the conversion fails, preventing partially-configured releases.
+-   **electron-builder integration:** `package.json`’s `build` section now points each platform’s `icon` field to the generated assets in `build/icons/`, ensuring electron-builder picks up the latest artefacts whenever packaging commands run.
