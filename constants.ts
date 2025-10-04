@@ -22,6 +22,8 @@ export const DEFAULT_SETTINGS: Settings = {
   autoSaveLogs: false,
   allowPrerelease: false,
   uiScale: 100,
+  treeNodeSpacing: 2,
+  treeIndentSize: 16,
 };
 
 export const EXAMPLE_TEMPLATES: Omit<PromptTemplate, 'id' | 'createdAt' | 'updatedAt'>[] = [

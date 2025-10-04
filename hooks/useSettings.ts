@@ -41,6 +41,12 @@ export const useSettings = () => {
         if (loadedSettings.uiScale === undefined) {
           loadedSettings.uiScale = 100;
         }
+        if (loadedSettings.treeNodeSpacing === undefined) {
+          loadedSettings.treeNodeSpacing = DEFAULT_SETTINGS.treeNodeSpacing;
+        }
+        if (loadedSettings.treeIndentSize === undefined) {
+          loadedSettings.treeIndentSize = DEFAULT_SETTINGS.treeIndentSize;
+        }
 
 
         // If provider name is missing but URL is present, try to discover it.
