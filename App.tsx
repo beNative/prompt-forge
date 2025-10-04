@@ -6,6 +6,7 @@ import { useTemplates } from './hooks/useTemplates';
 import { useSettings } from './hooks/useSettings';
 import { useLLMStatus } from './hooks/useLLMStatus';
 import { useLogger } from './hooks/useLogger';
+import { useInstrumentation } from './instrumentation';
 // Components
 import Sidebar from './components/Sidebar';
 import PromptEditor from './components/PromptEditor';
@@ -41,6 +42,7 @@ const MIN_LOGGER_HEIGHT = 100;
 const isElectron = !!window.electronAPI;
 
 const App: React.FC = () => {
+    const { logger, metrics, harness, automation } = useInstrumentation();
     // State Hooks
     const { settings, saveSettings, loaded: settingsLoaded } = useSettings();
     const { items, addPrompt, addFolder, updateItem, deleteItem, moveItems, getDescendantIds } = usePrompts();
@@ -72,6 +74,8 @@ const App: React.FC = () => {
     const isLoggerResizing = useRef(false);
     const commandPaletteTargetRef = useRef<HTMLDivElement>(null);
     const commandPaletteInputRef = useRef<HTMLInputElement>(null);
+    const rootAutomationRef = useRef<HTMLDivElement>(null);
+    const appStateRef = useRef<Record<string, unknown>>({});
 
     const llmStatus = useLLMStatus(settings.llmProviderUrl);
     const { logs, addLog } = useLogger();
@@ -81,8 +85,9 @@ const App: React.FC = () => {
     useEffect(() => {
         if (settingsLoaded) {
             (document.documentElement.style as any).zoom = `${settings.uiScale / 100}`;
+            logger.debug('Applied UI scale', { scale: settings.uiScale });
         }
-    }, [settings.uiScale, settingsLoaded]);
+    }, [settings.uiScale, settingsLoaded, logger]);
 
     // Derived State
     const activeNode = useMemo(() => {
@@ -150,6 +155,7 @@ const App: React.FC = () => {
 
     // Service Discovery logic
     const handleDetectServices = useCallback(async () => {
+        const stopTimer = metrics.startTimer('llm.detectServices');
         setIsDetecting(true);
         try {
             const services = await llmDiscoveryService.discoverServices();
@@ -158,9 +164,10 @@ const App: React.FC = () => {
             addLog('ERROR', `Failed to discover services: ${error instanceof Error ? error.message : String(error)}`);
             setDiscoveredServices([]);
         } finally {
+            stopTimer();
             setIsDetecting(false);
         }
-    }, [addLog]);
+    }, [addLog, metrics]);
 
     useEffect(() => {
         handleDetectServices();
@@ -181,7 +188,9 @@ const App: React.FC = () => {
                             : new URL('/v1/models', settings.llmProviderUrl).href,
                         generateUrl: settings.llmProviderUrl
                     };
+                    const stopFetchTimer = metrics.startTimer('llm.fetchModels', { provider: settings.apiType });
                     const models = await llmDiscoveryService.fetchModels(service);
+                    stopFetchTimer();
                     setAvailableModels(models);
                 } catch (error) {
                     addLog('ERROR', `Failed to fetch models for status bar: ${error instanceof Error ? error.message : String(error)}`);
@@ -194,7 +203,7 @@ const App: React.FC = () => {
         if (settingsLoaded) {
             fetchModels();
         }
-    }, [settings.llmProviderUrl, settings.apiType, settingsLoaded, addLog]);
+    }, [settings.llmProviderUrl, settings.apiType, settingsLoaded, addLog, metrics]);
 
     // Effect for auto-saving logs
     useEffect(() => {
@@ -208,6 +217,93 @@ const App: React.FC = () => {
             }
         }
     }, [logs, settings.autoSaveLogs]);
+
+    useEffect(() => {
+        appStateRef.current = {
+            view,
+            promptView,
+            activeNodeId,
+            activeTemplateId,
+            selectedIds: Array.from(selectedIds),
+            settingsLoaded
+        };
+    }, [view, promptView, activeNodeId, activeTemplateId, selectedIds, settingsLoaded]);
+
+    useEffect(() => {
+        const cleanups: (() => void)[] = [];
+        cleanups.push(harness.registerHook({
+            id: 'app.getState',
+            description: 'Returns the current high level UI state.',
+            invoke: async () => appStateRef.current
+        }));
+
+        cleanups.push(harness.registerHook({
+            id: 'app.setView',
+            description: 'Switches the top level view (editor, info, settings).',
+            invoke: async (payload) => {
+                if (payload === 'editor' || payload === 'info' || payload === 'settings') {
+                    setView(payload);
+                    logger.info('Test harness changed view', { view: payload });
+                    return { view: payload };
+                }
+                throw new Error(`Unsupported view ${String(payload)}`);
+            }
+        }));
+
+        cleanups.push(harness.registerHook({
+            id: 'app.setPromptView',
+            description: 'Switches the prompt sub view (editor, history).',
+            invoke: async (payload) => {
+                if (payload === 'editor' || payload === 'history') {
+                    setPromptView(payload);
+                    logger.info('Test harness changed prompt view', { promptView: payload });
+                    return { promptView: payload };
+                }
+                throw new Error(`Unsupported prompt view ${String(payload)}`);
+            }
+        }));
+
+        cleanups.push(harness.registerHook({
+            id: 'app.focusCommandPalette',
+            description: 'Focuses the command palette input for automated typing.',
+            invoke: async () => {
+                setIsCommandPaletteOpen(true);
+                await new Promise(resolve => setTimeout(resolve, 10));
+                commandPaletteInputRef.current?.focus();
+                return { focused: true };
+            }
+        }));
+
+        return () => cleanups.forEach(unregister => unregister());
+    }, [harness, logger]);
+
+    useEffect(() => {
+        const registrations: (() => void)[] = [];
+        if (rootAutomationRef.current) {
+            registrations.push(automation.registerRegion('app.root', rootAutomationRef.current));
+        }
+        if (commandPaletteTargetRef.current) {
+            registrations.push(automation.registerRegion('app.commandPalette.target', commandPaletteTargetRef.current));
+        }
+        registrations.push(automation.expose('app.listHooks', async () => ({
+            status: 'success',
+            data: harness.listHooks().map(h => ({ id: h.id, description: h.description }))
+        })));
+        registrations.push(automation.expose('app.invokeHook', async (payload) => {
+            const { id, data } = (payload ?? {}) as { id?: string; data?: unknown };
+            if (!id) {
+                return { status: 'error', message: 'Missing hook id' };
+            }
+            try {
+                const result = await harness.invokeHook(id, data);
+                return { status: 'success', data: result };
+            } catch (error) {
+                return { status: 'error', message: error instanceof Error ? error.message : String(error) };
+            }
+        }));
+
+        return () => registrations.forEach(unregister => unregister());
+    }, [automation, harness]);
 
 
     // Handlers
@@ -635,7 +731,8 @@ const App: React.FC = () => {
     };
 
     return (
-        <IconProvider value={{ iconSet: getSupportedIconSet(settings.iconSet) }}>
+        <div ref={rootAutomationRef} className={`app-container ${isElectron ? 'electron' : ''}`} data-automation-region="app.root">
+            <IconProvider value={{ iconSet: getSupportedIconSet(settings.iconSet) }}>
             <div className="flex flex-col h-full font-sans bg-background text-text-main antialiased">
                 {isElectron ? (
                     <CustomTitleBar
@@ -747,7 +844,8 @@ const App: React.FC = () => {
                     onCancel={() => setConfirmAction(null)}
                 />
             )}
-        </IconProvider>
+            </IconProvider>
+        </div>
     );
 };
 

@@ -38,3 +38,50 @@ Maintainers preparing a new GitHub release should follow these steps:
 4. **Draft the GitHub Release:** Upload the generated artifacts in `release/` to the GitHub Releases page and include the highlights from the latest version log entry.
 
 These steps help keep the published binaries and documentation in sync for every tagged version.
+
+## Testing & Instrumentation
+
+PromptForge ships with a modular instrumentation layer that powers automated testing, structured logging, and UI automation.
+
+- **Unified Instrumentation Provider:** The renderer tree is wrapped in `InstrumentationProvider`, which exposes logging, metrics, configuration, a programmable test harness, and a UI automation bridge via the `useInstrumentation` hook.
+- **Structured Logging:** The `StructuredLogger` emits JSON-friendly log entries and fans out to listeners, making it simple to stream logs into integration or end-to-end runners.
+- **Runtime Metrics:** A lightweight client-side metrics collector records timers and performance observer events. Timings around LLM discovery and model retrieval are captured out of the box.
+- **Test Harness Hooks:** Deterministic hooks (e.g., `app.getState`, `app.setView`, `app.focusCommandPalette`) allow automated suites or AI agents to orchestrate flows without brittle DOM selectors.
+- **UI Automation Bridge:** An AI agent or external runner can discover automation regions and invoke hooks through the globally exposed `__PROMPT_FORGE_AUTOMATION__` interface.
+- **Error Resilience:** The `InstrumentationErrorBoundary` captures and logs renderer failures, providing a safe recovery point during stress testing.
+
+Automation runners can mount the renderer bundle without Electron by starting the lightweight static server in [`tests/automation/serve-dist.js`](./tests/automation/serve-dist.js). The companion [automation guide](./tests/automation/README.md) walks through building the bundle, launching the server, and driving hooks from Playwright.
+
+### Quickstart
+
+```ts
+import { useInstrumentation } from './instrumentation';
+
+const ExampleComponent = () => {
+  const { logger, harness } = useInstrumentation();
+
+  useEffect(() => {
+    const unregister = harness.registerHook({
+      id: 'example.doSomething',
+      description: 'Runs the example workflow',
+      invoke: async () => {
+        logger.info('Example workflow triggered');
+        // ...custom logic...
+        return { status: 'ok' };
+      }
+    });
+    return unregister;
+  }, [logger, harness]);
+};
+```
+
+During automated runs, an agent can enumerate available hooks and invoke them via the browser console or a Playwright helper:
+
+```js
+await page.evaluate(() => window.__PROMPT_FORGE_AUTOMATION__.invoke('app.invokeHook', {
+  id: 'app.setView',
+  data: 'settings'
+}));
+```
+
+The default configuration can be overridden by assigning a JSON payload to `window.__PROMPT_FORGE_CONFIG__` before the React app mounts or by setting the `PROMPT_FORGE_INSTRUMENTATION` environment variable when packaging Electron builds.
