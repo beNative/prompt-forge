@@ -24,6 +24,8 @@ interface PromptTreeItemProps {
   onMoveDown: (id: string) => void;
   canMoveUp: boolean;
   canMoveDown: boolean;
+  indentSize: number;
+  nodeSpacing: number;
 }
 
 // Helper function to determine drop position based on mouse coordinates within an element
@@ -68,6 +70,8 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = (props) => {
     onMoveDown,
     canMoveUp,
     canMoveDown,
+    indentSize,
+    nodeSpacing,
   } = props;
   
   const [isRenaming, setIsRenaming] = useState(false);
@@ -162,7 +166,7 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = (props) => {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      style={{ paddingLeft: `${level * 16}px` }}
+      style={{ paddingLeft: `${level * indentSize}px` }}
       className="relative"
       data-item-id={node.id}
     >
@@ -230,15 +234,17 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = (props) => {
         {dropPosition === 'inside' && <div className="absolute inset-0 border-2 border-primary rounded-md pointer-events-none bg-primary/10" />}
 
         {isFolder && isExpanded && (
-            <ul>
+            <ul className="flex flex-col list-none" style={{ rowGap: `${nodeSpacing}px` }}>
                 {node.children.map((childNode, index) => (
-                    <PromptTreeItem 
-                        key={childNode.id} 
-                        {...props} 
-                        node={childNode} 
+                    <PromptTreeItem
+                        key={childNode.id}
+                        {...props}
+                        node={childNode}
                         level={level + 1}
                         canMoveUp={index > 0}
                         canMoveDown={index < node.children.length - 1}
+                        indentSize={indentSize}
+                        nodeSpacing={nodeSpacing}
                     />
                 ))}
             </ul>

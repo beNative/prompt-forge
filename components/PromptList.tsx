@@ -19,10 +19,27 @@ interface PromptListProps {
   onToggleExpand: (id: string) => void;
   onMoveUp: (id: string) => void;
   onMoveDown: (id: string) => void;
+  nodeSpacing: number;
+  indentSize: number;
 }
 
-const PromptList: React.FC<PromptListProps> = ({ 
-  tree, prompts, selectedIds, focusedItemId, onSelectNode, onDeleteNode, onRenameNode, onMoveNode, onCopyNodeContent, searchTerm, expandedIds, onToggleExpand, onMoveUp, onMoveDown
+const PromptList: React.FC<PromptListProps> = ({
+  tree,
+  prompts,
+  selectedIds,
+  focusedItemId,
+  onSelectNode,
+  onDeleteNode,
+  onRenameNode,
+  onMoveNode,
+  onCopyNodeContent,
+  searchTerm,
+  expandedIds,
+  onToggleExpand,
+  onMoveUp,
+  onMoveDown,
+  nodeSpacing,
+  indentSize,
 }) => {
   const [isRootDropping, setIsRootDropping] = useState(false);
   
@@ -70,7 +87,7 @@ const PromptList: React.FC<PromptListProps> = ({
         onDragOver={handleRootDragOver}
         onDragLeave={handleRootDragLeave}
     >
-        <ul className="space-y-0.5 p-2">
+        <ul className="p-2 flex flex-col list-none" style={{ rowGap: `${nodeSpacing}px` }}>
         {tree.map((node, index) => (
             <PromptTreeItem
                 key={node.id}
@@ -90,6 +107,8 @@ const PromptList: React.FC<PromptListProps> = ({
                 onMoveDown={onMoveDown}
                 canMoveUp={index > 0}
                 canMoveDown={index < tree.length - 1}
+                nodeSpacing={nodeSpacing}
+                indentSize={indentSize}
             />
         ))}
         {prompts.length === 0 && (

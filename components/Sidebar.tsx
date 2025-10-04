@@ -28,6 +28,8 @@ interface SidebarProps {
   onRenameTemplate: (id: string, newTitle: string) => void;
   onNewTemplate: () => void;
   onNewFromTemplate: () => void;
+  treeNodeSpacing: number;
+  treeIndentSize: number;
 }
 
 type NavigableItem = { id: string; type: 'prompt' | 'folder' | 'template'; parentId: string | null; };
@@ -285,6 +287,8 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
               onToggleExpand={props.onToggleExpand}
               onMoveUp={handleMoveUp}
               onMoveDown={handleMoveDown}
+              nodeSpacing={props.treeNodeSpacing}
+              indentSize={props.treeIndentSize}
           />
 
           {/* --- Templates Section --- */}

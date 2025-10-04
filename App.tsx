@@ -676,6 +676,8 @@ const App: React.FC = () => {
                                     onRenameTemplate={handleRenameTemplate}
                                     onNewTemplate={handleNewTemplate}
                                     onNewFromTemplate={() => setCreateFromTemplateOpen(true)}
+                                    treeNodeSpacing={settings.treeNodeSpacing}
+                                    treeIndentSize={settings.treeIndentSize}
                                 />
                             </aside>
                             <div 

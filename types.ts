@@ -36,6 +36,8 @@ export interface Settings {
   autoSaveLogs: boolean;
   allowPrerelease: boolean;
   uiScale: number;
+  treeNodeSpacing: number;
+  treeIndentSize: number;
 }
 
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR';

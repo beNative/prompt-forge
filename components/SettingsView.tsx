@@ -274,6 +274,36 @@ const AppearanceSettingsSection: React.FC<SectionProps> = ({ settings, setCurren
                         <span className="font-semibold text-text-main tabular-nums min-w-[50px] text-right">{settings.uiScale}%</span>
                     </div>
                 </SettingRow>
+                <SettingRow label="Tree Row Spacing" description="Control the vertical spacing between items in the prompt tree.">
+                    <div className="flex items-center gap-4 w-60">
+                        <input
+                            id="treeNodeSpacing"
+                            type="range"
+                            min="0"
+                            max="16"
+                            step="1"
+                            value={settings.treeNodeSpacing}
+                            onChange={(e) => setCurrentSettings(prev => ({ ...prev, treeNodeSpacing: Number(e.target.value) }))}
+                            className="w-full h-2 bg-border-color rounded-lg appearance-none cursor-pointer range-slider"
+                        />
+                        <span className="font-semibold text-text-main tabular-nums min-w-[50px] text-right">{settings.treeNodeSpacing}px</span>
+                    </div>
+                </SettingRow>
+                <SettingRow label="Tree Indent" description="Adjust how far nested items are indented in the prompt tree.">
+                    <div className="flex items-center gap-4 w-60">
+                        <input
+                            id="treeIndentSize"
+                            type="range"
+                            min="8"
+                            max="48"
+                            step="1"
+                            value={settings.treeIndentSize}
+                            onChange={(e) => setCurrentSettings(prev => ({ ...prev, treeIndentSize: Number(e.target.value) }))}
+                            className="w-full h-2 bg-border-color rounded-lg appearance-none cursor-pointer range-slider"
+                        />
+                        <span className="font-semibold text-text-main tabular-nums min-w-[50px] text-right">{settings.treeIndentSize}px</span>
+                    </div>
+                </SettingRow>
                 <SettingRow label="Icon Set" description="Customize the look of icons throughout the application.">
                     <div className="grid grid-cols-3 gap-3 w-80">
                          <CardButton name="Heroicons" value="heroicons" isSelected={settings.iconSet === 'heroicons'} onClick={(v) => setCurrentSettings(s => ({...s, iconSet: v}))}>
