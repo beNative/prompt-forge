@@ -242,7 +242,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
 
   return (
     <div ref={sidebarRef} onKeyDown={handleKeyDown} tabIndex={0} className="h-full flex flex-col focus:outline-none">
-      <div className="px-2 pt-2 pb-2 flex-shrink-0 border-b border-border-color">
+      <div className="px-2 pt-2 pb-2 flex-shrink-0 border-b border-border-color bg-background">
         <div className="relative">
             <SearchIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" />
             <input
@@ -254,62 +254,72 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
             />
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* --- Prompts Section --- */}
-        <header className="flex items-center justify-between p-2 flex-shrink-0">
-            <h2 className="text-sm font-semibold text-text-secondary px-2 tracking-wider uppercase">Prompts</h2>
+        <div className="flex-shrink-0 sticky top-0 z-10 bg-background">
+          <div className="flex items-center justify-between px-2 py-2 border-b border-border-color">
+            <h2 className="text-sm font-semibold text-text-secondary tracking-wider uppercase">Prompts</h2>
             <div className="flex items-center gap-1">
-            <IconButton onClick={props.onNewFolder} tooltip="New Root Folder" size="sm" tooltipPosition="bottom">
+              <IconButton onClick={props.onNewFolder} tooltip="New Root Folder" size="sm" tooltipPosition="bottom">
                 <FolderPlusIcon />
-            </IconButton>
-            <IconButton onClick={props.onNewPrompt} tooltip="New Prompt (Ctrl+N)" size="sm" tooltipPosition="bottom">
+              </IconButton>
+              <IconButton onClick={props.onNewPrompt} tooltip="New Prompt (Ctrl+N)" size="sm" tooltipPosition="bottom">
                 <PlusIcon />
-            </IconButton>
+              </IconButton>
             </div>
-        </header>
-        <PromptList 
-            tree={promptTree}
-            prompts={props.prompts}
-            selectedIds={props.selectedIds}
-            focusedItemId={focusedItemId}
-            onSelectNode={props.onSelectPrompt}
-            onDeleteNode={props.onDeletePrompt}
-            onRenameNode={props.onRenamePrompt}
-            onMoveNode={props.onMovePrompt}
-            onCopyNodeContent={props.onCopyPromptContent}
-            searchTerm={searchTerm}
-            expandedIds={props.expandedFolderIds}
-            onToggleExpand={props.onToggleExpand}
-            onMoveUp={handleMoveUp}
-            onMoveDown={handleMoveDown}
-        />
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          <PromptList
+              tree={promptTree}
+              prompts={props.prompts}
+              selectedIds={props.selectedIds}
+              focusedItemId={focusedItemId}
+              onSelectNode={props.onSelectPrompt}
+              onDeleteNode={props.onDeletePrompt}
+              onRenameNode={props.onRenamePrompt}
+              onMoveNode={props.onMovePrompt}
+              onCopyNodeContent={props.onCopyPromptContent}
+              searchTerm={searchTerm}
+              expandedIds={props.expandedFolderIds}
+              onToggleExpand={props.onToggleExpand}
+              onMoveUp={handleMoveUp}
+              onMoveDown={handleMoveDown}
+          />
 
-        {/* --- Templates Section --- */}
-        <header className="flex items-center justify-between p-2 mt-4 pt-4 border-t border-border-color flex-shrink-0">
-            <h2 className="text-sm font-semibold text-text-secondary px-2 tracking-wider uppercase">Templates</h2>
-            <div className="flex items-center gap-1">
-                <IconButton onClick={props.onNewTemplate} tooltip="New Template" size="sm" tooltipPosition="bottom">
-                    <DocumentDuplicateIcon />
-                </IconButton>
+          {/* --- Templates Section --- */}
+          <div className="mt-4 border-t border-border-color">
+            <div className="flex items-center justify-between px-2 py-2">
+              <h2 className="text-sm font-semibold text-text-secondary tracking-wider uppercase">Templates</h2>
+              <div className="flex items-center gap-1">
+                  <IconButton onClick={props.onNewTemplate} tooltip="New Template" size="sm" tooltipPosition="bottom">
+                      <DocumentDuplicateIcon />
+                  </IconButton>
+              </div>
             </div>
-        </header>
-        <div className="px-2">
-            <TemplateList 
-                templates={props.templates}
-                activeTemplateId={props.activeTemplateId}
-                focusedItemId={focusedItemId}
-                onSelectTemplate={props.onSelectTemplate}
-                onDeleteTemplate={props.onDeleteTemplate}
-                onRenameTemplate={props.onRenameTemplate}
-            />
+            <div className="px-2 pb-2">
+              <TemplateList
+                  templates={props.templates}
+                  activeTemplateId={props.activeTemplateId}
+                  focusedItemId={focusedItemId}
+                  onSelectTemplate={props.onSelectTemplate}
+                  onDeleteTemplate={props.onDeleteTemplate}
+                  onRenameTemplate={props.onRenameTemplate}
+              />
+            </div>
+          </div>
         </div>
       </div>
-       <div className="p-2 border-t border-border-color">
-            <Button onClick={props.onNewFromTemplate} variant="secondary" className="w-full">
-                <PlusIcon className="w-4 h-4 mr-2" />
-                New from Template...
-            </Button>
-        </div>
+      <div className="px-2 py-2 border-t border-border-color bg-background">
+        <Button
+          onClick={props.onNewFromTemplate}
+          variant="secondary"
+          className="w-full justify-center gap-2 px-3 py-1.5 text-sm font-medium"
+        >
+          <PlusIcon className="w-4 h-4" />
+          New from Template
+        </Button>
+      </div>
     </div>
   );
 };
