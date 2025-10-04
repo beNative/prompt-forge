@@ -1,5 +1,11 @@
 # Version Log
 
+## v0.2.6
+
+### 🛠 Maintenance & Documentation
+- **Release Prep Checklist:** Updated documentation to emphasize verifying Markdown guides before tagging a release and recorded the 0.2.6 notes for maintainers.
+- **Version Bump:** Incremented the application version to v0.2.6 in configuration files to match the upcoming release.
+
 ## v0.2.5
 
 ### 🛠 Maintenance & Documentation
