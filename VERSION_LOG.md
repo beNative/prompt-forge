@@ -1,5 +1,11 @@
 # Version Log
 
+## v0.2.7
+
+### 🛠 Maintenance & Documentation
+- **Release Notes Alignment:** Clarified the README and technical manual checklists so maintainers copy the latest version log entry into the GitHub release notes and validate documentation before publishing.
+- **Version Bump:** Incremented the application version to v0.2.7 in configuration files in preparation for the release.
+
 ## v0.2.6
 
 ### 🛠 Maintenance & Documentation
