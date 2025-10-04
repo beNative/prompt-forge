@@ -32,10 +32,10 @@ For detailed instructions on usage and features, please refer to the [Functional
 
 Maintainers preparing a new GitHub release should follow these steps:
 
-1. **Update Versioning & Notes:** Increment the version in `package.json`, confirm the Markdown manuals reflect the current behavior, and add a matching entry to [`VERSION_LOG.md`](./VERSION_LOG.md) summarizing the changes.
+1. **Update Versioning & Notes:** Increment the version in `package.json`, confirm the Markdown manuals reflect the current behavior, and add a matching entry to [`VERSION_LOG.md`](./VERSION_LOG.md) summarizing the fixes or documentation updates that should appear in the public release notes.
 2. **Build the Application:** Run `npm install` (if needed) and `npm run build` to ensure the renderer bundle is up-to-date.
 3. **Package & Publish:** Use `npm run release` to invoke `electron-builder` with publishing enabled. See the [Technical Manual](./TECHNICAL_MANUAL.md#build-and-release-process) for platform-specific considerations.
-4. **Draft the GitHub Release:** Upload the generated artifacts in `release/` to the GitHub Releases page and include the highlights from the latest version log entry.
+4. **Draft the GitHub Release:** Upload the generated artifacts in `release/` to the GitHub Releases page, then copy the highlights from the latest version log entry into the release notes and verify that the summary matches the final documentation.
 
 These steps help keep the published binaries and documentation in sync for every tagged version.
 

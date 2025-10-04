@@ -122,10 +122,10 @@ This module handles all communication with the external Large Language Model.
 
 PromptForge ships via GitHub Releases using `electron-builder`. Follow this checklist when preparing a new public version:
 
-1. **Version Bump & Docs Review:** Update `package.json` with the new semantic version, verify Markdown manuals reflect the current behavior, and document the highlights in [`VERSION_LOG.md`](./VERSION_LOG.md).
+1. **Version Bump & Docs Review:** Update `package.json` with the new semantic version, verify Markdown manuals reflect the current behavior, and capture the highlights in [`VERSION_LOG.md`](./VERSION_LOG.md) so the release notes can be copied without additional edits.
 2. **Dependency Install:** Run `npm install` to ensure all dependencies (including Electron) are present before building.
 3. **Build Renderer Bundle:** Execute `npm run build` to compile the renderer assets into the `dist/` directory.
 4. **Package Artifacts:** Run `npm run release` to build platform-specific installers inside the `release/` directory. This command automatically invokes `electron-builder --publish always` so CI or local environments can upload assets.
-5. **Validate Output:** Before drafting the GitHub release, smoke test the generated binaries and confirm they include the updated manuals referenced in `extraResources`.
+5. **Validate Output & Notes:** Before drafting the GitHub release, smoke test the generated binaries, confirm they include the updated manuals referenced in `extraResources`, and double-check that the draft release notes match the latest version log entry.
 
 Documenting this process ensures the release workflow stays reproducible for contributors and maintainers alike.
