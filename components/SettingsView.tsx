@@ -280,7 +280,7 @@ const AppearanceSettingsSection: React.FC<SectionProps> = ({ settings, setCurren
                             id="treeNodeSpacing"
                             type="range"
                             min="0"
-                            max="16"
+                            max="24"
                             step="1"
                             value={settings.treeNodeSpacing}
                             onChange={(e) => setCurrentSettings(prev => ({ ...prev, treeNodeSpacing: Number(e.target.value) }))}
@@ -294,8 +294,8 @@ const AppearanceSettingsSection: React.FC<SectionProps> = ({ settings, setCurren
                         <input
                             id="treeIndentSize"
                             type="range"
-                            min="8"
-                            max="48"
+                            min="0"
+                            max="40"
                             step="1"
                             value={settings.treeIndentSize}
                             onChange={(e) => setCurrentSettings(prev => ({ ...prev, treeIndentSize: Number(e.target.value) }))}

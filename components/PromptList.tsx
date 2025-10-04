@@ -87,7 +87,7 @@ const PromptList: React.FC<PromptListProps> = ({
         onDragOver={handleRootDragOver}
         onDragLeave={handleRootDragLeave}
     >
-        <ul className="p-2 flex flex-col list-none" style={{ rowGap: `${nodeSpacing}px` }}>
+        <ul className="p-2 flex flex-col list-none">
         {tree.map((node, index) => (
             <PromptTreeItem
                 key={node.id}

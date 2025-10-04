@@ -158,6 +158,9 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = (props) => {
     setDropPosition(null);
   };
   
+  const indentOffset = Math.max(level, 0) * indentSize;
+  const paddingBlock = Math.max(nodeSpacing / 2, 0);
+
   return (
     <li
       ref={itemRef}
@@ -166,16 +169,17 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = (props) => {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      style={{ paddingLeft: `${level * indentSize}px` }}
       className="relative"
       data-item-id={node.id}
     >
+      <div className="relative" style={{ marginLeft: `${indentOffset}px` }}>
         <div
             onClick={(e) => !isRenaming && onSelectNode(node.id, e)}
             onDoubleClick={(e) => !isRenaming && handleRenameStart(e)}
-            className={`w-full text-left p-1.5 rounded-md group flex justify-between items-center transition-colors duration-150 text-sm relative focus:outline-none ${
+            className={`w-full text-left px-1.5 rounded-md group flex justify-between items-center transition-colors duration-150 text-sm relative focus:outline-none ${
                 isSelected ? 'bg-background text-text-main' : 'hover:bg-border-color/30 text-text-secondary hover:text-text-main'
             } ${isFocused ? 'ring-2 ring-primary ring-offset-[-2px] ring-offset-secondary' : ''}`}
+            style={{ paddingTop: `${paddingBlock}px`, paddingBottom: `${paddingBlock}px` }}
         >
             <div className="flex items-center gap-2 flex-1 truncate">
                 {isFolder && node.children.length > 0 ? (
@@ -227,14 +231,15 @@ const PromptTreeItem: React.FC<PromptTreeItemProps> = (props) => {
                 </div>
             )}
         </div>
-        
-        {dropPosition && <div className={`absolute left-0 right-0 h-0.5 bg-primary pointer-events-none ${
+
+        {dropPosition && <div className={`pointer-events-none absolute left-0 right-0 h-0.5 bg-primary ${
             dropPosition === 'before' ? 'top-0' : dropPosition === 'after' ? 'bottom-0' : ''
         }`} />}
-        {dropPosition === 'inside' && <div className="absolute inset-0 border-2 border-primary rounded-md pointer-events-none bg-primary/10" />}
+        {dropPosition === 'inside' && <div className="pointer-events-none absolute inset-0 border-2 border-primary rounded-md bg-primary/10" />}
+      </div>
 
         {isFolder && isExpanded && (
-            <ul className="flex flex-col list-none" style={{ rowGap: `${nodeSpacing}px` }}>
+            <ul className="flex flex-col list-none">
                 {node.children.map((childNode, index) => (
                     <PromptTreeItem
                         key={childNode.id}
