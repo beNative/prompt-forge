@@ -7,6 +7,12 @@ const sharedConfig = {
   bundle: true,
   minify: !isWatch,
   sourcemap: isWatch ? 'inline' : false,
+  absWorkingDir: __dirname,
+  resolveExtensions: ['.tsx', '.ts', '.jsx', '.mjs', '.cjs', '.js', '.json'],
+  loader: {
+    '.ts': 'ts',
+    '.tsx': 'tsx',
+  },
 };
 
 const buildOrWatch = async (name, config) => {
@@ -51,3 +57,4 @@ const buildOrWatch = async (name, config) => {
     process.exit(1);
   }
 })();
+
