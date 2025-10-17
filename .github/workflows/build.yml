@@ -1,0 +1,228 @@
+name: Build Packages
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  macos-x64:
+    name: macOS x64
+    runs-on: macos-latest
+    env:
+      CI: true
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: true
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build macOS x64 package
+        run: npm run build:mac:x64
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-x64-logs
+          path: |
+            electron-builder.*.log
+            builder-debug.yml
+          if-no-files-found: ignore
+
+  windows-x64:
+    name: Windows x64
+    runs-on: windows-latest
+    env:
+      CI: true
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      npm_config_arch: x64
+      ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: true
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        shell: bash
+
+      - name: Build Windows x64 package
+        run: npm run build:win:x64
+        shell: bash
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64-logs
+          path: |
+            electron-builder.*.log
+            builder-debug.yml
+          if-no-files-found: ignore
+
+  windows-ia32:
+    name: Windows ia32
+    runs-on: windows-latest
+    env:
+      CI: true
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      npm_config_arch: ia32
+      ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: true
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        shell: bash
+
+      - name: Build Windows ia32 package
+        run: npm run build:win:ia32
+        shell: bash
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-ia32-logs
+          path: |
+            electron-builder.*.log
+            builder-debug.yml
+          if-no-files-found: ignore
+
+  linux-x64:
+    name: Linux x64
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      npm_config_arch: x64
+      ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: true
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Linux x64 package
+        run: npm run build:linux:x64
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64-logs
+          path: |
+            electron-builder.*.log
+            builder-debug.yml
+          if-no-files-found: ignore
+
+  linux-armv7l:
+    name: Linux armv7l
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      npm_config_arch: armv7l
+      ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: true
+      ELECTRON_BUILDER_USE_SYSTEM_XORRISO: true
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install xorriso
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xorriso
+
+      - name: Build Linux armv7l package
+        run: npm run build:linux:armv7l
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-armv7l-logs
+          path: |
+            electron-builder.*.log
+            builder-debug.yml
+          if-no-files-found: ignore
+
+  linux-arm64:
+    name: Linux arm64
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      npm_config_arch: arm64
+      ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: true
+      ELECTRON_BUILDER_USE_SYSTEM_XORRISO: true
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install xorriso
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xorriso
+
+      - name: Build Linux arm64 package
+        run: npm run build:linux:arm64
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64-logs
+          path: |
+            electron-builder.*.log
+            builder-debug.yml
+          if-no-files-found: ignore
