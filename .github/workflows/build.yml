@@ -169,6 +169,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install xorriso
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xorriso
+
       - name: Build Linux armv7l package
         run: npm run build:linux:armv7l
 
@@ -203,6 +208,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Install xorriso
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xorriso
 
       - name: Build Linux arm64 package
         run: npm run build:linux:arm64
